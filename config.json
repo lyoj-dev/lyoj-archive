@@ -1,0 +1,63 @@
+{
+    "mysql":{
+        "server":"localhost",
+        "port":3306,
+        "user":"root",
+        "passwd":"",
+        "database":"judge"
+    },
+    "spj":[{
+            "path":"./spjtemp/1",
+            "name":"1"
+        }
+    ],
+    "lang":[{
+        "name":"C++98",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++98 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++98 O2",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++98 -O2 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++11",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++11 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++11 O2",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++11 -O2 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++14",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++14 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++14 O2",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++14 -O2 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++17",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++17 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    },{
+        "name":"C++17 O2",
+        "source_path":"./tmp/main.cpp",
+        "command":"g++ ./tmp/main.cpp -o ./tmp/main -std=c++17 -O2 -DONLINE_JUDGE -Wall -fno-asm -lm -march=native ",
+        "exec_path":"./tmp",
+        "exec_name":"main"
+    }]
+}

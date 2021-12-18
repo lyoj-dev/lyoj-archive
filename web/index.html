@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <title>新建题目 - LYOJ | LittleYang OnlineJudge</title>
+    <link rel="stylesheet" href="./markdown-palettes/markdown-palettes.css">
+    <script src="./markdown-palettes/markdown-palettes.js"></script>
+    <script src="./jQuery.js"></script>
+    <!-- <script src="./markdown-palettes/markdown-palettes.min.js"></script> -->
+    <style>
+        body {
+            width:60%;
+            margin:auto;
+        }
+        p {
+            display:flex;
+            display:-webkit-flex;
+            align-items:center;
+        }
+        p > input[type="text"] {
+            flex-grow:1000;
+            margin-left:10px;
+            outline:none;
+            padding-left:10px;
+            height:25px;
+            border:gray 1px solid;
+        }
+        p > input[type="file"] {
+            margin-left:10px;
+            outline:none;
+        }
+        p > input[type="text"]:focus {
+            border-color:rgb(64, 158, 255);
+        }
+        textarea {
+            width:100%;
+            height:100px;
+            resize:vertical;
+            outline:none;
+        }
+        textarea:focus {
+            border-color:rgb(64, 158, 255);
+        }
+        a {
+            color:rgb(84, 163, 222);
+        }
+        a:hover {
+            color:rgb(0, 86, 196);
+        }
+        button {
+            width:80px;
+            height:30px;
+            margin-top:10px;
+            margin-bottom:30px;
+            background-color:rgb(52, 152, 219);
+            border-color:rgb(52, 152, 219);
+            color:white;
+            border:1px solid;
+            border-radius:5px;
+            cursor:pointer;
+            transition:background-color 0.2s;
+        }
+        button:hover {
+            background-color:rgb(88, 188, 255)
+        }
+    </style>
+</html>
+<body>
+    <center><h2>新建题目</h2></center>
+    <p>选择数据包: <input accept=".zip" type="file" id="data"/></p>
+    <p>题目名称: <input type="text" placeholder="请在此输入题目名称" id="name"></p>
+    <p>题目背景: </p><div id="outer-bg" style="height: 350px;"><div id="bg"></div></div>
+    <p>题目描述: </p><div id="outer-descrip" style="height: 350px;"><div id="descrip"></div></div>
+    <p>输入文件名: <input type="text" placeholder="请在此输入输入文件名" id="input-file"></p>
+    <p>输出文件名: <input type="text" placeholder="请在此输入输出文件名" id="output-file"></p>
+    <p>输入描述: </p><div id="outer-input" style="height: 350px;"><div id="input"></div></div>
+    <p>输出描述: </p><div id="outer-output" style="height: 350px;"><div id="output"></div></div>
+    <p style="justify-content: space-between;margin-bottom:0px">测试样例: <a onclick=appendCase()>添加</a></p>
+    <div id="outer-cases"></div> 
+    <p>数据提示与范围: </p><div id="outer-hint" style="height: 350px;"><div id="hint"></div></div>
+    <center><button onclick=submit()>提交</button></center>
+    <script>
+        function SendAjax(url,method,data) {
+            var res;
+            $.ajax({
+                url:url,
+                type:method,
+                data:data,
+                async:false,
+                success:function(message) {
+                    console.log(message);
+                    res=message;
+                },
+                error:function(jqXHR,textStatus,errorThrown)
+                {
+                    console.log(jqXHR.responseText);
+                    console.log(jqXHR.status);
+                    console.log(jqXHR.readyState);
+                    console.log(jqXHR.statusText);
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                    res=null;
+                }
+            });
+            return res;
+        }
+        var bg = new MarkdownPalettes("#bg");
+        var descrip = new MarkdownPalettes("#descrip");
+        var input = new MarkdownPalettes("#input");
+        var output = new MarkdownPalettes("#output");
+        var hint = new MarkdownPalettes("#hint");
+        var cs=0;appendCase();
+        function appendCase() {
+            cs++;var content=
+            "<div id=\"case"+cs+"\" style=\"display:flex;display:-webkit-flex\">"+
+                "<div style=\"flex-grow:1000\"><p>输入样例"+cs+": </p><textarea id=\"case"+cs+"-input\"></textarea></div>"+
+                "<div style=\"flex-grow:1000;margin-left:20px\"><p>输出样例"+cs+": </p><textarea id=\"case"+cs+"-output\"></textarea></div>"+
+            "</div>";$("#outer-cases").append(content);
+        }
+        function getCases() {
+            var obj=new Array;for (var i=1;i<=cs;i++) {
+                var objnow=new Object;
+                objnow={input:document.getElementById("case"+i+"-input").value,
+                output:document.getElementById("case"+i+"-output").value};
+                if (objnow["input"]==""&&objnow["output"]=="") continue;
+                obj.push(objnow);
+            } return JSON.stringify(obj);
+        }
+        function readFile(id) {
+            var input=document.getElementById(id);
+            if (typeof(FileReader)==='undefined') {
+                result.innerHTML="Your browser is too old, sorry!";
+                input.setAttribute('disabled','disabled');
+            } 
+            var reader = new FileReader();
+            reader.readAsDataURL(input.files[0]);
+            reader.onload = function() { 
+                getFormData(this.result);
+            }
+        }
+        function getFormData(content) {
+            // var Form=new FormData;
+            // Form.append("file",document.getElementById("data").files[0]);
+            // Form.append("title",document.getElementById("name").value);
+            // Form.append("background",bg.content);
+            // Form.append("description",descrip.content);
+            // Form.append("input",input.content);
+            // Form.append("output",output.content);
+            // Form.append("cases",getCases());
+            // Form.append("hint",hint.content);
+            var Form={
+            "file":content,
+            "title":document.getElementById("name").value,
+            "background":bg.content,
+            "description":descrip.content,
+            "input-file":document.getElementById("input-file").value,
+            "output-file":document.getElementById("output-file").value,
+            "input":input.content,
+            "output":output.content,
+            "cases":getCases(),
+            "hint":hint.content};
+            console.log(Form);
+            var res=SendAjax("./api/problem/create.php","POST",Form);
+            alert("Create successfully! Your problem id: "+res);
+        }
+        function submit() {
+            readFile("data");
+        }
+    </script>
+</body>
