@@ -10,10 +10,16 @@
     if (!$conn) exit;
     header("Content-Type:text/html;charset=utf-8");
     session_start(); mysqli_query($conn, "SET NAMES UTF8");
-    $sql = "SELECT * FROM problem";
-    $result = mysqli_query($conn, $sql);
-    $id = mysqli_num_rows($result) + 1;
-    if (!is_dir("../../../problem/$id")) mkdir("../../../problem/$id");
+    function deldir($path){
+        if(is_dir($path)){
+            $p = scandir($path);
+            if(count($p)>2) foreach($p as $val) if($val !="." && $val !="..")
+                if(is_dir($path.$val)) deldir($path.$val.'/');
+                else unlink($path.$val);
+        }
+        return rmdir($path);
+    } $id=$_GET["id"];
+    deldir("../../../problem/$id/");mkdir("../../../problem/$id");
     $data = explode(",",$_POST["file"]);
     $data = base64_decode($data[1]);
     $fp=fopen("../../../problem/$id/data.zip","wb");fwrite($fp,$data);
@@ -34,8 +40,8 @@
         if (!array_key_exists($name,$bracket)) $bracket[$name]=array();
         $bracket[$name][]=$extension;
     } $json=array(
-        "input"=>$_POST["input-file"],
-        "output"=>$_POST["output-file"],
+        "input"=>$_POST["input"],
+        "output"=>$_POST["output"],
         "spj"=>array(
             "type"=>1,
             "source"=>"",
@@ -46,7 +52,6 @@
         ),
         "data"=>array()
     );ksort($bracket,SORT_STRING | SORT_FLAG_CASE | SORT_NATURAL);
-    var_dump($bracket);
     foreach ($bracket as $key => $value) {
         $accepted=true;$exist_in=false;$exist_out=false;
         for ($i=0;$i<count($value);$i++) {
@@ -67,10 +72,5 @@
     } if (count($json["data"])) $min=100/count($json["data"]);$max=count($json["data"])-(100-count($json["data"])*$min);
     for ($i=0;$i<count($json["data"]);$i++) $json["data"][$i]["score"]=($i<=$max?$min:$min+1);
     $fp=fopen("../../../problem/$id/config.json","wb");fwrite($fp,json_encode($json));fclose($fp);
-    $sql = "INSERT INTO problem (id,name,bg,descrip,input,output,cases,hint) VALUES 
-        (" . $id . ",'" . trim($_POST["title"]) . "','" . trim($_POST["background"]) . "',
-        '" . trim($_POST["description"]) . "','" . $_POST["input"] . "','" . trim($_POST["output"]) . "',
-        '" . trim($_POST["cases"]) . "','" . trim($_POST["hint"]) . "')";
-    if (!$conn->query($sql)) echo mysqli_error($conn);
-    else echo $id;
+    echo "Upload Successfully! pid: $id";
 ?>

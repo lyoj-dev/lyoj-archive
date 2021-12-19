@@ -1,7 +1,7 @@
 <?php
     global $config;
-    $config["mysql"]["server"]="localhost";
+    $config["mysql"]["server"]="127.0.0.1";
     $config["mysql"]["user"]="root";
-    $config["mysql"]["passwd"]="yangweihao20060531";
+    $config["mysql"]["passwd"]="";
     $config["mysql"]["database"]="judge";
 ?>
