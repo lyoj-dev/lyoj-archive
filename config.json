@@ -3,12 +3,15 @@
         "server":"localhost",
         "port":3306,
         "user":"root",
-        "passwd":"",
+        "passwd":"yangweihao20060531",
         "database":"judge"
     },
     "spj":[{
             "path":"./spjtemp/1",
-            "name":"逐行比较模式(忽略行末换行符)"
+            "name":"1"
+        },{
+            "path":"./spjtemp/2",
+            "name":"2"
         }
     ],
     "lang":[{

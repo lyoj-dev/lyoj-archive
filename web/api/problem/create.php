@@ -67,6 +67,13 @@
     } if (count($json["data"])) $min=100/count($json["data"]);$max=count($json["data"])-(100-count($json["data"])*$min);
     for ($i=0;$i<count($json["data"]);$i++) $json["data"][$i]["score"]=($i<=$max?$min:$min+1);
     $fp=fopen("../../../problem/$id/config.json","wb");fwrite($fp,json_encode($json));fclose($fp);
+    $_POST["title"]=str_replace("'","\\'",$_POST["title"]);
+    $_POST["background"]=str_replace("'","\\'",$_POST["background"]);
+    $_POST["description"]=str_replace("'","\\'",$_POST["description"]);
+    $_POST["input"]=str_replace("'","\\'",$_POST["input"]);
+    $_POST["output"]=str_replace("'","\\'",$_POST["output"]);
+    $_POST["cases"]=str_replace("'","\\'",$_POST["cases"]);
+    $_POST["hint"]=str_replace("'","\\'",$_POST["hint"]);
     $sql = "INSERT INTO problem (id,name,bg,descrip,input,output,cases,hint) VALUES 
         (" . $id . ",'" . trim($_POST["title"]) . "','" . trim($_POST["background"]) . "',
         '" . trim($_POST["description"]) . "','" . $_POST["input"] . "','" . trim($_POST["output"]) . "',

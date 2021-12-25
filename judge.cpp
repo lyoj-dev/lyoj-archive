@@ -276,6 +276,10 @@ Json::FastWriter writer;
 		
 // Main Function
 int main() {
+	// Creating Daemon Processor
+	// if(daemon(1,0)<0) return_error("Failed to create daemon process.");
+	system("ls");
+
 	// Updating Working Directory
 	int res=chdir("~/Desktop/judge");
 	

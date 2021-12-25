@@ -301,14 +301,14 @@
         function getData() {
             var res=arr["data"];
             for (var i=1;i<=len;i++) {
-                res[i-1]["time"]=document.getElementById("data-time"+i).value;
-                res[i-1]["memory"]=document.getElementById("data-memory"+i).value*1024;
-                res[i-1]["score"]=document.getElementById("data-score"+i).value;
+                res[i-1]["time"]=Number(document.getElementById("data-time"+i).value);
+                res[i-1]["memory"]=Number(document.getElementById("data-memory"+i).value*1024);
+                res[i-1]["score"]=Number(document.getElementById("data-score"+i).value);
             } return res;
         }
         function getSpj() {
             var obj={
-                "type":document.getElementById("spj-type").value,
+                "type":Number(document.getElementById("spj-type").value),
                 "source":document.getElementById("spj-source").value,
                 "compile_cmd":document.getElementById("spj-compile-cmd").value,
                 "exec_path":document.getElementById("spj-exec-path").value,

@@ -11,6 +11,20 @@
     header("Content-Type:text/html;charset=utf-8");$id=$_GET["id"];
     session_start(); mysqli_query($conn, "SET NAMES UTF8");
     $json=json_decode(trim($_POST["json"]),true);
+    $json["title"]=str_replace("\\","\\\\",$json["title"]);
+    $json["background"]=str_replace("\\","\\\\",$json["background"]);
+    $json["description"]=str_replace("\\","\\\\",$json["description"]);
+    $json["input-desc"]=str_replace("\\","\\\\",$json["input-desc"]);
+    $json["output-desc"]=str_replace("\\","\\\\",$json["output-desc"]);
+    $json["cases"]=str_replace("\\","\\\\",$json["cases"]);
+    $json["hint"]=str_replace("\\","\\\\",$json["hint"]);
+    $json["title"]=str_replace("'","\\'",$json["title"]);
+    $json["background"]=str_replace("'","\\'",$json["background"]);
+    $json["description"]=str_replace("'","\\'",$json["description"]);
+    $json["input-desc"]=str_replace("'","\\'",$json["input-desc"]);
+    $json["output-desc"]=str_replace("'","\\'",$json["output-desc"]);
+    $json["cases"]=str_replace("'","\\'",$json["cases"]);
+    $json["hint"]=str_replace("'","\\'",$json["hint"]);
     $sql = "UPDATE problem SET name='".$json["title"]."' , bg='".$json["background"]."'
         , descrip='".$json["description"]."' , input='".$json["input-desc"]."'
         , output='".$json["output-desc"]."' , cases='".$json["cases"]."'
