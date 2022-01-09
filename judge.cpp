@@ -278,10 +278,10 @@ Json::FastWriter writer;
 int main() {
 	// Creating Daemon Processor
 	// if(daemon(1,0)<0) return_error("Failed to create daemon process.");
-	system("ls");
+	// system("ls");
 
 	// Updating Working Directory
-	int res=chdir("~/Desktop/judge");
+	int res=chdir("/etc/judge");
 	
 	// Reading Judger Configure
 	ifstream fin("./config.json");
@@ -425,6 +425,7 @@ int main() {
 				return_error(("Failed to parse json object in problem config file #"+IntToString(pid)).c_str(),false);
 				Json::Value res;
 				res["result"]="No Test Data";
+				cout<<endl;
 				
 				// Insert Data to the Database
 				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
