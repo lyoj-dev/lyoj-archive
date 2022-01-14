@@ -104,10 +104,14 @@
             });
             return res;
         }
-        function strip_tags(html) {
-            var div=document.createElement("div");
-            div.innerHTML=html;
-            return (div.textContent||div.innerText||"");
+        function strip_tags(str, allow){
+            allow = (((allow || '') + '').toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
+
+            var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+            var commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+            return str.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+                return allow.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 :'';
+            });
         }
         var id=$_GET["id"];
     </script>
@@ -194,7 +198,7 @@
         var output = new MarkdownPalettes("#output");
         var hint = new MarkdownPalettes("#hint");
         var json = SendAjax("./api/problem/info.php?id="+id,"GET",null);
-        var arr = JSON.parse(strip_tags(json));
+        var arr = JSON.parse(strip_tags(json,null));
         console.log(arr);var cs=0;
         document.getElementById("name").value=arr["title"];
         bg.content=arr["background"];
@@ -205,6 +209,8 @@
         output.content=arr["output-desc"];
         var xxx=new RegExp("\\\"","g"),len=arr["data"].length;
         arr["cases"]=arr["cases"].replace(xxx,"\"");
+        xxx=new RegExp("\\\'","g");arr["cases"]=arr["cases"].replace(xxx,"\'");
+        xxx=new RegExp("\\n","g");arr["cases"]=arr["cases"].replace(xxx,"\\\\n");
         var simple_cases=JSON.parse(arr["cases"]);
         function appendCase() {
             cs++;var content=

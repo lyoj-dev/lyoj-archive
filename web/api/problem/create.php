@@ -10,6 +10,7 @@
     if (!$conn) exit;
     header("Content-Type:text/html;charset=utf-8");
     session_start(); mysqli_query($conn, "SET NAMES UTF8");
+    mysqli_query($conn,"set character_set_database=\"utf8\"");
     $sql = "SELECT * FROM problem";
     $result = mysqli_query($conn, $sql);
     $id = mysqli_num_rows($result) + 1;
@@ -46,7 +47,6 @@
         ),
         "data"=>array()
     );ksort($bracket,SORT_STRING | SORT_FLAG_CASE | SORT_NATURAL);
-    var_dump($bracket);
     foreach ($bracket as $key => $value) {
         $accepted=true;$exist_in=false;$exist_out=false;
         for ($i=0;$i<count($value);$i++) {

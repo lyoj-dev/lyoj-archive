@@ -325,7 +325,7 @@ int main() {
 			
 			// Gain Data from Queried Result
 			int pid=StringToInt(row["pid"]),uid=StringToInt(row["uid"]),id=StringToInt(row["id"]),lang=StringToInt(row["lang"]);
-			string code=row["code"];
+			string code=row["code"],ideinfo=row["ideinfo"];
 			
 			
 			
@@ -379,6 +379,7 @@ int main() {
 				Json::Value res;
 				return_info("Error compile code!");
 				res["result"]="Compile Error";
+				res["output"]="Compile Error";
 				res["compile_info"]=res["info"]=info_string;return_info("",true);
 				
 				// Insert Data to the Database
@@ -406,7 +407,7 @@ int main() {
 			ifstream fin(("./problem/"+IntToString(pid)+"/config.json").c_str());
 			
 			// Failed to Open the Problem Configure
-			if (!fin) {
+			if (pid&&!fin) {
 				return_error(("Failed to open problem config file id #"+IntToString(pid)).c_str(),false);
 				Json::Value res;
 				res["result"]="No Test Data";
@@ -421,7 +422,7 @@ int main() {
 			}
 			
 			// Failed to Parse JSON Object
-			if (!reader.parse(fin,val,false)) {
+			if (pid&&!reader.parse(fin,val,false)) {
 				return_error(("Failed to parse json object in problem config file #"+IntToString(pid)).c_str(),false);
 				Json::Value res;
 				res["result"]="No Test Data";
@@ -449,8 +450,9 @@ int main() {
 			return_info(("Compiling special judge from status id #"+IntToString(id)).c_str());
 			int state=0;Json::Value info,res;st=clock();string spj_path;
 			
+			if (!pid) ;
 			// New Special Judger
-			if (val["spj"]["type"].asInt()==0) {
+			else if (val["spj"]["type"].asInt()==0) {
 				int res=chdir(("./problem/"+to_string(pid)).c_str());
 				retcode=system((val["spj"]["compile_cmd"].asString()+" > .judge.log 2>&1").c_str());
 				ifstream tmpfin(".judge.log");
@@ -505,6 +507,49 @@ int main() {
 			// Class Features: Judge Test Data
 			// ****************************************************	
 			
+			// Solve the Remote IDE Function
+			if (pid==0) {
+				mysqli_query(conn,("UPDATE waited_judge SET status='Running...' WHERE id="+to_string(id)).c_str());
+				ofstream fout("./tmp/test.in");
+				Json::Value ide;int t,m;
+				reader.parse(ideinfo,ide);
+				fout<<ide["input"].asString();fout.close();
+				int ret=chdir("./tmp");
+				ret=run_code(("./"+judge["lang"][lang]["exec_name"].asString()).c_str(),
+				t,m,ide["t"].asInt(),ide["m"].asInt());
+				ret=chdir("../");
+				if (ret) switch (ret) {
+					case 2: res["result"]="Time Limited Exceeded",res["info"]="Time Limited Exceeded";break;
+					case 3: res["result"]="Memory Limited Exceeded",res["info"]="Memory Limited Exceeded";break;
+					case 4: res["result"]="Runtime Error",
+					res["info"]="Runtime Error | "+analysis_reason(runtime_error_reason);break;
+					default: res["result"]="Unknown Error",res["info"]="Unknown Error";break;
+				} else {
+					ifstream fin("./tmp/test.out");
+					if (!fin) res["result"]="Wrong Answer";
+					else {
+						res["result"]="Accepted";
+						string resstring="";
+						while (!fin.eof()) {
+							string a;getline(fin,a);
+							resstring+=a+"\n";
+						}
+						res["output"]=resstring;
+					}	
+				} res["time"]=t,res["memory"]=m;
+				res["compile_info"]=info_string;
+				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
+				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
+				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
+				"',"+to_string(clock())+")").c_str());cout<<"INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
+				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
+				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
+				"',"+to_string(clock())+")"<<endl;
+				mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
+				return_info("",true);
+				continue;
+			}
+
 			// Judging Program
 			res["compile_info"]=info_string;int sum_t=0,max_m=0;
 			for (int i=0;i<val["data"].size();i++) {
@@ -635,8 +680,8 @@ int main() {
 			switch(state) {
 				case 0: res["result"]="Accepted";break;
 				case 1: res["result"]="Wrong Answer";break;
-				case 2: res["result"]="Time Limit Exceeded";break;
-				case 3: res["result"]="Memory Limit Exceeded";break;
+				case 2: res["result"]="Time Limited Exceeded";break;
+				case 3: res["result"]="Memory Limited Exceeded";break;
 				case 4: res["result"]="Runtime Error";break;
 				case 5: res["result"]="No Test Data";break;
 				case 6: res["result"]="Unknown Error";break;
