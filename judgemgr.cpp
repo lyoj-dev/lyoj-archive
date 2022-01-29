@@ -10,12 +10,12 @@ string system2(const char* cmd) {
     FILE *stream,*wstream;
     char buf[1024*1024]; 
     memset(buf,'\0',sizeof(buf));
-    stream=popen((string(cmd)+" 2>&1").c_str(),"r");
-    fread(buf,sizeof(char),sizeof(buf),stream);
+    stream=popen(("sudo "+string(cmd)+" 2>&1").c_str(),"r");
+    int k=fread(buf,sizeof(char),sizeof(buf),stream);
     pclose(stream);return buf;
 }
 bool checkCommandExist(const char* cmd) {
-    string ret=system2(("command -v "+string(cmd)).c_str());
+    string ret=system2(("sudo command -v "+string(cmd)).c_str());
     return ret!="";
 }
 bool checkHeaderExist(const char* header,const char* cmd) {
@@ -28,7 +28,7 @@ bool checkHeaderExist(const char* header,const char* cmd) {
 }
 bool exec(string hint,string cmd) {
     cout<<" * "<<hint<<endl;
-    int tmp=system(cmd.c_str());
+    int tmp=system(("sudo "+cmd).c_str());
     sleep(1);return tmp;
 }
 int main(int argc,char * argv[]) {
@@ -37,14 +37,10 @@ int main(int argc,char * argv[]) {
         cout<<"Try 'judgemgr help' for more information."<<endl;
         return 0;
     } string cmd=string(argv[1]);
-    char tmp[1024]="";getcwd(tmp,1024);string path=tmp;
+    char tmp[1024]="";char* kkkk=getcwd(tmp,1024);string path=tmp;
     if (cmd=="build") {
         string mysqladdr,mysqlname,mysqlpw,mysqldb;int mysqlport;
         cout<<"Opening Service..."<<endl;cout<<flush;
-        int tmp=system("service mysql start");
-        tmp=system("service nginx start");
-        tmp=system("service php$(php -r \"echo explode('.',phpversion())[0].'.'.explode('.',phpversion())[1];\")-fpm start");
-        
         
         
         cout<<endl<<"Collecting Datas..."<<endl;
@@ -107,10 +103,15 @@ int main(int argc,char * argv[]) {
         return 0;
     }
     if (cmd=="start") {
+	cout<<" * Starting MySQL/MariaDB Database... ";cout<<flush;
+	string kkk=system2("service mysql start");sleep(1);
+	string tmp=system2("ps -ef|grep mysqld|grep -v grep");
+	if (tmp=="") {cout<<"Failed!"<<endl;return 0;}
+	else cout<<"Success!"<<endl;
         cout<<" * Starting Judge Service... ";cout<<flush;
         int ret=system("ulimit -s unlimited");
-        ret=system("nohup judge >/dev/null 2>&1 &");sleep(1);
-        string tmp=system2("ps -ef|grep judge|grep -v grep|grep -v judgemgr");
+        ret=system("sudo nohup judge >/dev/null 2>&1 &");sleep(1);
+        tmp=system2("ps -ef|grep judge|grep -v grep|grep -v judgemgr");
         if (tmp=="") cout<<"Failed!"<<endl;
         else cout<<"Success!"<<endl;
         return 0;
@@ -142,14 +143,14 @@ int main(int argc,char * argv[]) {
         if (tmp=="") cout<<"Success!"<<endl;
         else {cout<<"Failed!"<<endl;return 0;}cout<<flush;
         cout<<" * Starting Judge Service... ";cout<<flush;
-        int ret=system("nohup judge >/dev/null 2>&1 &");sleep(1);
+        int ret=system("sudo nohup judge >/dev/null 2>&1 &");sleep(1);
         tmp=system2("ps -ef|grep judge|grep -v grep|grep -v judgemgr");
         if (tmp=="") cout<<"Failed!"<<endl;
         else cout<<"Success!"<<endl;
         return 0;
     }
     if (cmd=="output") {
-        int tmp=system("tail -f /var/log/judge/info.log");
+        int tmp=system("sudo tail -f /var/log/judge/info.log");
         return 0;
     }
     if (cmd=="check") {
@@ -273,6 +274,9 @@ int main(int argc,char * argv[]) {
     if (cmd=="help") {
         cout<<"Usage: judgemgr <command>"<<endl;
         cout<<endl;
+        cout<<"Online judger manager can help to manage background judge service."<<endl;
+        cout<<"It will be more convenience to build it by judgemgr."<<endl;
+        cout<<endl;
         cout<<"Commands:"<<endl;
         cout<<"  build: Build the judge service."<<endl;
         cout<<"  compile: Re-compile all the necessary executable programs."<<endl;
@@ -285,6 +289,7 @@ int main(int argc,char * argv[]) {
         cout<<"  backup: Backup your all data to a zip file(need library zip)"<<endl;
         cout<<"  restore: Restore your all data from a zip file(need library zip)"<<endl;
         cout<<endl;
+        cout<<"                           This manager tool has Super Cow Powers."<<endl;
         return 0;
     }
     cout<<"judgemgr: unknown command '"<<cmd<<"'"<<endl;

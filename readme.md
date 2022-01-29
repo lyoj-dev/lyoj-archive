@@ -49,11 +49,11 @@ The judge.cpp is written for Linux. Windows & MacOS are not supported.
 3. Enter the main source directory.
 4. Compile judgemgr.cpp with command below:
 ```bash
-$ g++ judgemgr.cpp -o /usr/bin/judgemgr -lmysqlclient -O2 -std=c++14
+root@localhost:~$ g++ judgemgr.cpp -o /usr/bin/judgemgr -lmysqlclient -O2 -std=c++14
 ```
 5. Build the main Judge Service with command below:
 ```bash
-$ judgemgr build
+root@localhost:~$ judgemgr build
 ```
 
 ### Build Manually
@@ -76,7 +76,7 @@ If you build your application manually, please backup your data(include database
 
 If you build your application with judge manager, you can upgrade it with the command below:
 ```bash
-$ judgemgr upgrade 
+root@localhost:~$ judgemgr upgrade 
 ```
 
 ## "judgemgr"
