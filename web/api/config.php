@@ -1,7 +1,6 @@
 <?php
     global $config;
-    $config["mysql"]["server"]="127.0.0.1";
-    $config["mysql"]["user"]="root";
-    $config["mysql"]["passwd"]="yangweihao20060531";
-    $config["mysql"]["database"]="judge";
+    $fp=fopen("/etc/judge/config.json","r");
+    $json=fread($fp,filesize("/etc/judge/config.json"));
+    $config=json_decode($json,true);
 ?>
