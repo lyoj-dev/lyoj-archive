@@ -41,6 +41,7 @@ The judge.cpp is written for Linux. Windows & MacOS are not supported.
 2. Database: mysql-server mysql-client/mariadb-server mariadb-client
 3. Necessities: php g++ nginx/apache
 4. Selective Packages: gcc default-jre python2 python3
+
 Ps: php version need to higher than **8.0**
 
 ### Build Automatically
