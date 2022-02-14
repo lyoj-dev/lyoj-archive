@@ -39,7 +39,7 @@ The judge.cpp is written for Linux. Windows & MacOS are not supported.
 
 1. Libraries: libmysqlclient-dev libjsoncpp-dev
 2. Database: mysql-server mysql-client/mariadb-server mariadb-client
-3. Necessities: php g++ nginx/apache
+3. Necessities: php**8.0+** g++ nginx/apache
 4. Selective Packages: gcc default-jre python2 python3
 
 ### Build Automatically
