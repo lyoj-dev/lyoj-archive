@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.31.1(5a1b4999493d49c857497ad481d73a737439f305)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
@@ -32,6 +32,9 @@ define("vs/editor/editor.main.nls.fr", {
 	],
 	"vs/base/browser/ui/keybindingLabel/keybindingLabel": [
 		"Indépendant",
+	],
+	"vs/base/browser/ui/menu/menu": [
+		"{0} ({1})",
 	],
 	"vs/base/browser/ui/tree/abstractTree": [
 		"Effacer",
@@ -97,6 +100,9 @@ define("vs/editor/editor.main.nls.fr", {
 		"éditeur",
 		"L\'éditeur n\'est pas accessible pour le moment. Appuyez sur {0} pour voir les options.",
 	],
+	"vs/editor/browser/core/keybindingCancellation": [
+		"Indique si l\'éditeur exécute une opération annulable, par exemple \'Avoir un aperçu des références\'",
+	],
 	"vs/editor/browser/editorExtensions": [
 		"Ann&&uler",
 		"Annuler",
@@ -141,7 +147,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Copier la ligne supprimée ({0})",
 		"Copier la ligne modifiée ({0})",
 	],
-	"vs/editor/common/config/editorConfigurationSchema": [
+	"vs/editor/common/config/commonEditorConfig": [
 		"Éditeur",
 		"Le nombre d\'espaces auxquels une tabulation est égale. Ce paramètre est substitué basé sur le contenu du fichier lorsque `#editor.detectIndentation#` est à \'on\'.",
 		"Espaces insérés quand vous appuyez sur la touche Tab. Ce paramètre est remplacé en fonction du contenu du fichier quand \'#editor.detectIndentation#\' est activé.",
@@ -265,9 +271,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Contrôle si les caractères qui réservent de l’espace ou qui n’ont pas de largeur sont mis en surbrillance.",
 		"Contrôle si les caractères mis en surbrillance peuvent être déconcertés avec des caractères ASCII de base, à l’exception de ceux qui sont courants dans les paramètres régionaux utilisateur actuels.",
 		"Contrôle si les caractères des commentaires doivent également faire l’objet d’une mise en surbrillance Unicode.",
-		"Contrôle si les caractères des commentaires doivent également faire l’objet d’une mise en surbrillance Unicode.",
 		"Définit les caractères autorisés qui ne sont pas mis en surbrillance.",
-		"Les caractères Unicode communs aux paramètres régionaux autorisés ne sont pas mis en surbrillance.",
 		"Contrôle si les suggestions en ligne doivent être affichées automatiquement dans l’éditeur.",
 		"Contrôle si la coloration de la paire de crochets est activée ou non. Utilisez « workbench.colorCustomizations » pour remplacer les couleurs de surbrillance de crochets.",
 		"Désactive les repères de paire de crochets.",
@@ -372,7 +376,6 @@ define("vs/editor/editor.main.nls.fr", {
 		"Contrôle la stratégie de calcul des plages de pliage.",
 		"Contrôle si l\'éditeur doit mettre en évidence les plages pliées.",
 		"Contrôle si l’éditeur réduit automatiquement les plages d’importation.",
-		"Nombre maximal de régions pliables. L’augmentation de cette valeur peut réduire la réactivité de l’éditeur lorsque la source actuelle comprend un grand nombre de régions pliables.",
 		"Contrôle si le fait de cliquer sur le contenu vide après une ligne pliée déplie la ligne.",
 		"Contrôle la famille de polices.",
 		"Détermine si l’éditeur doit automatiquement mettre en forme le contenu collé. Un formateur doit être disponible et être capable de mettre en forme une plage dans un document.",
@@ -388,7 +391,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Fusionnez plusieurs curseurs quand ils se chevauchent.",
 		"Mappe vers \'Contrôle\' dans Windows et Linux, et vers \'Commande\' dans macOS.",
 		"Mappe vers \'Alt\' dans Windows et Linux, et vers \'Option\' dans macOS.",
-		"The modifier to be used to add multiple cursors with the mouse. The Go to Definition and Open Link mouse gestures will adapt such that they do not conflict with the multicursor modifier. [Read more](https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).",
+		"Le modificateur à utiliser pour ajouter plusieurs curseurs avec la souris. Les gestes de souris Atteindre la définition et Ouvrir le lien s\'adapteront tels qu’ils n’entrent pas en conflit avec le modificateur multicursor. [Lire la suite] (https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).",
 		"Chaque curseur colle une seule ligne de texte.",
 		"Chaque curseur colle le texte en entier.",
 		"Contrôle le collage quand le nombre de lignes du texte collé correspond au nombre de curseurs.",
@@ -459,7 +462,81 @@ define("vs/editor/editor.main.nls.fr", {
 		"Délègue le calcul des points de wrapping au navigateur. Il s\'agit d\'un algorithme lent qui peut provoquer le gel des grands fichiers, mais qui fonctionne correctement dans tous les cas.",
 		"Contrôle l\'algorithme qui calcule les points de wrapping.",
 	],
-	"vs/editor/common/core/editorColorRegistry": [
+	"vs/editor/common/editorContextKeys": [
+		"Indique si le texte de l\'éditeur a le focus (le curseur clignote)",
+		"Indique si l\'éditeur ou un widget de l\'éditeur a le focus (par exemple, le focus se trouve sur le widget de recherche)",
+		"Indique si un éditeur ou une entrée de texte mis en forme a le focus (le curseur clignote)",
+		"Indique si l\'éditeur est en lecture seule",
+		"Indique si le contexte est celui d\'un éditeur de différences",
+		"Indique si \'editor.columnSelection\' est activé",
+		"Indique si du texte est sélectionné dans l\'éditeur",
+		"Indique si l\'éditeur a plusieurs sélections",
+		"Indique si la touche Tab permet de déplacer le focus hors de l\'éditeur",
+		"Indique si le pointage de l\'éditeur est visible",
+		"Indique si l\'éditeur fait partie d\'un éditeur plus important (par exemple Notebooks)",
+		"Identificateur de langage de l\'éditeur",
+		"Indique si l\'éditeur a un fournisseur d\'éléments de complétion",
+		"Indique si l\'éditeur a un fournisseur d\'actions de code",
+		"Indique si l\'éditeur a un fournisseur d\'informations CodeLens",
+		"Indique si l\'éditeur a un fournisseur de définitions",
+		"Indique si l\'éditeur a un fournisseur de déclarations",
+		"Indique si l\'éditeur a un fournisseur d\'implémentation",
+		"Indique si l\'éditeur a un fournisseur de définitions de type",
+		"Indique si l\'éditeur a un fournisseur de pointage",
+		"Indique si l\'éditeur a un fournisseur de mise en surbrillance pour les documents",
+		"Indique si l\'éditeur a un fournisseur de symboles pour les documents",
+		"Indique si l\'éditeur a un fournisseur de référence",
+		"Indique si l\'éditeur a un fournisseur de renommage",
+		"Indique si l\'éditeur a un fournisseur d\'aide sur les signatures",
+		"Indique si l\'éditeur a un fournisseur d\'indicateurs inline",
+		"Indique si l\'éditeur a un fournisseur de mise en forme pour les documents",
+		"Indique si l\'éditeur a un fournisseur de mise en forme de sélection pour les documents",
+		"Indique si l\'éditeur a plusieurs fournisseurs de mise en forme pour les documents",
+		"Indique si l\'éditeur a plusieurs fournisseurs de mise en forme de sélection pour les documents",
+	],
+	"vs/editor/common/model/editStack": [
+		"Frappe en cours",
+	],
+	"vs/editor/common/modes/modesRegistry": [
+		"Texte brut",
+	],
+	"vs/editor/common/standaloneStrings": [
+		"Aucune sélection",
+		"Ligne {0}, colonne {1} ({2} sélectionné)",
+		"Ligne {0}, colonne {1}",
+		"{0} sélections ({1} caractères sélectionnés)",
+		"{0} sélections",
+		"Remplacement du paramètre \'accessibilitySupport\' par \'on\'.",
+		"Ouverture de la page de documentation sur l\'accessibilité de l\'éditeur.",
+		"dans un volet en lecture seule d\'un éditeur de différences.",
+		"dans un volet d\'un éditeur de différences.",
+		" dans un éditeur de code en lecture seule",
+		" dans un éditeur de code",
+		"Pour configurer l\'éditeur de manière à être optimisé en cas d\'utilisation d\'un lecteur d\'écran, appuyez sur Commande+E maintenant.",
+		"Pour configurer l\'éditeur de manière à être optimisé en cas d\'utilisation d\'un lecteur d\'écran, appuyez sur Contrôle+E maintenant.",
+		"L\'éditeur est configuré pour être optimisé en cas d\'utilisation avec un lecteur d\'écran.",
+		"L\'éditeur est configuré pour ne jamais être optimisé en cas d\'utilisation avec un lecteur d\'écran, ce qui n\'est pas le cas pour le moment.",
+		"Appuyez sur Tab dans l\'éditeur pour déplacer le focus vers le prochain élément pouvant être désigné comme élément actif. Activez ou désactivez ce comportement en appuyant sur {0}.",
+		"Appuyez sur Tab dans l\'éditeur pour déplacer le focus vers le prochain élément pouvant être désigné comme élément actif. La commande {0} ne peut pas être déclenchée par une combinaison de touches.",
+		"Appuyez sur Tab dans l\'éditeur pour insérer le caractère de tabulation. Activez ou désactivez ce comportement en appuyant sur {0}.",
+		"Appuyez sur Tab dans l\'éditeur pour insérer le caractère de tabulation. La commande {0} ne peut pas être déclenchée par une combinaison de touches.",
+		"Appuyez sur Commande+H maintenant pour ouvrir une fenêtre de navigateur avec plus d\'informations sur l\'accessibilité de l\'éditeur.",
+		"Appuyez sur Contrôle+H maintenant pour ouvrir une fenêtre de navigateur avec plus d\'informations sur l\'accessibilité de l\'éditeur.",
+		"Vous pouvez masquer cette info-bulle et revenir à l\'éditeur en appuyant sur Échap ou Maj+Échap.",
+		"Afficher l\'aide sur l\'accessibilité",
+		"Développeur : Inspecter les jetons",
+		"Accéder à la ligne/colonne...",
+		"Afficher tous les fournisseurs d\'accès rapide",
+		"Palette de commandes",
+		"Commandes d\'affichage et d\'exécution",
+		"Accéder au symbole...",
+		"Accéder au symbole par catégorie...",
+		"Contenu de l\'éditeur",
+		"Appuyez sur Alt+F1 pour voir les options d\'accessibilité.",
+		"Activer/désactiver le thème à contraste élevé",
+		"{0} modifications dans {1} fichiers",
+	],
+	"vs/editor/common/view/editorColorRegistry": [
 		"Couleur d\'arrière-plan de la mise en surbrillance de la ligne à la position du curseur.",
 		"Couleur d\'arrière-plan de la bordure autour de la ligne à la position du curseur.",
 		"Couleur d\'arrière-plan des plages mises en surbrillance, comme par les fonctionnalités de recherche et Quick Open. La couleur ne doit pas être opaque pour ne pas masquer les ornements sous-jacents.",
@@ -512,81 +589,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Couleur d’arrière-plan des repères de paire de crochets actifs (6). Nécessite l’activation des repères de paire de crochets.",
 		"Couleur de bordure utilisée pour mettre en surbrillance les caractères Unicode",
 	],
-	"vs/editor/common/editorContextKeys": [
-		"Indique si le texte de l\'éditeur a le focus (le curseur clignote)",
-		"Indique si l\'éditeur ou un widget de l\'éditeur a le focus (par exemple, le focus se trouve sur le widget de recherche)",
-		"Indique si un éditeur ou une entrée de texte mis en forme a le focus (le curseur clignote)",
-		"Indique si l\'éditeur est en lecture seule",
-		"Indique si le contexte est celui d\'un éditeur de différences",
-		"Indique si \'editor.columnSelection\' est activé",
-		"Indique si du texte est sélectionné dans l\'éditeur",
-		"Indique si l\'éditeur a plusieurs sélections",
-		"Indique si la touche Tab permet de déplacer le focus hors de l\'éditeur",
-		"Indique si le pointage de l\'éditeur est visible",
-		"Indique si l\'éditeur fait partie d\'un éditeur plus important (par exemple Notebooks)",
-		"Identificateur de langage de l\'éditeur",
-		"Indique si l\'éditeur a un fournisseur d\'éléments de complétion",
-		"Indique si l\'éditeur a un fournisseur d\'actions de code",
-		"Indique si l\'éditeur a un fournisseur d\'informations CodeLens",
-		"Indique si l\'éditeur a un fournisseur de définitions",
-		"Indique si l\'éditeur a un fournisseur de déclarations",
-		"Indique si l\'éditeur a un fournisseur d\'implémentation",
-		"Indique si l\'éditeur a un fournisseur de définitions de type",
-		"Indique si l\'éditeur a un fournisseur de pointage",
-		"Indique si l\'éditeur a un fournisseur de mise en surbrillance pour les documents",
-		"Indique si l\'éditeur a un fournisseur de symboles pour les documents",
-		"Indique si l\'éditeur a un fournisseur de référence",
-		"Indique si l\'éditeur a un fournisseur de renommage",
-		"Indique si l\'éditeur a un fournisseur d\'aide sur les signatures",
-		"Indique si l\'éditeur a un fournisseur d\'indicateurs inline",
-		"Indique si l\'éditeur a un fournisseur de mise en forme pour les documents",
-		"Indique si l\'éditeur a un fournisseur de mise en forme de sélection pour les documents",
-		"Indique si l\'éditeur a plusieurs fournisseurs de mise en forme pour les documents",
-		"Indique si l\'éditeur a plusieurs fournisseurs de mise en forme de sélection pour les documents",
-	],
-	"vs/editor/common/languages/modesRegistry": [
-		"Texte brut",
-	],
-	"vs/editor/common/model/editStack": [
-		"Frappe en cours",
-	],
-	"vs/editor/common/standaloneStrings": [
-		"Aucune sélection",
-		"Ligne {0}, colonne {1} ({2} sélectionné)",
-		"Ligne {0}, colonne {1}",
-		"{0} sélections ({1} caractères sélectionnés)",
-		"{0} sélections",
-		"Remplacement du paramètre \'accessibilitySupport\' par \'on\'.",
-		"Ouverture de la page de documentation sur l\'accessibilité de l\'éditeur.",
-		"dans un volet en lecture seule d\'un éditeur de différences.",
-		"dans un volet d\'un éditeur de différences.",
-		" dans un éditeur de code en lecture seule",
-		" dans un éditeur de code",
-		"Pour configurer l\'éditeur de manière à être optimisé en cas d\'utilisation d\'un lecteur d\'écran, appuyez sur Commande+E maintenant.",
-		"Pour configurer l\'éditeur de manière à être optimisé en cas d\'utilisation d\'un lecteur d\'écran, appuyez sur Contrôle+E maintenant.",
-		"L\'éditeur est configuré pour être optimisé en cas d\'utilisation avec un lecteur d\'écran.",
-		"L\'éditeur est configuré pour ne jamais être optimisé en cas d\'utilisation avec un lecteur d\'écran, ce qui n\'est pas le cas pour le moment.",
-		"Appuyez sur Tab dans l\'éditeur pour déplacer le focus vers le prochain élément pouvant être désigné comme élément actif. Activez ou désactivez ce comportement en appuyant sur {0}.",
-		"Appuyez sur Tab dans l\'éditeur pour déplacer le focus vers le prochain élément pouvant être désigné comme élément actif. La commande {0} ne peut pas être déclenchée par une combinaison de touches.",
-		"Appuyez sur Tab dans l\'éditeur pour insérer le caractère de tabulation. Activez ou désactivez ce comportement en appuyant sur {0}.",
-		"Appuyez sur Tab dans l\'éditeur pour insérer le caractère de tabulation. La commande {0} ne peut pas être déclenchée par une combinaison de touches.",
-		"Appuyez sur Commande+H maintenant pour ouvrir une fenêtre de navigateur avec plus d\'informations sur l\'accessibilité de l\'éditeur.",
-		"Appuyez sur Contrôle+H maintenant pour ouvrir une fenêtre de navigateur avec plus d\'informations sur l\'accessibilité de l\'éditeur.",
-		"Vous pouvez masquer cette info-bulle et revenir à l\'éditeur en appuyant sur Échap ou Maj+Échap.",
-		"Afficher l\'aide sur l\'accessibilité",
-		"Développeur : Inspecter les jetons",
-		"Accéder à la ligne/colonne...",
-		"Afficher tous les fournisseurs d\'accès rapide",
-		"Palette de commandes",
-		"Commandes d\'affichage et d\'exécution",
-		"Accéder au symbole...",
-		"Accéder au symbole par catégorie...",
-		"Contenu de l\'éditeur",
-		"Appuyez sur Alt+F1 pour voir les options d\'accessibilité.",
-		"Activer/désactiver le thème à contraste élevé",
-		"{0} modifications dans {1} fichiers",
-	],
-	"vs/editor/contrib/anchorSelect/browser/anchorSelect": [
+	"vs/editor/contrib/anchorSelect/anchorSelect": [
 		"Ancre de sélection",
 		"Ancre définie sur {0}:{1}",
 		"Définir l\'ancre de sélection",
@@ -594,20 +597,20 @@ define("vs/editor/editor.main.nls.fr", {
 		"Sélectionner de l\'ancre au curseur",
 		"Annuler l\'ancre de sélection",
 	],
-	"vs/editor/contrib/bracketMatching/browser/bracketMatching": [
+	"vs/editor/contrib/bracketMatching/bracketMatching": [
 		"Couleur du marqueur de la règle d\'aperçu pour rechercher des parenthèses.",
 		"Atteindre le crochet",
 		"Sélectionner jusqu\'au crochet",
 		"Accéder au &&crochet",
 	],
-	"vs/editor/contrib/caretOperations/browser/caretOperations": [
+	"vs/editor/contrib/caretOperations/caretOperations": [
 		"Déplacer le texte sélectionné à gauche",
 		"Déplacer le texte sélectionné à droite",
 	],
-	"vs/editor/contrib/caretOperations/browser/transpose": [
+	"vs/editor/contrib/caretOperations/transpose": [
 		"Transposer les lettres",
 	],
-	"vs/editor/contrib/clipboard/browser/clipboard": [
+	"vs/editor/contrib/clipboard/clipboard": [
 		"Co&&uper",
 		"Couper",
 		"Couper",
@@ -624,7 +627,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Coller",
 		"Copier avec la coloration syntaxique",
 	],
-	"vs/editor/contrib/codeAction/browser/codeActionCommands": [
+	"vs/editor/contrib/codeAction/codeActionCommands": [
 		"Type d\'action de code à exécuter.",
 		"Contrôle quand les actions retournées sont appliquées.",
 		"Appliquez toujours la première action de code retournée.",
@@ -655,18 +658,18 @@ define("vs/editor/editor.main.nls.fr", {
 		"Corriger automatiquement...",
 		"Aucun correctif automatique disponible",
 	],
-	"vs/editor/contrib/codeAction/browser/lightBulbWidget": [
+	"vs/editor/contrib/codeAction/lightBulbWidget": [
 		"Afficher les actions de code. Correctif rapide disponible par défaut ({0})",
 		"Afficher les actions de code ({0})",
 		"Afficher les actions de code",
 	],
-	"vs/editor/contrib/codelens/browser/codelensController": [
+	"vs/editor/contrib/codelens/codelensController": [
 		"Afficher les commandes Code Lens de la ligne actuelle",
 	],
-	"vs/editor/contrib/colorPicker/browser/colorPickerWidget": [
+	"vs/editor/contrib/colorPicker/colorPickerWidget": [
 		"Cliquez pour activer/désactiver les options de couleur (rgb/hsl/hexadécimal).",
 	],
-	"vs/editor/contrib/comment/browser/comment": [
+	"vs/editor/contrib/comment/comment": [
 		"Activer/désactiver le commentaire de ligne",
 		"Afficher/masquer le commen&&taire de ligne",
 		"Ajouter le commentaire de ligne",
@@ -674,17 +677,14 @@ define("vs/editor/editor.main.nls.fr", {
 		"Activer/désactiver le commentaire de bloc",
 		"Afficher/masquer le commentaire de &&bloc",
 	],
-	"vs/editor/contrib/contextmenu/browser/contextmenu": [
+	"vs/editor/contrib/contextmenu/contextmenu": [
 		"Afficher le menu contextuel de l\'éditeur",
 	],
-	"vs/editor/contrib/cursorUndo/browser/cursorUndo": [
+	"vs/editor/contrib/cursorUndo/cursorUndo": [
 		"Annulation du curseur",
 		"Restauration du curseur",
 	],
-	"vs/editor/contrib/editorState/browser/keybindingCancellation": [
-		"Indique si l\'éditeur exécute une opération annulable, par exemple \'Avoir un aperçu des références\'",
-	],
-	"vs/editor/contrib/find/browser/findController": [
+	"vs/editor/contrib/find/findController": [
 		"Rechercher",
 		"&&Rechercher",
 		"Remplace l’indicateur « Utiliser une expression régulière ».\r\nL’indicateur ne sera pas enregistré à l’avenir.\r\n0 : Ne rien faire\r\n1 : Vrai\r\n2 : Faux",
@@ -700,7 +700,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Remplacer",
 		"&&Remplacer",
 	],
-	"vs/editor/contrib/find/browser/findWidget": [
+	"vs/editor/contrib/find/findWidget": [
 		"Icône de l\'option Rechercher dans la sélection dans le widget de recherche de l\'éditeur.",
 		"Icône permettant d\'indiquer que le widget de recherche de l\'éditeur est réduit.",
 		"Icône permettant d\'indiquer que le widget de recherche de l\'éditeur est développé.",
@@ -728,8 +728,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"{0} trouvé pour \'{1}\'",
 		"La combinaison Ctrl+Entrée permet désormais d\'ajouter un saut de ligne au lieu de tout remplacer. Vous pouvez modifier le raccourci clavier de editor.action.replaceAll pour redéfinir le comportement.",
 	],
-	"vs/editor/contrib/folding/browser/folding": [
-		"Le nombre de régions pliables est limité à un maximum de {0}. Augmentez l’option de configuration [\'Folding Maximum Regions\'](command:workbench.action.openSettings?[\"editor.foldingMaximumRegions\"]) pour en activer d’autres.",
+	"vs/editor/contrib/folding/folding": [
 		"Déplier",
 		"Déplier de manière récursive",
 		"Plier",
@@ -749,26 +748,26 @@ define("vs/editor/editor.main.nls.fr", {
 		"Couleur d\'arrière-plan des gammes pliées. La couleur ne doit pas être opaque pour ne pas cacher les décorations sous-jacentes.",
 		"Couleur du contrôle de pliage dans la marge de l\'éditeur.",
 	],
-	"vs/editor/contrib/folding/browser/foldingDecorations": [
+	"vs/editor/contrib/folding/foldingDecorations": [
 		"Icône des plages développées dans la marge de glyphes de l\'éditeur.",
 		"Icône des plages réduites dans la marge de glyphes de l\'éditeur.",
 	],
-	"vs/editor/contrib/fontZoom/browser/fontZoom": [
+	"vs/editor/contrib/fontZoom/fontZoom": [
 		"Agrandissement de l\'éditeur de polices de caractères",
 		"Rétrécissement de l\'éditeur de polices de caractères",
 		"Remise à niveau du zoom de l\'éditeur de polices de caractères",
 	],
-	"vs/editor/contrib/format/browser/format": [
+	"vs/editor/contrib/format/format": [
 		"1 modification de format effectuée à la ligne {0}",
 		"{0} modifications de format effectuées à la ligne {1}",
 		"1 modification de format effectuée entre les lignes {0} et {1}",
 		"{0} modifications de format effectuées entre les lignes {1} et {2}",
 	],
-	"vs/editor/contrib/format/browser/formatActions": [
+	"vs/editor/contrib/format/formatActions": [
 		"Mettre le document en forme",
 		"Mettre la sélection en forme",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoError": [
+	"vs/editor/contrib/gotoError/gotoError": [
 		"Aller au problème suivant (Erreur, Avertissement, Info)",
 		"Icône du prochain marqueur goto.",
 		"Aller au problème précédent (Erreur, Avertissement, Info)",
@@ -778,7 +777,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Aller au problème précédent dans Fichiers (Erreur, Avertissement, Info)",
 		"&&Problème précédent",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoErrorWidget": [
+	"vs/editor/contrib/gotoError/gotoErrorWidget": [
 		"Erreur",
 		"Avertissement",
 		"Info",
@@ -794,7 +793,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Arrière-plan du titre des informations du widget de navigation dans les marqueurs de l’éditeur.",
 		"Arrière-plan du widget de navigation dans les marqueurs de l\'éditeur.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/goToCommands": [
+	"vs/editor/contrib/gotoSymbol/goToCommands": [
 		"Aperçu",
 		"Définitions",
 		"Définition introuvable pour \'{0}\'",
@@ -835,25 +834,25 @@ define("vs/editor/editor.main.nls.fr", {
 		"Atteindre les &&implémentations",
 		"Atteindre les &&références",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/link/goToDefinitionAtPosition": [
+	"vs/editor/contrib/gotoSymbol/link/goToDefinitionAtPosition": [
 		"Cliquez pour afficher {0} définitions.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesController": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesController": [
 		"Indique si l\'aperçu des références est visible, par exemple via \'Avoir un aperçu des références\' ou \'Faire un peek de la définition\'",
 		"Chargement en cours...",
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesTree": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesTree": [
 		"{0} références",
 		"{0} référence",
 		"Références",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesWidget": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesWidget": [
 		"aperçu non disponible",
 		"Aucun résultat",
 		"Références",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/referencesModel": [
+	"vs/editor/contrib/gotoSymbol/referencesModel": [
 		"symbole dans {0} sur la ligne {1}, colonne {2}",
 		"symbole dans {0} à la ligne {1}, colonne {2}, {3}",
 		"1 symbole dans {0}, chemin complet {1}",
@@ -863,31 +862,31 @@ define("vs/editor/editor.main.nls.fr", {
 		"{0} symboles dans {1}",
 		"{0} symboles dans {1} fichiers",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/symbolNavigation": [
+	"vs/editor/contrib/gotoSymbol/symbolNavigation": [
 		"Indique s\'il existe des emplacements de symboles que vous pouvez parcourir à l\'aide du clavier uniquement.",
 		"Symbole {0} sur {1}, {2} pour le suivant",
 		"Symbole {0} sur {1}",
 	],
-	"vs/editor/contrib/hover/browser/hover": [
+	"vs/editor/contrib/hover/hover": [
 		"Afficher par pointage",
 		"Afficher le pointeur de l\'aperçu de définition",
 	],
-	"vs/editor/contrib/hover/browser/markdownHoverParticipant": [
+	"vs/editor/contrib/hover/markdownHoverParticipant": [
 		"Chargement en cours...",
 		"La tokenisation des lignes longues est ignorée pour des raisons de performances. Cela peut être configurée via \'editor.maxTokenizationLineLength\'.",
 	],
-	"vs/editor/contrib/hover/browser/markerHoverParticipant": [
+	"vs/editor/contrib/hover/markerHoverParticipant": [
 		"Voir le problème",
 		"Aucune solution disponible dans l\'immédiat",
 		"Recherche de correctifs rapides...",
 		"Aucune solution disponible dans l\'immédiat",
 		"Correction rapide...",
 	],
-	"vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace": [
+	"vs/editor/contrib/inPlaceReplace/inPlaceReplace": [
 		"Remplacer par la valeur précédente",
 		"Remplacer par la valeur suivante",
 	],
-	"vs/editor/contrib/indentation/browser/indentation": [
+	"vs/editor/contrib/indentation/indentation": [
 		"Convertir les retraits en espaces",
 		"Convertir les retraits en tabulations",
 		"Taille des tabulations configurée",
@@ -898,7 +897,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Remettre en retrait les lignes",
 		"Réindenter les lignes sélectionnées",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/ghostTextController": [
+	"vs/editor/contrib/inlineCompletions/ghostTextController": [
 		"Indique si une suggestion en ligne est visible",
 		"Indique si la suggestion en ligne commence par un espace blanc",
 		"Indique si la suggestion incluse commence par un espace blanc inférieur à ce qui serait inséré par l’onglet.",
@@ -906,16 +905,16 @@ define("vs/editor/editor.main.nls.fr", {
 		"Afficher la suggestion en ligne précédente",
 		"Déclencher la suggestion en ligne",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionsHoverParticipant": [
+	"vs/editor/contrib/inlineCompletions/inlineCompletionsHoverParticipant": [
 		"Suivant",
 		"Précédent",
 		"Accepter",
 		"Suggestion :",
 	],
-	"vs/editor/contrib/lineSelection/browser/lineSelection": [
+	"vs/editor/contrib/lineSelection/lineSelection": [
 		"Développer la sélection de ligne",
 	],
-	"vs/editor/contrib/linesOperations/browser/linesOperations": [
+	"vs/editor/contrib/linesOperations/linesOperations": [
 		"Copier la ligne en haut",
 		"&&Copier la ligne en haut",
 		"Copier la ligne en bas",
@@ -944,11 +943,11 @@ define("vs/editor/editor.main.nls.fr", {
 		"Appliquer la casse \"1re lettre des mots en majuscule\"",
 		"Transformer en snake case",
 	],
-	"vs/editor/contrib/linkedEditing/browser/linkedEditing": [
+	"vs/editor/contrib/linkedEditing/linkedEditing": [
 		"Démarrer la modification liée",
 		"Couleur d\'arrière-plan quand l\'éditeur renomme automatiquement le type.",
 	],
-	"vs/editor/contrib/links/browser/links": [
+	"vs/editor/contrib/links/links": [
 		"Exécuter la commande",
 		"suivre le lien",
 		"cmd + clic",
@@ -960,11 +959,11 @@ define("vs/editor/editor.main.nls.fr", {
 		"Échec de l\'ouverture de ce lien, car sa cible est manquante.",
 		"Ouvrir le lien",
 	],
-	"vs/editor/contrib/message/browser/messageController": [
+	"vs/editor/contrib/message/messageController": [
 		"Indique si l\'éditeur affiche un message inline",
 		"Impossible de modifier dans l’éditeur en lecture seule",
 	],
-	"vs/editor/contrib/multicursor/browser/multicursor": [
+	"vs/editor/contrib/multicursor/multicursor": [
 		"Curseur ajouté : {0}",
 		"Curseurs ajoutés : {0}",
 		"Ajouter un curseur au-dessus",
@@ -985,16 +984,16 @@ define("vs/editor/editor.main.nls.fr", {
 		"Sélectionner toutes les &&occurrences",
 		"Modifier toutes les occurrences",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHints": [
+	"vs/editor/contrib/parameterHints/parameterHints": [
 		"Indicateurs des paramètres Trigger",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHintsWidget": [
+	"vs/editor/contrib/parameterHints/parameterHintsWidget": [
 		"Icône d\'affichage du prochain conseil de paramètre.",
 		"Icône d\'affichage du précédent conseil de paramètre.",
 		"{0}, conseil",
 		"Couleur de premier plan de l’élément actif dans l’indicateur de paramètre.",
 	],
-	"vs/editor/contrib/peekView/browser/peekView": [
+	"vs/editor/contrib/peekView/peekView": [
 		"Indique si l\'éditeur de code actuel est intégré à l\'aperçu",
 		"Fermer",
 		"Couleur d\'arrière-plan de la zone de titre de l\'affichage d\'aperçu.",
@@ -1012,14 +1011,14 @@ define("vs/editor/editor.main.nls.fr", {
 		"Couleur de mise en surbrillance d\'une correspondance dans l\'éditeur de l\'affichage d\'aperçu.",
 		"Bordure de mise en surbrillance d\'une correspondance dans l\'éditeur de l\'affichage d\'aperçu.",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoLineQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoLineQuickAccess": [
 		"Ouvrez d\'abord un éditeur de texte pour accéder à une ligne.",
 		"Atteindre la ligne {0} et le caractère {1}.",
 		"Accédez à la ligne {0}.",
 		"Ligne actuelle : {0}, caractère : {1}. Tapez un numéro de ligne entre 1 et {2} auquel accéder.",
 		"Ligne actuelle : {0}, caractère : {1}. Tapez un numéro de ligne auquel accéder.",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoSymbolQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoSymbolQuickAccess": [
 		"Pour accéder à un symbole, ouvrez d\'abord un éditeur de texte avec des informations de symbole.",
 		"L\'éditeur de texte actif ne fournit pas les informations de symbole.",
 		"Aucun symbole d\'éditeur correspondant",
@@ -1054,7 +1053,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"champs ({0})",
 		"constantes ({0})",
 	],
-	"vs/editor/contrib/rename/browser/rename": [
+	"vs/editor/contrib/rename/rename": [
 		"Aucun résultat.",
 		"Une erreur inconnue s\'est produite lors de la résolution de l\'emplacement de renommage",
 		"Renommage de \'{0}\'",
@@ -1065,23 +1064,23 @@ define("vs/editor/editor.main.nls.fr", {
 		"Renommer le symbole",
 		"Activer/désactiver la possibilité d\'afficher un aperçu des changements avant le renommage",
 	],
-	"vs/editor/contrib/rename/browser/renameInputField": [
+	"vs/editor/contrib/rename/renameInputField": [
 		"Indique si le widget de renommage d\'entrée est visible",
 		"Renommez l\'entrée. Tapez le nouveau nom et appuyez sur Entrée pour valider.",
 		"{0} pour renommer, {1} pour afficher un aperçu",
 	],
-	"vs/editor/contrib/smartSelect/browser/smartSelect": [
+	"vs/editor/contrib/smartSelect/smartSelect": [
 		"Étendre la sélection",
 		"Dév&&elopper la sélection",
 		"Réduire la sélection",
 		"&&Réduire la sélection",
 	],
-	"vs/editor/contrib/snippet/browser/snippetController2": [
+	"vs/editor/contrib/snippet/snippetController2": [
 		"Indique si l\'éditeur est actualisé en mode extrait",
 		"Indique s\'il existe un taquet de tabulation suivant en mode extrait",
 		"Indique s\'il existe un taquet de tabulation précédent en mode extrait",
 	],
-	"vs/editor/contrib/snippet/browser/snippetVariables": [
+	"vs/editor/contrib/snippet/snippetVariables": [
 		"Dimanche",
 		"Lundi",
 		"Mardi",
@@ -1121,7 +1120,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Nov",
 		"Déc",
 	],
-	"vs/editor/contrib/suggest/browser/suggest": [
+	"vs/editor/contrib/suggest/suggest": [
 		"Indique si les suggestions sont visibles",
 		"Indique si les détails des suggestions sont visibles",
 		"Indique s\'il existe plusieurs suggestions au choix",
@@ -1131,7 +1130,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Indique si le comportement par défaut consiste à insérer ou à remplacer",
 		"Indique si la suggestion actuelle prend en charge la résolution des détails supplémentaires",
 	],
-	"vs/editor/contrib/suggest/browser/suggestController": [
+	"vs/editor/contrib/suggest/suggestController": [
 		"L\'acceptation de \'{0}\' a entraîné {1} modifications supplémentaires",
 		"Suggestions pour Trigger",
 		"Insérer",
@@ -1143,7 +1142,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"afficher plus",
 		"Réinitialiser la taille du widget de suggestion",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidget": [
+	"vs/editor/contrib/suggest/suggestWidget": [
 		"Couleur d\'arrière-plan du widget de suggestion.",
 		"Couleur de bordure du widget de suggestion.",
 		"Couleur de premier plan du widget de suggestion.",
@@ -1155,24 +1154,21 @@ define("vs/editor/editor.main.nls.fr", {
 		"Couleur de premier plan du statut du widget de suggestion.",
 		"Chargement en cours...",
 		"Pas de suggestions.",
-		"Suggérer",
-		"({0}, {1}) {2}",
-		"{0}{1}",
-		"{0}, {1}",
 		"{0}, documents : {1}",
+		"Suggérer",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetDetails": [
+	"vs/editor/contrib/suggest/suggestWidgetDetails": [
 		"Fermer",
 		"Chargement en cours...",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetRenderer": [
+	"vs/editor/contrib/suggest/suggestWidgetRenderer": [
 		"Icône d\'affichage d\'informations supplémentaires dans le widget de suggestion.",
 		"Lire la suite",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetStatus": [
+	"vs/editor/contrib/suggest/suggestWidgetStatus": [
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/symbolIcons/browser/symbolIcons": [
+	"vs/editor/contrib/symbolIcons/symbolIcons": [
 		"Couleur de premier plan des symboles de tableau. Ces symboles apparaissent dans le plan, la barre de navigation et le widget de suggestion.",
 		"Couleur de premier plan des symboles booléens. Ces symboles apparaissent dans le plan, la barre de navigation et le widget de suggestion.",
 		"Couleur de premier plan des symboles de classe. Ces symboles apparaissent dans le plan, la barre de navigation et le widget de suggestion.",
@@ -1207,15 +1203,15 @@ define("vs/editor/editor.main.nls.fr", {
 		"Couleur de premier plan des symboles d\'unité. Ces symboles apparaissent dans le plan, la barre de navigation et le widget de suggestion.",
 		"Couleur de premier plan des symboles de variable. Ces symboles apparaissent dans le plan, la barre de navigation et le widget de suggestion.",
 	],
-	"vs/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode": [
+	"vs/editor/contrib/toggleTabFocusMode/toggleTabFocusMode": [
 		"Activer/désactiver l\'utilisation de la touche Tab pour déplacer le focus",
 		"Appuyer sur Tab déplacera le focus vers le prochain élément pouvant être désigné comme élément actif",
 		"Appuyer sur Tab insérera le caractère de tabulation",
 	],
-	"vs/editor/contrib/tokenization/browser/tokenization": [
+	"vs/editor/contrib/tokenization/tokenization": [
 		"Développeur : forcer la retokenisation",
 	],
-	"vs/editor/contrib/unicodeHighlighter/browser/unicodeHighlighter": [
+	"vs/editor/contrib/unicodeHighlighter/unicodeHighlighter": [
 		"Icône affichée avec un message d\'avertissement dans l\'éditeur d\'extensions.",
 		"Ce document contient de nombreux caractères Unicode ASCII non basiques.",
 		"Ce document contient de nombreux caractères Unicode ambigus.",
@@ -1224,10 +1220,6 @@ define("vs/editor/editor.main.nls.fr", {
 		"Le caractère {0} est invisible.",
 		"Le caractère {0} n’est pas un caractère ASCII de base.",
 		"Ajuster les paramètres",
-		"Désactiver la mise en surbrillance dans les commentaires",
-		"Désactiver la mise en surbrillance des caractères dans les commentaires",
-		"Désactiver la mise en surbrillance dans les chaînes",
-		"Désactiver la mise en surbrillance des caractères dans les chaînes",
 		"Désactiver la mise en surbrillance ambiguë",
 		"Désactiver la mise en surbrillance des caractères ambigus",
 		"Désactiver le surlignage invisible",
@@ -1237,17 +1229,16 @@ define("vs/editor/editor.main.nls.fr", {
 		"Afficher les options d’exclusion",
 		"Exclure la mise en surbrillance des {0} (caractère invisible)",
 		"Exclure {0} de la mise en surbrillance",
-		"Autoriser les caractères Unicode plus courants dans le langage \"{0}\"",
 		"Configurer les options de surlignage Unicode",
 	],
-	"vs/editor/contrib/unusualLineTerminators/browser/unusualLineTerminators": [
+	"vs/editor/contrib/unusualLineTerminators/unusualLineTerminators": [
 		"Marques de fin de ligne inhabituelles",
 		"Marques de fin de ligne inhabituelles détectées",
 		"Le fichier « {0} »contient un ou plusieurs caractères de fin de ligne inhabituels, par exemple le séparateur de ligne (LS) ou le séparateur de paragraphe (PS).\r\n\r\nIl est recommandé de les supprimer du fichier. Vous pouvez configurer ce comportement par le biais de `editor.unusualLineTerminators`.",
 		"Supprimer les marques de fin de ligne inhabituelles",
 		"Ignorer",
 	],
-	"vs/editor/contrib/wordHighlighter/browser/wordHighlighter": [
+	"vs/editor/contrib/wordHighlighter/wordHighlighter": [
 		"Couleur d\'arrière-plan d\'un symbole pendant l\'accès en lecture, comme la lecture d\'une variable. La couleur ne doit pas être opaque pour ne pas masquer les ornements sous-jacents.",
 		"Couleur d\'arrière-plan d\'un symbole pendant l\'accès en écriture, comme l\'écriture d\'une variable. La couleur ne doit pas être opaque pour ne pas masquer les ornements sous-jacents.",
 		"Couleur de bordure d\'un symbole durant l\'accès en lecture, par exemple la lecture d\'une variable.",
@@ -1258,7 +1249,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Aller à la mise en évidence de symbole précédente",
 		"Déclencher la mise en évidence de symbole",
 	],
-	"vs/editor/contrib/wordOperations/browser/wordOperations": [
+	"vs/editor/contrib/wordOperations/wordOperations": [
 		"Supprimer le mot",
 	],
 	"vs/platform/actions/browser/menuEntryActionViewItem": [
@@ -1505,6 +1496,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Arrière-plan de la règle d\'aperçu de l\'ancêtre commun dans les conflits de fusion inline.",
 		"Couleur de marqueur de la règle d\'aperçu pour rechercher les correspondances. La couleur ne doit pas être opaque pour ne pas masquer les ornements sous-jacents.",
 		"Couleur de marqueur de la règle d\'aperçu pour la mise en surbrillance des sélections. La couleur ne doit pas être opaque pour ne pas masquer les ornements sous-jacents.",
+		"Aperçu de la couleur du marqueur de règle pour les caractères unicode mis en évidence. La couleur ne doit pas être opaque afin de ne pas cacher les décorations sous-jacentes.",
 		"Couleur de marqueur de la minimap pour les correspondances.",
 		"Couleur de marqueur minimap pour les sélections répétées de l’éditeur.",
 		"Couleur de marqueur du minimap pour la sélection de l\'éditeur.",
@@ -1512,6 +1504,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Couleur de marqueur de minimap pour les avertissements.",
 		"Couleur d\'arrière-plan du minimap.",
 		"Opacité des éléments de premier plan rendus dans la minimap. Par exemple, « #000000c0 » affiche les éléments avec une opacité de 75 %.",
+		"Couleur de marqueur de minimap pour les caractères Unicode en surbrillance",
 		"Couleur d\'arrière-plan du curseur de minimap.",
 		"Couleur d\'arrière-plan du curseur de minimap pendant le survol.",
 		"Couleur d\'arrière-plan du curseur de minimap pendant un clic.",
@@ -1549,7 +1542,7 @@ define("vs/editor/editor.main.nls.fr", {
 		"Impossible d\'annuler \'{0}\', car une opération d\'annulation ou de rétablissement est déjà en cours d\'exécution.",
 		"Voulez-vous annuler \'{0}\' ?",
 		"Oui",
-		"Non",
+		"Annuler",
 		"Impossible de répéter \'{0}\' dans tous les fichiers. {1}",
 		"Impossible de répéter \'{0}\' dans tous les fichiers. {1}",
 		"Impossible de répéter \'{0}\' dans tous les fichiers, car des modifications ont été apportées à {1}",

@@ -5,14 +5,14 @@
 import './decorations.css';
 import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
 import { Range } from '../../../common/core/range.js';
-import { HorizontalRange } from '../../view/renderingContext.js';
+import { HorizontalRange } from '../../../common/view/renderingContext.js';
 export class DecorationsOverlay extends DynamicViewOverlay {
     constructor(context) {
         super();
         this._context = context;
         const options = this._context.configuration.options;
-        this._lineHeight = options.get(59 /* lineHeight */);
-        this._typicalHalfwidthCharacterWidth = options.get(44 /* fontInfo */).typicalHalfwidthCharacterWidth;
+        this._lineHeight = options.get(58 /* lineHeight */);
+        this._typicalHalfwidthCharacterWidth = options.get(43 /* fontInfo */).typicalHalfwidthCharacterWidth;
         this._renderResult = null;
         this._context.addEventHandler(this);
     }
@@ -24,8 +24,8 @@ export class DecorationsOverlay extends DynamicViewOverlay {
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        this._lineHeight = options.get(59 /* lineHeight */);
-        this._typicalHalfwidthCharacterWidth = options.get(44 /* fontInfo */).typicalHalfwidthCharacterWidth;
+        this._lineHeight = options.get(58 /* lineHeight */);
+        this._typicalHalfwidthCharacterWidth = options.get(43 /* fontInfo */).typicalHalfwidthCharacterWidth;
         return true;
     }
     onDecorationsChanged(e) {
@@ -53,8 +53,7 @@ export class DecorationsOverlay extends DynamicViewOverlay {
     prepareRender(ctx) {
         const _decorations = ctx.getDecorationsInViewport();
         // Keep only decorations with `className`
-        let decorations = [];
-        let decorationsLen = 0;
+        let decorations = [], decorationsLen = 0;
         for (let i = 0, len = _decorations.length; i < len; i++) {
             const d = _decorations[i];
             if (d.options.className) {

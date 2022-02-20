@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import { splitLines } from '../../../base/common/strings.js';
 import { Position } from '../core/position.js';
-import { PrefixSumComputer } from './prefixSumComputer.js';
+import { PrefixSumComputer } from '../viewModel/prefixSumComputer.js';
 export class MirrorTextModel {
     constructor(uri, lines, eol, versionId) {
         this._uri = uri;
@@ -87,7 +87,7 @@ export class MirrorTextModel {
             // Nothing to insert
             return;
         }
-        const insertLines = splitLines(insertText);
+        let insertLines = splitLines(insertText);
         if (insertLines.length === 1) {
             // Inserting text on one line
             this._setLineText(position.lineNumber - 1, this._lines[position.lineNumber - 1].substring(0, position.column - 1)
@@ -101,7 +101,7 @@ export class MirrorTextModel {
         this._setLineText(position.lineNumber - 1, this._lines[position.lineNumber - 1].substring(0, position.column - 1)
             + insertLines[0]);
         // Insert new lines & store lengths
-        const newLengths = new Uint32Array(insertLines.length - 1);
+        let newLengths = new Uint32Array(insertLines.length - 1);
         for (let i = 1; i < insertLines.length; i++) {
             this._lines.splice(position.lineNumber + i - 1, 0, insertLines[i]);
             newLengths[i - 1] = insertLines[i].length + this._eol.length;

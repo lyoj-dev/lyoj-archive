@@ -8,11 +8,11 @@ import * as types from '../../../base/common/types.js';
 import { status } from '../../../base/browser/ui/aria/aria.js';
 import { Command, EditorCommand, registerEditorCommand, UndoCommand, RedoCommand, SelectAllCommand } from '../editorExtensions.js';
 import { ICodeEditorService } from '../services/codeEditorService.js';
-import { ColumnSelection } from '../../common/cursor/cursorColumnSelection.js';
-import { CursorState } from '../../common/cursor/cursorCommon.js';
-import { DeleteOperations } from '../../common/cursor/cursorDeleteOperations.js';
-import { CursorMove as CursorMove_, CursorMoveCommands } from '../../common/cursor/cursorMoveCommands.js';
-import { TypeOperations } from '../../common/cursor/cursorTypeOperations.js';
+import { ColumnSelection } from '../../common/controller/cursorColumnSelection.js';
+import { CursorState } from '../../common/controller/cursorCommon.js';
+import { DeleteOperations } from '../../common/controller/cursorDeleteOperations.js';
+import { CursorMove as CursorMove_, CursorMoveCommands } from '../../common/controller/cursorMoveCommands.js';
+import { TypeOperations } from '../../common/controller/cursorTypeOperations.js';
 import { Position } from '../../common/core/position.js';
 import { Range } from '../../common/core/range.js';
 import { EditorContextKeys } from '../../common/editorContextKeys.js';
@@ -248,28 +248,23 @@ export var CoreNavigationCommands;
     class BaseMoveToCommand extends CoreEditorCommand {
         constructor(opts) {
             super(opts);
-            this._minimalReveal = opts.minimalReveal;
             this._inSelectionMode = opts.inSelectionMode;
         }
         runCoreEditorCommand(viewModel, args) {
             viewModel.model.pushStackElement();
-            const cursorStateChanged = viewModel.setCursorStates(args.source, 3 /* Explicit */, [
+            viewModel.setCursorStates(args.source, 3 /* Explicit */, [
                 CursorMoveCommands.moveTo(viewModel, viewModel.getPrimaryCursorState(), this._inSelectionMode, args.position, args.viewPosition)
             ]);
-            if (cursorStateChanged) {
-                viewModel.revealPrimaryCursor(args.source, true, this._minimalReveal);
-            }
+            viewModel.revealPrimaryCursor(args.source, true);
         }
     }
     CoreNavigationCommands.MoveTo = registerEditorCommand(new BaseMoveToCommand({
         id: '_moveTo',
-        minimalReveal: true,
         inSelectionMode: false,
         precondition: undefined
     }));
     CoreNavigationCommands.MoveToSelect = registerEditorCommand(new BaseMoveToCommand({
         id: '_moveToSelect',
-        minimalReveal: false,
         inSelectionMode: true,
         precondition: undefined
     }));
@@ -304,8 +299,8 @@ export var CoreNavigationCommands;
             // validate `args`
             const validatedPosition = viewModel.model.validatePosition(args.position);
             const validatedViewPosition = viewModel.coordinatesConverter.validateViewPosition(new Position(args.viewPosition.lineNumber, args.viewPosition.column), validatedPosition);
-            const fromViewLineNumber = args.doColumnSelect ? prevColumnSelectData.fromViewLineNumber : validatedViewPosition.lineNumber;
-            const fromViewVisualColumn = args.doColumnSelect ? prevColumnSelectData.fromViewVisualColumn : args.mouseColumn - 1;
+            let fromViewLineNumber = args.doColumnSelect ? prevColumnSelectData.fromViewLineNumber : validatedViewPosition.lineNumber;
+            let fromViewVisualColumn = args.doColumnSelect ? prevColumnSelectData.fromViewVisualColumn : args.mouseColumn - 1;
             return ColumnSelection.columnSelect(viewModel.cursorConfig, viewModel, fromViewLineNumber, fromViewVisualColumn, validatedViewPosition.lineNumber, args.mouseColumn - 1);
         }
     });
@@ -467,7 +462,7 @@ export var CoreNavigationCommands;
                     direction: this._staticArgs.direction,
                     unit: this._staticArgs.unit,
                     select: this._staticArgs.select,
-                    value: dynamicArgs.pageSize || viewModel.cursorConfig.pageSize
+                    value: viewModel.cursorConfig.pageSize
                 };
             }
             viewModel.model.pushStackElement();
@@ -1477,7 +1472,7 @@ export var CoreEditingCommands;
             document.execCommand('undo');
         }
         runEditorCommand(accessor, editor, args) {
-            if (!editor.hasModel() || editor.getOption(81 /* readOnly */) === true) {
+            if (!editor.hasModel() || editor.getOption(80 /* readOnly */) === true) {
                 return;
             }
             return editor.getModel().undo();
@@ -1491,7 +1486,7 @@ export var CoreEditingCommands;
             document.execCommand('redo');
         }
         runEditorCommand(accessor, editor, args) {
-            if (!editor.hasModel() || editor.getOption(81 /* readOnly */) === true) {
+            if (!editor.hasModel() || editor.getOption(80 /* readOnly */) === true) {
                 return;
             }
             return editor.getModel().redo();

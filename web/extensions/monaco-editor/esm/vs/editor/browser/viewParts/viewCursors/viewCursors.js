@@ -8,13 +8,13 @@ import { IntervalTimer, TimeoutTimer } from '../../../../base/common/async.js';
 import { ViewPart } from '../../view/viewPart.js';
 import { ViewCursor } from './viewCursor.js';
 import { TextEditorCursorStyle } from '../../../common/config/editorOptions.js';
-import { editorCursorBackground, editorCursorForeground } from '../../../common/core/editorColorRegistry.js';
+import { editorCursorBackground, editorCursorForeground } from '../../../common/view/editorColorRegistry.js';
 import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 export class ViewCursors extends ViewPart {
     constructor(context) {
         super(context);
         const options = this._context.configuration.options;
-        this._readOnly = options.get(81 /* readOnly */);
+        this._readOnly = options.get(80 /* readOnly */);
         this._cursorBlinking = options.get(22 /* cursorBlinking */);
         this._cursorStyle = options.get(24 /* cursorStyle */);
         this._cursorSmoothCaretAnimation = options.get(23 /* cursorSmoothCaretAnimation */);
@@ -56,7 +56,7 @@ export class ViewCursors extends ViewPart {
     }
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        this._readOnly = options.get(81 /* readOnly */);
+        this._readOnly = options.get(80 /* readOnly */);
         this._cursorBlinking = options.get(22 /* cursorBlinking */);
         this._cursorStyle = options.get(24 /* cursorStyle */);
         this._cursorSmoothCaretAnimation = options.get(23 /* cursorSmoothCaretAnimation */);
@@ -283,8 +283,7 @@ export class ViewCursors extends ViewPart {
         }
     }
     render(ctx) {
-        const renderData = [];
-        let renderDataLen = 0;
+        let renderData = [], renderDataLen = 0;
         const primaryRenderData = this._primaryCursor.render(ctx);
         if (primaryRenderData) {
             renderData[renderDataLen++] = primaryRenderData;

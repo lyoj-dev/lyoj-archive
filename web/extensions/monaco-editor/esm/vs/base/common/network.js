@@ -73,7 +73,6 @@ export var Schemas;
      */
     Schemas.vsls = 'vsls';
 })(Schemas || (Schemas = {}));
-export const connectionTokenQueryName = 'tkn';
 class RemoteAuthoritiesImpl {
     constructor() {
         this._hosts = Object.create(null);
@@ -98,7 +97,7 @@ class RemoteAuthoritiesImpl {
         const connectionToken = this._connectionTokens[authority];
         let query = `path=${encodeURIComponent(uri.path)}`;
         if (typeof connectionToken === 'string') {
-            query += `&${connectionTokenQueryName}=${encodeURIComponent(connectionToken)}`;
+            query += `&tkn=${encodeURIComponent(connectionToken)}`;
         }
         return URI.from({
             scheme: platform.isWeb ? this._preferredWebSchema : Schemas.vscodeRemoteResource,

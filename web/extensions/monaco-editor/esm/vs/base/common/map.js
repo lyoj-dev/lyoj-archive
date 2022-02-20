@@ -74,26 +74,19 @@ export class PathIterator {
         this._caseSensitive = _caseSensitive;
     }
     reset(key) {
+        this._value = key.replace(/\\$|\/$/, '');
         this._from = 0;
         this._to = 0;
-        this._value = key;
-        this._valueLen = key.length;
-        for (let pos = key.length - 1; pos >= 0; pos--, this._valueLen--) {
-            const ch = this._value.charCodeAt(pos);
-            if (!(ch === 47 /* Slash */ || this._splitOnBackslash && ch === 92 /* Backslash */)) {
-                break;
-            }
-        }
         return this.next();
     }
     hasNext() {
-        return this._to < this._valueLen;
+        return this._to < this._value.length;
     }
     next() {
         // this._data = key.split(/[\\/]/).filter(s => !!s);
         this._from = this._to;
         let justSeps = true;
-        for (; this._to < this._valueLen; this._to++) {
+        for (; this._to < this._value.length; this._to++) {
             const ch = this._value.charCodeAt(this._to);
             if (ch === 47 /* Slash */ || this._splitOnBackslash && ch === 92 /* Backslash */) {
                 if (justSeps) {
@@ -477,7 +470,7 @@ export class TernarySearchTree {
                 }
                 else {
                     // right, left -> double rotate
-                    node.right = node.right.rotateRight();
+                    node.right = stack[i + 1][1] = stack[i + 1][1].rotateRight();
                     stack[i][1] = node.rotateLeft();
                 }
             }
@@ -489,7 +482,7 @@ export class TernarySearchTree {
                 }
                 else {
                     // left, right -> double rotate
-                    node.left = node.left.rotateLeft();
+                    node.left = stack[i + 1][1] = stack[i + 1][1].rotateLeft();
                     stack[i][1] = node.rotateRight();
                 }
             }

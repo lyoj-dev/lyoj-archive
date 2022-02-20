@@ -1,35 +1,20 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
-define("vs/language/html/htmlWorker", ["require"],(require)=>{
+define("vs/language/html/htmlWorker",[],()=>{
 var moduleExports = (() => {
   var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
   var __export = (target, all) => {
+    __markAsModule(target);
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
   };
-  var __reExport = (target, module, copyDefault, desc) => {
-    if (module && typeof module === "object" || typeof module === "function") {
-      for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
-          __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
-    }
-    return target;
-  };
-  var __toCommonJS = /* @__PURE__ */ ((cache) => {
-    return (module, temp) => {
-      return cache && cache.get(module) || (temp = __reExport(__markAsModule({}), module, 1), cache && cache.set(module, temp), temp);
-    };
-  })(typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : 0);
 
-  // src/language/html/htmlWorker.ts
+  // src/html/htmlWorker.ts
   var htmlWorker_exports = {};
   __export(htmlWorker_exports, {
     HTMLWorker: () => HTMLWorker,
@@ -57,6 +42,7 @@ var moduleExports = (() => {
   }
 
   // node_modules/vscode-languageserver-types/lib/esm/main.js
+  "use strict";
   var integer;
   (function(integer2) {
     integer2.MIN_VALUE = -2147483648;
@@ -524,7 +510,7 @@ var moduleExports = (() => {
   }();
   var ChangeAnnotations = function() {
     function ChangeAnnotations2(annotations) {
-      this._annotations = annotations === void 0 ? /* @__PURE__ */ Object.create(null) : annotations;
+      this._annotations = annotations === void 0 ? Object.create(null) : annotations;
       this._counter = 0;
       this._size = 0;
     }
@@ -565,7 +551,7 @@ var moduleExports = (() => {
   var WorkspaceChange = function() {
     function WorkspaceChange2(workspaceEdit) {
       var _this = this;
-      this._textEditChanges = /* @__PURE__ */ Object.create(null);
+      this._textEditChanges = Object.create(null);
       if (workspaceEdit !== void 0) {
         this._workspaceEdit = workspaceEdit;
         if (workspaceEdit.documentChanges) {
@@ -645,7 +631,7 @@ var moduleExports = (() => {
     };
     WorkspaceChange2.prototype.initChanges = function() {
       if (this._workspaceEdit.documentChanges === void 0 && this._workspaceEdit.changes === void 0) {
-        this._workspaceEdit.changes = /* @__PURE__ */ Object.create(null);
+        this._workspaceEdit.changes = Object.create(null);
       }
     };
     WorkspaceChange2.prototype.createFile = function(uri, optionsOrAnnotation, options) {
@@ -1314,60 +1300,85 @@ var moduleExports = (() => {
   })(Is || (Is = {}));
 
   // node_modules/vscode-languageserver-textdocument/lib/esm/main.js
-  var FullTextDocument2 = class {
-    constructor(uri, languageId, version, content) {
+  "use strict";
+  var __spreadArray = function(to, from, pack) {
+    if (pack || arguments.length === 2)
+      for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+          if (!ar)
+            ar = Array.prototype.slice.call(from, 0, i);
+          ar[i] = from[i];
+        }
+      }
+    return to.concat(ar || Array.prototype.slice.call(from));
+  };
+  var FullTextDocument2 = function() {
+    function FullTextDocument3(uri, languageId, version, content) {
       this._uri = uri;
       this._languageId = languageId;
       this._version = version;
       this._content = content;
       this._lineOffsets = void 0;
     }
-    get uri() {
-      return this._uri;
-    }
-    get languageId() {
-      return this._languageId;
-    }
-    get version() {
-      return this._version;
-    }
-    getText(range) {
+    Object.defineProperty(FullTextDocument3.prototype, "uri", {
+      get: function() {
+        return this._uri;
+      },
+      enumerable: false,
+      configurable: true
+    });
+    Object.defineProperty(FullTextDocument3.prototype, "languageId", {
+      get: function() {
+        return this._languageId;
+      },
+      enumerable: false,
+      configurable: true
+    });
+    Object.defineProperty(FullTextDocument3.prototype, "version", {
+      get: function() {
+        return this._version;
+      },
+      enumerable: false,
+      configurable: true
+    });
+    FullTextDocument3.prototype.getText = function(range) {
       if (range) {
-        const start = this.offsetAt(range.start);
-        const end = this.offsetAt(range.end);
+        var start = this.offsetAt(range.start);
+        var end = this.offsetAt(range.end);
         return this._content.substring(start, end);
       }
       return this._content;
-    }
-    update(changes, version) {
-      for (let change of changes) {
-        if (FullTextDocument2.isIncremental(change)) {
-          const range = getWellformedRange(change.range);
-          const startOffset = this.offsetAt(range.start);
-          const endOffset = this.offsetAt(range.end);
+    };
+    FullTextDocument3.prototype.update = function(changes, version) {
+      for (var _i = 0, changes_1 = changes; _i < changes_1.length; _i++) {
+        var change = changes_1[_i];
+        if (FullTextDocument3.isIncremental(change)) {
+          var range = getWellformedRange(change.range);
+          var startOffset = this.offsetAt(range.start);
+          var endOffset = this.offsetAt(range.end);
           this._content = this._content.substring(0, startOffset) + change.text + this._content.substring(endOffset, this._content.length);
-          const startLine = Math.max(range.start.line, 0);
-          const endLine = Math.max(range.end.line, 0);
-          let lineOffsets = this._lineOffsets;
-          const addedLineOffsets = computeLineOffsets(change.text, false, startOffset);
+          var startLine = Math.max(range.start.line, 0);
+          var endLine = Math.max(range.end.line, 0);
+          var lineOffsets = this._lineOffsets;
+          var addedLineOffsets = computeLineOffsets(change.text, false, startOffset);
           if (endLine - startLine === addedLineOffsets.length) {
-            for (let i = 0, len = addedLineOffsets.length; i < len; i++) {
+            for (var i = 0, len = addedLineOffsets.length; i < len; i++) {
               lineOffsets[i + startLine + 1] = addedLineOffsets[i];
             }
           } else {
             if (addedLineOffsets.length < 1e4) {
-              lineOffsets.splice(startLine + 1, endLine - startLine, ...addedLineOffsets);
+              lineOffsets.splice.apply(lineOffsets, __spreadArray([startLine + 1, endLine - startLine], addedLineOffsets, false));
             } else {
               this._lineOffsets = lineOffsets = lineOffsets.slice(0, startLine + 1).concat(addedLineOffsets, lineOffsets.slice(endLine + 1));
             }
           }
-          const diff = change.text.length - (endOffset - startOffset);
+          var diff = change.text.length - (endOffset - startOffset);
           if (diff !== 0) {
-            for (let i = startLine + 1 + addedLineOffsets.length, len = lineOffsets.length; i < len; i++) {
+            for (var i = startLine + 1 + addedLineOffsets.length, len = lineOffsets.length; i < len; i++) {
               lineOffsets[i] = lineOffsets[i] + diff;
             }
           }
-        } else if (FullTextDocument2.isFull(change)) {
+        } else if (FullTextDocument3.isFull(change)) {
           this._content = change.text;
           this._lineOffsets = void 0;
         } else {
@@ -1375,54 +1386,59 @@ var moduleExports = (() => {
         }
       }
       this._version = version;
-    }
-    getLineOffsets() {
+    };
+    FullTextDocument3.prototype.getLineOffsets = function() {
       if (this._lineOffsets === void 0) {
         this._lineOffsets = computeLineOffsets(this._content, true);
       }
       return this._lineOffsets;
-    }
-    positionAt(offset) {
+    };
+    FullTextDocument3.prototype.positionAt = function(offset) {
       offset = Math.max(Math.min(offset, this._content.length), 0);
-      let lineOffsets = this.getLineOffsets();
-      let low = 0, high = lineOffsets.length;
+      var lineOffsets = this.getLineOffsets();
+      var low = 0, high = lineOffsets.length;
       if (high === 0) {
         return { line: 0, character: offset };
       }
       while (low < high) {
-        let mid = Math.floor((low + high) / 2);
+        var mid = Math.floor((low + high) / 2);
         if (lineOffsets[mid] > offset) {
           high = mid;
         } else {
           low = mid + 1;
         }
       }
-      let line = low - 1;
+      var line = low - 1;
       return { line, character: offset - lineOffsets[line] };
-    }
-    offsetAt(position) {
-      let lineOffsets = this.getLineOffsets();
+    };
+    FullTextDocument3.prototype.offsetAt = function(position) {
+      var lineOffsets = this.getLineOffsets();
       if (position.line >= lineOffsets.length) {
         return this._content.length;
       } else if (position.line < 0) {
         return 0;
       }
-      let lineOffset = lineOffsets[position.line];
-      let nextLineOffset = position.line + 1 < lineOffsets.length ? lineOffsets[position.line + 1] : this._content.length;
+      var lineOffset = lineOffsets[position.line];
+      var nextLineOffset = position.line + 1 < lineOffsets.length ? lineOffsets[position.line + 1] : this._content.length;
       return Math.max(Math.min(lineOffset + position.character, nextLineOffset), lineOffset);
-    }
-    get lineCount() {
-      return this.getLineOffsets().length;
-    }
-    static isIncremental(event) {
-      let candidate = event;
+    };
+    Object.defineProperty(FullTextDocument3.prototype, "lineCount", {
+      get: function() {
+        return this.getLineOffsets().length;
+      },
+      enumerable: false,
+      configurable: true
+    });
+    FullTextDocument3.isIncremental = function(event) {
+      var candidate = event;
       return candidate !== void 0 && candidate !== null && typeof candidate.text === "string" && candidate.range !== void 0 && (candidate.rangeLength === void 0 || typeof candidate.rangeLength === "number");
-    }
-    static isFull(event) {
-      let candidate = event;
+    };
+    FullTextDocument3.isFull = function(event) {
+      var candidate = event;
       return candidate !== void 0 && candidate !== null && typeof candidate.text === "string" && candidate.range === void 0 && candidate.rangeLength === void 0;
-    }
-  };
+    };
+    return FullTextDocument3;
+  }();
   var TextDocument2;
   (function(TextDocument3) {
     function create2(uri, languageId, version, content) {
@@ -1439,18 +1455,19 @@ var moduleExports = (() => {
     }
     TextDocument3.update = update;
     function applyEdits(document, edits) {
-      let text = document.getText();
-      let sortedEdits = mergeSort(edits.map(getWellformedEdit), (a, b) => {
-        let diff = a.range.start.line - b.range.start.line;
+      var text = document.getText();
+      var sortedEdits = mergeSort(edits.map(getWellformedEdit), function(a, b) {
+        var diff = a.range.start.line - b.range.start.line;
         if (diff === 0) {
           return a.range.start.character - b.range.start.character;
         }
         return diff;
       });
-      let lastModifiedOffset = 0;
-      const spans = [];
-      for (const e of sortedEdits) {
-        let startOffset = document.offsetAt(e.range.start);
+      var lastModifiedOffset = 0;
+      var spans = [];
+      for (var _i = 0, sortedEdits_1 = sortedEdits; _i < sortedEdits_1.length; _i++) {
+        var e = sortedEdits_1[_i];
+        var startOffset = document.offsetAt(e.range.start);
         if (startOffset < lastModifiedOffset) {
           throw new Error("Overlapping edit");
         } else if (startOffset > lastModifiedOffset) {
@@ -1470,16 +1487,16 @@ var moduleExports = (() => {
     if (data.length <= 1) {
       return data;
     }
-    const p = data.length / 2 | 0;
-    const left = data.slice(0, p);
-    const right = data.slice(p);
+    var p = data.length / 2 | 0;
+    var left = data.slice(0, p);
+    var right = data.slice(p);
     mergeSort(left, compare);
     mergeSort(right, compare);
-    let leftIdx = 0;
-    let rightIdx = 0;
-    let i = 0;
+    var leftIdx = 0;
+    var rightIdx = 0;
+    var i = 0;
     while (leftIdx < left.length && rightIdx < right.length) {
-      let ret = compare(left[leftIdx], right[rightIdx]);
+      var ret = compare(left[leftIdx], right[rightIdx]);
       if (ret <= 0) {
         data[i++] = left[leftIdx++];
       } else {
@@ -1494,10 +1511,13 @@ var moduleExports = (() => {
     }
     return data;
   }
-  function computeLineOffsets(text, isAtLineStart, textOffset = 0) {
-    const result = isAtLineStart ? [textOffset] : [];
-    for (let i = 0; i < text.length; i++) {
-      let ch = text.charCodeAt(i);
+  function computeLineOffsets(text, isAtLineStart, textOffset) {
+    if (textOffset === void 0) {
+      textOffset = 0;
+    }
+    var result = isAtLineStart ? [textOffset] : [];
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charCodeAt(i);
       if (ch === 13 || ch === 10) {
         if (ch === 13 && i + 1 < text.length && text.charCodeAt(i + 1) === 10) {
           i++;
@@ -1508,15 +1528,15 @@ var moduleExports = (() => {
     return result;
   }
   function getWellformedRange(range) {
-    const start = range.start;
-    const end = range.end;
+    var start = range.start;
+    var end = range.end;
     if (start.line > end.line || start.line === end.line && start.character > end.character) {
       return { start: end, end: start };
     }
     return range;
   }
   function getWellformedEdit(textEdit) {
-    const range = getWellformedRange(textEdit.range);
+    var range = getWellformedRange(textEdit.range);
     if (range !== textEdit.range) {
       return { newText: textEdit.newText, range };
     }
@@ -4815,9 +4835,6 @@ var moduleExports = (() => {
     return true;
   }
   function isPathAttribute(tag, attr) {
-    if (attr === "src" || attr === "href") {
-      return true;
-    }
     var a = PATH_TAG_AND_ATTR[tag];
     if (a) {
       if (typeof a === "string") {
@@ -5177,7 +5194,7 @@ var moduleExports = (() => {
         return result;
       }
       function getExistingAttributes() {
-        var existingAttributes = /* @__PURE__ */ Object.create(null);
+        var existingAttributes = Object.create(null);
         node.attributeNames.forEach(function(attribute) {
           existingAttributes[attribute] = true;
         });
@@ -5463,42 +5480,6 @@ var moduleExports = (() => {
         token = scanner.scan();
       }
       return result;
-    };
-    HTMLCompletion2.prototype.doQuoteComplete = function(document, position, htmlDocument, settings) {
-      var _a2;
-      var offset = document.offsetAt(position);
-      if (offset <= 0) {
-        return null;
-      }
-      var defaultValue = (_a2 = settings === null || settings === void 0 ? void 0 : settings.attributeDefaultValue) !== null && _a2 !== void 0 ? _a2 : "doublequotes";
-      if (defaultValue === "empty") {
-        return null;
-      }
-      var char = document.getText().charAt(offset - 1);
-      if (char !== "=") {
-        return null;
-      }
-      var value = defaultValue === "doublequotes" ? '"$1"' : "'$1'";
-      var node = htmlDocument.findNodeBefore(offset);
-      if (node && node.attributes && node.start < offset && (!node.endTagStart || node.endTagStart > offset)) {
-        var scanner = createScanner(document.getText(), node.start);
-        var token = scanner.scan();
-        while (token !== TokenType.EOS && scanner.getTokenEnd() <= offset) {
-          if (token === TokenType.AttributeName && scanner.getTokenEnd() === offset - 1) {
-            token = scanner.scan();
-            if (token !== TokenType.DelimiterAssign) {
-              return null;
-            }
-            token = scanner.scan();
-            if (token === TokenType.Unknown || token === TokenType.AttributeValue) {
-              return null;
-            }
-            return value;
-          }
-          token = scanner.scan();
-        }
-      }
-      return null;
     };
     HTMLCompletion2.prototype.doTagComplete = function(document, position, htmlDocument) {
       var offset = document.offsetAt(position);
@@ -9057,26 +9038,26 @@ var moduleExports = (() => {
           ;
         for (var i = t3.length, a = i - o, h = 1; h < r3.length && r3.charCodeAt(h) === 47; ++h)
           ;
-        for (var s = r3.length - h, c = a < s ? a : s, f = -1, u = 0; u <= c; ++u) {
-          if (u === c) {
-            if (s > c) {
-              if (r3.charCodeAt(h + u) === 47)
-                return r3.slice(h + u + 1);
-              if (u === 0)
-                return r3.slice(h + u);
+        for (var s = r3.length - h, f = a < s ? a : s, u = -1, c = 0; c <= f; ++c) {
+          if (c === f) {
+            if (s > f) {
+              if (r3.charCodeAt(h + c) === 47)
+                return r3.slice(h + c + 1);
+              if (c === 0)
+                return r3.slice(h + c);
             } else
-              a > c && (t3.charCodeAt(o + u) === 47 ? f = u : u === 0 && (f = 0));
+              a > f && (t3.charCodeAt(o + c) === 47 ? u = c : c === 0 && (u = 0));
             break;
           }
-          var l = t3.charCodeAt(o + u);
-          if (l !== r3.charCodeAt(h + u))
+          var l = t3.charCodeAt(o + c);
+          if (l !== r3.charCodeAt(h + c))
             break;
-          l === 47 && (f = u);
+          l === 47 && (u = c);
         }
         var p = "";
-        for (u = o + f + 1; u <= i; ++u)
-          u !== i && t3.charCodeAt(u) !== 47 || (p.length === 0 ? p += ".." : p += "/..");
-        return p.length > 0 ? p + r3.slice(h + f) : (h += f, r3.charCodeAt(h) === 47 && ++h, r3.slice(h));
+        for (c = o + u + 1; c <= i; ++c)
+          c !== i && t3.charCodeAt(c) !== 47 || (p.length === 0 ? p += ".." : p += "/..");
+        return p.length > 0 ? p + r3.slice(h + u) : (h += u, r3.charCodeAt(h) === 47 && ++h, r3.slice(h));
       }, _makeLong: function(t3) {
         return t3;
       }, dirname: function(t3) {
@@ -9101,14 +9082,14 @@ var moduleExports = (() => {
             return "";
           var h = r3.length - 1, s = -1;
           for (n2 = t3.length - 1; n2 >= 0; --n2) {
-            var c = t3.charCodeAt(n2);
-            if (c === 47) {
+            var f = t3.charCodeAt(n2);
+            if (f === 47) {
               if (!a) {
                 o = n2 + 1;
                 break;
               }
             } else
-              s === -1 && (a = false, s = n2 + 1), h >= 0 && (c === r3.charCodeAt(h) ? --h == -1 && (i = n2) : (h = -1, i = s));
+              s === -1 && (a = false, s = n2 + 1), h >= 0 && (f === r3.charCodeAt(h) ? --h == -1 && (i = n2) : (h = -1, i = s));
           }
           return o === i ? i = s : i === -1 && (i = t3.length), t3.slice(o, i);
         }
@@ -9147,19 +9128,19 @@ var moduleExports = (() => {
           return r3;
         var n2, o = t3.charCodeAt(0), i = o === 47;
         i ? (r3.root = "/", n2 = 1) : n2 = 0;
-        for (var a = -1, h = 0, s = -1, c = true, f = t3.length - 1, u = 0; f >= n2; --f)
-          if ((o = t3.charCodeAt(f)) !== 47)
-            s === -1 && (c = false, s = f + 1), o === 46 ? a === -1 ? a = f : u !== 1 && (u = 1) : a !== -1 && (u = -1);
-          else if (!c) {
-            h = f + 1;
+        for (var a = -1, h = 0, s = -1, f = true, u = t3.length - 1, c = 0; u >= n2; --u)
+          if ((o = t3.charCodeAt(u)) !== 47)
+            s === -1 && (f = false, s = u + 1), o === 46 ? a === -1 ? a = u : c !== 1 && (c = 1) : a !== -1 && (c = -1);
+          else if (!f) {
+            h = u + 1;
             break;
           }
-        return a === -1 || s === -1 || u === 0 || u === 1 && a === s - 1 && a === h + 1 ? s !== -1 && (r3.base = r3.name = h === 0 && i ? t3.slice(1, s) : t3.slice(h, s)) : (h === 0 && i ? (r3.name = t3.slice(1, a), r3.base = t3.slice(1, s)) : (r3.name = t3.slice(h, a), r3.base = t3.slice(h, s)), r3.ext = t3.slice(a, s)), h > 0 ? r3.dir = t3.slice(0, h - 1) : i && (r3.dir = "/"), r3;
+        return a === -1 || s === -1 || c === 0 || c === 1 && a === s - 1 && a === h + 1 ? s !== -1 && (r3.base = r3.name = h === 0 && i ? t3.slice(1, s) : t3.slice(h, s)) : (h === 0 && i ? (r3.name = t3.slice(1, a), r3.base = t3.slice(1, s)) : (r3.name = t3.slice(h, a), r3.base = t3.slice(h, s)), r3.ext = t3.slice(a, s)), h > 0 ? r3.dir = t3.slice(0, h - 1) : i && (r3.dir = "/"), r3;
       }, sep: "/", delimiter: ":", win32: null, posix: null };
       n.posix = n, t2.exports = n;
     }, 447: (t2, e2, r2) => {
       var n;
-      if (r2.r(e2), r2.d(e2, { URI: () => d, Utils: () => P }), typeof process == "object")
+      if (r2.r(e2), r2.d(e2, { URI: () => g, Utils: () => O }), typeof process == "object")
         n = process.platform === "win32";
       else if (typeof navigator == "object") {
         var o = navigator.userAgent;
@@ -9173,91 +9154,86 @@ var moduleExports = (() => {
             Object.prototype.hasOwnProperty.call(e4, r3) && (t4[r3] = e4[r3]);
         })(t3, e3);
       }, function(t3, e3) {
-        if (typeof e3 != "function" && e3 !== null)
-          throw new TypeError("Class extends value " + String(e3) + " is not a constructor or null");
         function r3() {
           this.constructor = t3;
         }
         i(t3, e3), t3.prototype = e3 === null ? Object.create(e3) : (r3.prototype = e3.prototype, new r3());
-      }), s = /^\w[\w\d+.-]*$/, c = /^\//, f = /^\/\//;
-      function u(t3, e3) {
-        if (!t3.scheme && e3)
-          throw new Error('[UriError]: Scheme is missing: {scheme: "", authority: "'.concat(t3.authority, '", path: "').concat(t3.path, '", query: "').concat(t3.query, '", fragment: "').concat(t3.fragment, '"}'));
-        if (t3.scheme && !s.test(t3.scheme))
-          throw new Error("[UriError]: Scheme contains illegal characters.");
-        if (t3.path) {
-          if (t3.authority) {
-            if (!c.test(t3.path))
-              throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
-          } else if (f.test(t3.path))
-            throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
-        }
-      }
-      var l = "", p = "/", g = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/, d = function() {
+      }), s = /^\w[\w\d+.-]*$/, f = /^\//, u = /^\/\//, c = "", l = "/", p = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/, g = function() {
         function t3(t4, e3, r3, n2, o2, i2) {
-          i2 === void 0 && (i2 = false), typeof t4 == "object" ? (this.scheme = t4.scheme || l, this.authority = t4.authority || l, this.path = t4.path || l, this.query = t4.query || l, this.fragment = t4.fragment || l) : (this.scheme = function(t5, e4) {
+          i2 === void 0 && (i2 = false), typeof t4 == "object" ? (this.scheme = t4.scheme || c, this.authority = t4.authority || c, this.path = t4.path || c, this.query = t4.query || c, this.fragment = t4.fragment || c) : (this.scheme = function(t5, e4) {
             return t5 || e4 ? t5 : "file";
-          }(t4, i2), this.authority = e3 || l, this.path = function(t5, e4) {
+          }(t4, i2), this.authority = e3 || c, this.path = function(t5, e4) {
             switch (t5) {
               case "https":
               case "http":
               case "file":
-                e4 ? e4[0] !== p && (e4 = p + e4) : e4 = p;
+                e4 ? e4[0] !== l && (e4 = l + e4) : e4 = l;
             }
             return e4;
-          }(this.scheme, r3 || l), this.query = n2 || l, this.fragment = o2 || l, u(this, i2));
+          }(this.scheme, r3 || c), this.query = n2 || c, this.fragment = o2 || c, function(t5, e4) {
+            if (!t5.scheme && e4)
+              throw new Error('[UriError]: Scheme is missing: {scheme: "", authority: "' + t5.authority + '", path: "' + t5.path + '", query: "' + t5.query + '", fragment: "' + t5.fragment + '"}');
+            if (t5.scheme && !s.test(t5.scheme))
+              throw new Error("[UriError]: Scheme contains illegal characters.");
+            if (t5.path) {
+              if (t5.authority) {
+                if (!f.test(t5.path))
+                  throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
+              } else if (u.test(t5.path))
+                throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
+            }
+          }(this, i2));
         }
         return t3.isUri = function(e3) {
-          return e3 instanceof t3 || !!e3 && typeof e3.authority == "string" && typeof e3.fragment == "string" && typeof e3.path == "string" && typeof e3.query == "string" && typeof e3.scheme == "string" && typeof e3.fsPath == "string" && typeof e3.with == "function" && typeof e3.toString == "function";
+          return e3 instanceof t3 || !!e3 && typeof e3.authority == "string" && typeof e3.fragment == "string" && typeof e3.path == "string" && typeof e3.query == "string" && typeof e3.scheme == "string" && typeof e3.fsPath == "function" && typeof e3.with == "function" && typeof e3.toString == "function";
         }, Object.defineProperty(t3.prototype, "fsPath", { get: function() {
-          return A(this, false);
+          return C(this, false);
         }, enumerable: false, configurable: true }), t3.prototype.with = function(t4) {
           if (!t4)
             return this;
           var e3 = t4.scheme, r3 = t4.authority, n2 = t4.path, o2 = t4.query, i2 = t4.fragment;
-          return e3 === void 0 ? e3 = this.scheme : e3 === null && (e3 = l), r3 === void 0 ? r3 = this.authority : r3 === null && (r3 = l), n2 === void 0 ? n2 = this.path : n2 === null && (n2 = l), o2 === void 0 ? o2 = this.query : o2 === null && (o2 = l), i2 === void 0 ? i2 = this.fragment : i2 === null && (i2 = l), e3 === this.scheme && r3 === this.authority && n2 === this.path && o2 === this.query && i2 === this.fragment ? this : new y(e3, r3, n2, o2, i2);
+          return e3 === void 0 ? e3 = this.scheme : e3 === null && (e3 = c), r3 === void 0 ? r3 = this.authority : r3 === null && (r3 = c), n2 === void 0 ? n2 = this.path : n2 === null && (n2 = c), o2 === void 0 ? o2 = this.query : o2 === null && (o2 = c), i2 === void 0 ? i2 = this.fragment : i2 === null && (i2 = c), e3 === this.scheme && r3 === this.authority && n2 === this.path && o2 === this.query && i2 === this.fragment ? this : new v(e3, r3, n2, o2, i2);
         }, t3.parse = function(t4, e3) {
           e3 === void 0 && (e3 = false);
-          var r3 = g.exec(t4);
-          return r3 ? new y(r3[2] || l, O(r3[4] || l), O(r3[5] || l), O(r3[7] || l), O(r3[9] || l), e3) : new y(l, l, l, l, l);
+          var r3 = p.exec(t4);
+          return r3 ? new v(r3[2] || c, x(r3[4] || c), x(r3[5] || c), x(r3[7] || c), x(r3[9] || c), e3) : new v(c, c, c, c, c);
         }, t3.file = function(t4) {
-          var e3 = l;
-          if (n && (t4 = t4.replace(/\\/g, p)), t4[0] === p && t4[1] === p) {
-            var r3 = t4.indexOf(p, 2);
-            r3 === -1 ? (e3 = t4.substring(2), t4 = p) : (e3 = t4.substring(2, r3), t4 = t4.substring(r3) || p);
+          var e3 = c;
+          if (n && (t4 = t4.replace(/\\/g, l)), t4[0] === l && t4[1] === l) {
+            var r3 = t4.indexOf(l, 2);
+            r3 === -1 ? (e3 = t4.substring(2), t4 = l) : (e3 = t4.substring(2, r3), t4 = t4.substring(r3) || l);
           }
-          return new y("file", e3, t4, l, l);
+          return new v("file", e3, t4, c, c);
         }, t3.from = function(t4) {
-          var e3 = new y(t4.scheme, t4.authority, t4.path, t4.query, t4.fragment);
-          return u(e3, true), e3;
+          return new v(t4.scheme, t4.authority, t4.path, t4.query, t4.fragment);
         }, t3.prototype.toString = function(t4) {
-          return t4 === void 0 && (t4 = false), w(this, t4);
+          return t4 === void 0 && (t4 = false), A(this, t4);
         }, t3.prototype.toJSON = function() {
           return this;
         }, t3.revive = function(e3) {
           if (e3) {
             if (e3 instanceof t3)
               return e3;
-            var r3 = new y(e3);
-            return r3._formatted = e3.external, r3._fsPath = e3._sep === v ? e3.fsPath : null, r3;
+            var r3 = new v(e3);
+            return r3._formatted = e3.external, r3._fsPath = e3._sep === d ? e3.fsPath : null, r3;
           }
           return e3;
         }, t3;
-      }(), v = n ? 1 : void 0, y = function(t3) {
+      }(), d = n ? 1 : void 0, v = function(t3) {
         function e3() {
           var e4 = t3 !== null && t3.apply(this, arguments) || this;
           return e4._formatted = null, e4._fsPath = null, e4;
         }
         return h(e3, t3), Object.defineProperty(e3.prototype, "fsPath", { get: function() {
-          return this._fsPath || (this._fsPath = A(this, false)), this._fsPath;
+          return this._fsPath || (this._fsPath = C(this, false)), this._fsPath;
         }, enumerable: false, configurable: true }), e3.prototype.toString = function(t4) {
-          return t4 === void 0 && (t4 = false), t4 ? w(this, true) : (this._formatted || (this._formatted = w(this, false)), this._formatted);
+          return t4 === void 0 && (t4 = false), t4 ? A(this, true) : (this._formatted || (this._formatted = A(this, false)), this._formatted);
         }, e3.prototype.toJSON = function() {
           var t4 = { $mid: 1 };
-          return this._fsPath && (t4.fsPath = this._fsPath, t4._sep = v), this._formatted && (t4.external = this._formatted), this.path && (t4.path = this.path), this.scheme && (t4.scheme = this.scheme), this.authority && (t4.authority = this.authority), this.query && (t4.query = this.query), this.fragment && (t4.fragment = this.fragment), t4;
+          return this._fsPath && (t4.fsPath = this._fsPath, t4._sep = d), this._formatted && (t4.external = this._formatted), this.path && (t4.path = this.path), this.scheme && (t4.scheme = this.scheme), this.authority && (t4.authority = this.authority), this.query && (t4.query = this.query), this.fragment && (t4.fragment = this.fragment), t4;
         }, e3;
-      }(d), m = ((a = {})[58] = "%3A", a[47] = "%2F", a[63] = "%3F", a[35] = "%23", a[91] = "%5B", a[93] = "%5D", a[64] = "%40", a[33] = "%21", a[36] = "%24", a[38] = "%26", a[39] = "%27", a[40] = "%28", a[41] = "%29", a[42] = "%2A", a[43] = "%2B", a[44] = "%2C", a[59] = "%3B", a[61] = "%3D", a[32] = "%20", a);
-      function b(t3, e3) {
+      }(g), m = ((a = {})[58] = "%3A", a[47] = "%2F", a[63] = "%3F", a[35] = "%23", a[91] = "%5B", a[93] = "%5D", a[64] = "%40", a[33] = "%21", a[36] = "%24", a[38] = "%26", a[39] = "%27", a[40] = "%28", a[41] = "%29", a[42] = "%2A", a[43] = "%2B", a[44] = "%2C", a[59] = "%3B", a[61] = "%3D", a[32] = "%20", a);
+      function y(t3, e3) {
         for (var r3 = void 0, n2 = -1, o2 = 0; o2 < t3.length; o2++) {
           var i2 = t3.charCodeAt(o2);
           if (i2 >= 97 && i2 <= 122 || i2 >= 65 && i2 <= 90 || i2 >= 48 && i2 <= 57 || i2 === 45 || i2 === 46 || i2 === 95 || i2 === 126 || e3 && i2 === 47)
@@ -9270,76 +9246,79 @@ var moduleExports = (() => {
         }
         return n2 !== -1 && (r3 += encodeURIComponent(t3.substring(n2))), r3 !== void 0 ? r3 : t3;
       }
-      function C(t3) {
+      function b(t3) {
         for (var e3 = void 0, r3 = 0; r3 < t3.length; r3++) {
           var n2 = t3.charCodeAt(r3);
           n2 === 35 || n2 === 63 ? (e3 === void 0 && (e3 = t3.substr(0, r3)), e3 += m[n2]) : e3 !== void 0 && (e3 += t3[r3]);
         }
         return e3 !== void 0 ? e3 : t3;
       }
-      function A(t3, e3) {
+      function C(t3, e3) {
         var r3;
-        return r3 = t3.authority && t3.path.length > 1 && t3.scheme === "file" ? "//".concat(t3.authority).concat(t3.path) : t3.path.charCodeAt(0) === 47 && (t3.path.charCodeAt(1) >= 65 && t3.path.charCodeAt(1) <= 90 || t3.path.charCodeAt(1) >= 97 && t3.path.charCodeAt(1) <= 122) && t3.path.charCodeAt(2) === 58 ? e3 ? t3.path.substr(1) : t3.path[1].toLowerCase() + t3.path.substr(2) : t3.path, n && (r3 = r3.replace(/\//g, "\\")), r3;
+        return r3 = t3.authority && t3.path.length > 1 && t3.scheme === "file" ? "//" + t3.authority + t3.path : t3.path.charCodeAt(0) === 47 && (t3.path.charCodeAt(1) >= 65 && t3.path.charCodeAt(1) <= 90 || t3.path.charCodeAt(1) >= 97 && t3.path.charCodeAt(1) <= 122) && t3.path.charCodeAt(2) === 58 ? e3 ? t3.path.substr(1) : t3.path[1].toLowerCase() + t3.path.substr(2) : t3.path, n && (r3 = r3.replace(/\//g, "\\")), r3;
       }
-      function w(t3, e3) {
-        var r3 = e3 ? C : b, n2 = "", o2 = t3.scheme, i2 = t3.authority, a2 = t3.path, h2 = t3.query, s2 = t3.fragment;
-        if (o2 && (n2 += o2, n2 += ":"), (i2 || o2 === "file") && (n2 += p, n2 += p), i2) {
-          var c2 = i2.indexOf("@");
-          if (c2 !== -1) {
-            var f2 = i2.substr(0, c2);
-            i2 = i2.substr(c2 + 1), (c2 = f2.indexOf(":")) === -1 ? n2 += r3(f2, false) : (n2 += r3(f2.substr(0, c2), false), n2 += ":", n2 += r3(f2.substr(c2 + 1), false)), n2 += "@";
+      function A(t3, e3) {
+        var r3 = e3 ? b : y, n2 = "", o2 = t3.scheme, i2 = t3.authority, a2 = t3.path, h2 = t3.query, s2 = t3.fragment;
+        if (o2 && (n2 += o2, n2 += ":"), (i2 || o2 === "file") && (n2 += l, n2 += l), i2) {
+          var f2 = i2.indexOf("@");
+          if (f2 !== -1) {
+            var u2 = i2.substr(0, f2);
+            i2 = i2.substr(f2 + 1), (f2 = u2.indexOf(":")) === -1 ? n2 += r3(u2, false) : (n2 += r3(u2.substr(0, f2), false), n2 += ":", n2 += r3(u2.substr(f2 + 1), false)), n2 += "@";
           }
-          (c2 = (i2 = i2.toLowerCase()).indexOf(":")) === -1 ? n2 += r3(i2, false) : (n2 += r3(i2.substr(0, c2), false), n2 += i2.substr(c2));
+          (f2 = (i2 = i2.toLowerCase()).indexOf(":")) === -1 ? n2 += r3(i2, false) : (n2 += r3(i2.substr(0, f2), false), n2 += i2.substr(f2));
         }
         if (a2) {
           if (a2.length >= 3 && a2.charCodeAt(0) === 47 && a2.charCodeAt(2) === 58)
-            (u2 = a2.charCodeAt(1)) >= 65 && u2 <= 90 && (a2 = "/".concat(String.fromCharCode(u2 + 32), ":").concat(a2.substr(3)));
+            (c2 = a2.charCodeAt(1)) >= 65 && c2 <= 90 && (a2 = "/" + String.fromCharCode(c2 + 32) + ":" + a2.substr(3));
           else if (a2.length >= 2 && a2.charCodeAt(1) === 58) {
-            var u2;
-            (u2 = a2.charCodeAt(0)) >= 65 && u2 <= 90 && (a2 = "".concat(String.fromCharCode(u2 + 32), ":").concat(a2.substr(2)));
+            var c2;
+            (c2 = a2.charCodeAt(0)) >= 65 && c2 <= 90 && (a2 = String.fromCharCode(c2 + 32) + ":" + a2.substr(2));
           }
           n2 += r3(a2, true);
         }
-        return h2 && (n2 += "?", n2 += r3(h2, false)), s2 && (n2 += "#", n2 += e3 ? s2 : b(s2, false)), n2;
+        return h2 && (n2 += "?", n2 += r3(h2, false)), s2 && (n2 += "#", n2 += e3 ? s2 : y(s2, false)), n2;
       }
-      function x(t3) {
+      function w(t3) {
         try {
           return decodeURIComponent(t3);
         } catch (e3) {
-          return t3.length > 3 ? t3.substr(0, 3) + x(t3.substr(3)) : t3;
+          return t3.length > 3 ? t3.substr(0, 3) + w(t3.substr(3)) : t3;
         }
       }
       var _ = /(%[0-9A-Za-z][0-9A-Za-z])+/g;
-      function O(t3) {
+      function x(t3) {
         return t3.match(_) ? t3.replace(_, function(t4) {
-          return x(t4);
+          return w(t4);
         }) : t3;
       }
-      var P, j = r2(470), U = function(t3, e3, r3) {
-        if (r3 || arguments.length === 2)
-          for (var n2, o2 = 0, i2 = e3.length; o2 < i2; o2++)
-            !n2 && o2 in e3 || (n2 || (n2 = Array.prototype.slice.call(e3, 0, o2)), n2[o2] = e3[o2]);
-        return t3.concat(n2 || Array.prototype.slice.call(e3));
-      }, I = j.posix || j;
+      var O, P = r2(470), j = function() {
+        for (var t3 = 0, e3 = 0, r3 = arguments.length; e3 < r3; e3++)
+          t3 += arguments[e3].length;
+        var n2 = Array(t3), o2 = 0;
+        for (e3 = 0; e3 < r3; e3++)
+          for (var i2 = arguments[e3], a2 = 0, h2 = i2.length; a2 < h2; a2++, o2++)
+            n2[o2] = i2[a2];
+        return n2;
+      }, U = P.posix || P;
       !function(t3) {
         t3.joinPath = function(t4) {
           for (var e3 = [], r3 = 1; r3 < arguments.length; r3++)
             e3[r3 - 1] = arguments[r3];
-          return t4.with({ path: I.join.apply(I, U([t4.path], e3, false)) });
+          return t4.with({ path: U.join.apply(U, j([t4.path], e3)) });
         }, t3.resolvePath = function(t4) {
           for (var e3 = [], r3 = 1; r3 < arguments.length; r3++)
             e3[r3 - 1] = arguments[r3];
           var n2 = t4.path || "/";
-          return t4.with({ path: I.resolve.apply(I, U([n2], e3, false)) });
+          return t4.with({ path: U.resolve.apply(U, j([n2], e3)) });
         }, t3.dirname = function(t4) {
-          var e3 = I.dirname(t4.path);
+          var e3 = U.dirname(t4.path);
           return e3.length === 1 && e3.charCodeAt(0) === 46 ? t4 : t4.with({ path: e3 });
         }, t3.basename = function(t4) {
-          return I.basename(t4.path);
+          return U.basename(t4.path);
         }, t3.extname = function(t4) {
-          return I.extname(t4.path);
+          return U.extname(t4.path);
         };
-      }(P || (P = {}));
+      }(O || (O = {}));
     } }, e = {};
     function r(n) {
       if (e[n])
@@ -16011,7 +15990,6 @@ var moduleExports = (() => {
       findDocumentSymbols,
       getFoldingRanges,
       getSelectionRanges,
-      doQuoteComplete: htmlCompletion.doQuoteComplete.bind(htmlCompletion),
       doTagComplete: htmlCompletion.doTagComplete.bind(htmlCompletion),
       doRename,
       findMatchingTagPosition,
@@ -16023,12 +16001,8 @@ var moduleExports = (() => {
     return new HTMLDataProvider(id, customData);
   }
 
-  // src/language/html/htmlWorker.ts
+  // src/html/htmlWorker.ts
   var HTMLWorker = class {
-    _ctx;
-    _languageService;
-    _languageSettings;
-    _languageId;
     constructor(ctx, createData) {
       this._ctx = ctx;
       this._languageSettings = createData.languageSettings;
@@ -16136,7 +16110,7 @@ var moduleExports = (() => {
   function create(ctx, createData) {
     return new HTMLWorker(ctx, createData);
   }
-  return __toCommonJS(htmlWorker_exports);
+  return htmlWorker_exports;
 })();
 return moduleExports;
 });

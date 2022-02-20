@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -9,10 +9,11 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
+var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+var __reExport = (target, module, desc) => {
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
         __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
   }
   return target;
@@ -20,6 +21,7 @@ var __reExport = (target, module, copyDefault, desc) => {
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
+__markAsModule(monaco_editor_core_exports);
 __reExport(monaco_editor_core_exports, monaco_editor_core_star);
 import * as monaco_editor_core_star from "../editor/editor.api.js";
 
@@ -33,11 +35,6 @@ var LazyLanguageLoader = class {
     }
     return lazyLanguageLoaders[languageId];
   }
-  _languageId;
-  _loadingTriggered;
-  _lazyLoadPromise;
-  _lazyLoadPromiseResolve;
-  _lazyLoadPromiseReject;
   constructor(languageId) {
     this._languageId = languageId;
     this._loadingTriggered = false;
@@ -45,6 +42,9 @@ var LazyLanguageLoader = class {
       this._lazyLoadPromiseResolve = resolve;
       this._lazyLoadPromiseReject = reject;
     });
+  }
+  whenLoaded() {
+    return this._lazyLoadPromise;
   }
   load() {
     if (!this._loadingTriggered) {
@@ -54,25 +54,19 @@ var LazyLanguageLoader = class {
     return this._lazyLoadPromise;
   }
 };
-async function loadLanguage(languageId) {
-  await LazyLanguageLoader.getOrCreate(languageId).load();
-  const model = monaco_editor_core_exports.editor.createModel("", languageId);
-  model.dispose();
+function loadLanguage(languageId) {
+  return LazyLanguageLoader.getOrCreate(languageId).load();
 }
 function registerLanguage(def) {
   const languageId = def.id;
   languageDefinitions[languageId] = def;
   monaco_editor_core_exports.languages.register(def);
   const lazyLanguageLoader = LazyLanguageLoader.getOrCreate(languageId);
-  monaco_editor_core_exports.languages.registerTokensProviderFactory(languageId, {
-    create: async () => {
-      const mod = await lazyLanguageLoader.load();
-      return mod.language;
-    }
-  });
-  monaco_editor_core_exports.languages.onLanguage(languageId, async () => {
-    const mod = await lazyLanguageLoader.load();
-    monaco_editor_core_exports.languages.setLanguageConfiguration(languageId, mod.conf);
+  monaco_editor_core_exports.languages.setMonarchTokensProvider(languageId, lazyLanguageLoader.whenLoaded().then((mod) => mod.language));
+  monaco_editor_core_exports.languages.onLanguage(languageId, () => {
+    lazyLanguageLoader.load().then((mod) => {
+      monaco_editor_core_exports.languages.setLanguageConfiguration(languageId, mod.conf);
+    });
   });
 }
 export {

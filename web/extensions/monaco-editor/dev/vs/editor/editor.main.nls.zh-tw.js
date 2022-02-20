@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.31.1(5a1b4999493d49c857497ad481d73a737439f305)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
@@ -32,6 +32,9 @@ define("vs/editor/editor.main.nls.zh-tw", {
 	],
 	"vs/base/browser/ui/keybindingLabel/keybindingLabel": [
 		"未繫結",
+	],
+	"vs/base/browser/ui/menu/menu": [
+		"{0} ({1})",
 	],
 	"vs/base/browser/ui/tree/abstractTree": [
 		"清除",
@@ -97,6 +100,9 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"編輯器",
 		"目前無法存取此編輯器。請按 {0} 取得選項。",
 	],
+	"vs/editor/browser/core/keybindingCancellation": [
+		"編輯器是否執行可取消的作業，例如「預覽參考」",
+	],
 	"vs/editor/browser/editorExtensions": [
 		"復原(&&U)",
 		"復原",
@@ -141,7 +147,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"複製已刪除的行 （{0}）",
 		"複製變更的行 ({0})",
 	],
-	"vs/editor/common/config/editorConfigurationSchema": [
+	"vs/editor/common/config/commonEditorConfig": [
 		"編輯器",
 		"與 Tab 相等的空格數量。當 `#editor.detectIndentation#` 已開啟時，會根據檔案內容覆寫此設定。",
 		"在按 `Tab` 時插入空格。當 `#editor.detectIndentation#` 開啟時，會根據檔案內容覆寫此設定。",
@@ -265,9 +271,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"控制是否只保留空格或完全沒有寬度之字元的醒目提示。",
 		"控制是否醒目提示與基本 ASCII 字元混淆的字元，但目前使用者地區設定中通用的字元除外。",
 		"控制註解中的字元是否也應受到 Unicode 醒目提示。",
-		"控制字串中的字元是否也應受到 Unicode 醒目提示。",
 		"定義未醒目提示的允許字元。",
-		"不會將允許地區設置中常見的 Unicode 字元強調顯示。",
 		"控制是否要在編輯器中自動顯示內嵌建議。",
 		"控制是否啟用成對方括弧著色。使用 \'workbench.colorCustomizations\' 覆寫括弧亮顯顏色。",
 		"啟用括弧配對輔助線。",
@@ -372,7 +376,6 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"控制計算資料夾範圍的策略。",
 		"控制編輯器是否應將折疊的範圍醒目提示。",
 		"控制編輯器是否會自動摺疊匯入範圍。",
-		"可摺疊區域的數目上限。增加此值可能會造成當目前的來源有大量可摺疊區域時，編輯器的回應速度變慢。",
 		"控制按一下已折疊行後方的空白內容是否會展開行。",
 		"控制字型家族。",
 		"控制編輯器是否應自動為貼上的內容設定格式。必須有可用的格式器，而且格式器應能夠為文件中的一個範圍設定格式。",
@@ -459,7 +462,81 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"將外圍點計算委派給瀏覽器。這是緩慢的演算法，如果檔案較大可能會導致凍結，但在所有情況下都正常運作。",
 		"控制計算外圍點的演算法。",
 	],
-	"vs/editor/common/core/editorColorRegistry": [
+	"vs/editor/common/editorContextKeys": [
+		"編輯器文字是否有焦點 (游標閃爍)",
+		"編輯器或編輯器小工具是否有焦點 (例如焦點位於 [尋找] 小工具中)",
+		"編輯器或 RTF 輸入是否有焦點 (游標閃爍)",
+		"編輯器是否為唯讀",
+		"內容是否為 Diff 編輯器",
+		"\'editor.columnSelection\' 是否已啟用",
+		"編輯器是否有選取文字",
+		"編輯器是否有多個選取項目",
+		"\'Tab\' 是否會將焦點移出編輯器",
+		"編輯器暫留是否顯示",
+		"編輯器是否為較大編輯器的一部分 (例如筆記本)",
+		"編輯器的語言識別碼",
+		"編輯器是否有完成項目提供者",
+		"編輯器是否有程式碼動作提供者",
+		"編輯器是否有 CodeLens 提供者",
+		"編輯器是否有定義提供者",
+		"編輯器是否有宣告提供者",
+		"編輯器是否有實作提供者",
+		"編輯器是否有型別定義提供者",
+		"編輯器是否有暫留提供者",
+		"編輯器是否有文件醒目提示提供者",
+		"編輯器是否有文件符號提供者",
+		"編輯器是否有參考提供者",
+		"編輯器是否有重新命名提供者",
+		"編輯器是否有簽章說明提供者",
+		"編輯器是否有內嵌提示提供者",
+		"編輯器是否有文件格式化提供者",
+		"編輯器是否有文件選取項目格式化提供者",
+		"編輯器是否有多個文件格式化提供者",
+		"編輯器是否有多個文件選取項目格式化提供者",
+	],
+	"vs/editor/common/model/editStack": [
+		"正在鍵入",
+	],
+	"vs/editor/common/modes/modesRegistry": [
+		"純文字",
+	],
+	"vs/editor/common/standaloneStrings": [
+		"無選取項目",
+		"第 {0} 行，第 {1} 欄 (已選取 {2})",
+		"第 {0} 行，第 {1} 欄",
+		"{0} 個選取項目 (已選取 {1} 個字元)",
+		"{0} 個選取項目",
+		"立即將設定 `accessibilitySupport` 變更為 \'on’。",
+		"立即開啟編輯器協助工具文件頁面。",
+		"在 Diff 編輯器的唯讀窗格中。",
+		"在 Diff 編輯器的窗格中。",
+		"在唯讀程式碼編輯器中",
+		"在程式碼編輯器中",
+		"若要為編輯器進行最能搭配螢幕助讀程式使用的設定，請立即按 Command+E。",
+		"若要將編輯器設定為針對搭配螢幕助讀程式使用最佳化，請立即按 Control+E。",
+		"編輯器已設定為針對搭配螢幕助讀程式使用最佳化。",
+		"已將此編輯器設定為永遠不針對搭配螢幕助讀程式使用最佳化，但目前不是此情況。",
+		"在目前的編輯器中按 Tab 鍵會將焦點移至下一個可設定焦點的元素。按 {0} 可切換此行為。",
+		"在目前的編輯器中按 Tab 鍵會將焦點移至下一個可設定焦點的元素。命令 {0} 目前無法由按鍵繫結關係觸發。",
+		"在目前的編輯器中按 Tab 鍵會插入定位字元。按 {0} 可切換此行為。",
+		"在目前的編輯器中按 Tab 鍵會插入定位字元。命令 {0} 目前無法由按鍵繫結關係觸發。",
+		"立即按 Command+H，以開啟提供編輯器協助工具相關詳細資訊的瀏覽器視窗。",
+		"立即按 Control+H，以開啟提供編輯器協助工具相關詳細資訊的瀏覽器視窗。",
+		"您可以按 Esc 鍵或 Shift+Esc 鍵來解除此工具提示並返回編輯器。",
+		"顯示協助工具說明",
+		"開發人員: 檢查權杖",
+		"前往行/欄...",
+		"顯示所有快速存取提供者",
+		"命令選擇區",
+		"顯示並執行命令",
+		"移至符號...",
+		"前往符號 (依類別)...",
+		"編輯器內容",
+		"按 Alt+F1 可取得協助工具選項。",
+		"切換高對比佈景主題",
+		"已在 {1} 檔案中進行 {0} 項編輯",
+	],
+	"vs/editor/common/view/editorColorRegistry": [
 		"目前游標位置行的反白顯示背景色彩。",
 		"目前游標位置行之周圍框線的背景色彩。",
 		"醒目提示範圍的背景色彩，例如快速開啟並尋找功能。其不得為不透明色彩，以免隱藏底層裝飾。",
@@ -512,81 +589,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"使用中括弧配對輔助線 (6) 的背景色彩。需要啟用括弧配對輔助線。",
 		"用來醒目提示 Unicode 字元的框線色彩。",
 	],
-	"vs/editor/common/editorContextKeys": [
-		"編輯器文字是否有焦點 (游標閃爍)",
-		"編輯器或編輯器小工具是否有焦點 (例如焦點位於 [尋找] 小工具中)",
-		"編輯器或 RTF 輸入是否有焦點 (游標閃爍)",
-		"編輯器是否為唯讀",
-		"內容是否為 Diff 編輯器",
-		"\'editor.columnSelection\' 是否已啟用",
-		"編輯器是否有選取文字",
-		"編輯器是否有多個選取項目",
-		"\'Tab\' 是否會將焦點移出編輯器",
-		"編輯器暫留是否顯示",
-		"編輯器是否為較大編輯器的一部分 (例如筆記本)",
-		"編輯器的語言識別碼",
-		"編輯器是否有完成項目提供者",
-		"編輯器是否有程式碼動作提供者",
-		"編輯器是否有 CodeLens 提供者",
-		"編輯器是否有定義提供者",
-		"編輯器是否有宣告提供者",
-		"編輯器是否有實作提供者",
-		"編輯器是否有型別定義提供者",
-		"編輯器是否有暫留提供者",
-		"編輯器是否有文件醒目提示提供者",
-		"編輯器是否有文件符號提供者",
-		"編輯器是否有參考提供者",
-		"編輯器是否有重新命名提供者",
-		"編輯器是否有簽章說明提供者",
-		"編輯器是否有內嵌提示提供者",
-		"編輯器是否有文件格式化提供者",
-		"編輯器是否有文件選取項目格式化提供者",
-		"編輯器是否有多個文件格式化提供者",
-		"編輯器是否有多個文件選取項目格式化提供者",
-	],
-	"vs/editor/common/languages/modesRegistry": [
-		"純文字",
-	],
-	"vs/editor/common/model/editStack": [
-		"正在鍵入",
-	],
-	"vs/editor/common/standaloneStrings": [
-		"無選取項目",
-		"第 {0} 行，第 {1} 欄 (已選取 {2})",
-		"第 {0} 行，第 {1} 欄",
-		"{0} 個選取項目 (已選取 {1} 個字元)",
-		"{0} 個選取項目",
-		"立即將設定 `accessibilitySupport` 變更為 \'on’。",
-		"立即開啟編輯器協助工具文件頁面。",
-		"在 Diff 編輯器的唯讀窗格中。",
-		"在 Diff 編輯器的窗格中。",
-		"在唯讀程式碼編輯器中",
-		"在程式碼編輯器中",
-		"若要為編輯器進行最能搭配螢幕助讀程式使用的設定，請立即按 Command+E。",
-		"若要將編輯器設定為針對搭配螢幕助讀程式使用最佳化，請立即按 Control+E。",
-		"編輯器已設定為針對搭配螢幕助讀程式使用最佳化。",
-		"已將此編輯器設定為永遠不針對搭配螢幕助讀程式使用最佳化，但目前不是此情況。",
-		"在目前的編輯器中按 Tab 鍵會將焦點移至下一個可設定焦點的元素。按 {0} 可切換此行為。",
-		"在目前的編輯器中按 Tab 鍵會將焦點移至下一個可設定焦點的元素。命令 {0} 目前無法由按鍵繫結關係觸發。",
-		"在目前的編輯器中按 Tab 鍵會插入定位字元。按 {0} 可切換此行為。",
-		"在目前的編輯器中按 Tab 鍵會插入定位字元。命令 {0} 目前無法由按鍵繫結關係觸發。",
-		"立即按 Command+H，以開啟提供編輯器協助工具相關詳細資訊的瀏覽器視窗。",
-		"立即按 Control+H，以開啟提供編輯器協助工具相關詳細資訊的瀏覽器視窗。",
-		"您可以按 Esc 鍵或 Shift+Esc 鍵來解除此工具提示並返回編輯器。",
-		"顯示協助工具說明",
-		"開發人員: 檢查權杖",
-		"前往行/欄...",
-		"顯示所有快速存取提供者",
-		"命令選擇區",
-		"顯示並執行命令",
-		"移至符號...",
-		"前往符號 (依類別)...",
-		"編輯器內容",
-		"按 Alt+F1 可取得協助工具選項。",
-		"切換高對比佈景主題",
-		"已在 {1} 檔案中進行 {0} 項編輯",
-	],
-	"vs/editor/contrib/anchorSelect/browser/anchorSelect": [
+	"vs/editor/contrib/anchorSelect/anchorSelect": [
 		"選取範圍錨點",
 		"設定錨點為 {0}:{1}",
 		"設定選取範圍錨點",
@@ -594,20 +597,20 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"選取從錨點到游標之間的範圍",
 		"取消選取範圍錨點",
 	],
-	"vs/editor/contrib/bracketMatching/browser/bracketMatching": [
+	"vs/editor/contrib/bracketMatching/bracketMatching": [
 		"成對括弧的概觀尺規標記色彩。",
 		"移至方括弧",
 		"選取至括弧",
 		"前往括弧(&&B)",
 	],
-	"vs/editor/contrib/caretOperations/browser/caretOperations": [
+	"vs/editor/contrib/caretOperations/caretOperations": [
 		"將所選文字向左移動",
 		"將所選文字向右移動",
 	],
-	"vs/editor/contrib/caretOperations/browser/transpose": [
+	"vs/editor/contrib/caretOperations/transpose": [
 		"調換字母",
 	],
-	"vs/editor/contrib/clipboard/browser/clipboard": [
+	"vs/editor/contrib/clipboard/clipboard": [
 		"剪下(&&T)",
 		"剪下",
 		"剪下",
@@ -624,7 +627,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"貼上",
 		"隨語法醒目提示複製",
 	],
-	"vs/editor/contrib/codeAction/browser/codeActionCommands": [
+	"vs/editor/contrib/codeAction/codeActionCommands": [
 		"要執行程式碼動作的種類。",
 		"控制要套用傳回動作的時機。",
 		"一律套用第一個傳回的程式碼動作。",
@@ -655,18 +658,18 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"自動修正...",
 		"沒有可用的自動修正",
 	],
-	"vs/editor/contrib/codeAction/browser/lightBulbWidget": [
+	"vs/editor/contrib/codeAction/lightBulbWidget": [
 		"顯示程式碼動作。偏好的快速修正可用 ({0})",
 		"顯示程式碼動作 ({0})",
 		"顯示程式碼動作",
 	],
-	"vs/editor/contrib/codelens/browser/codelensController": [
+	"vs/editor/contrib/codelens/codelensController": [
 		"顯示目前行的 Code Lens 命令",
 	],
-	"vs/editor/contrib/colorPicker/browser/colorPickerWidget": [
+	"vs/editor/contrib/colorPicker/colorPickerWidget": [
 		"按一下以切換色彩選項 (rgb/hsl/hex)",
 	],
-	"vs/editor/contrib/comment/browser/comment": [
+	"vs/editor/contrib/comment/comment": [
 		"切換行註解",
 		"切換行註解(&&T)",
 		"加入行註解",
@@ -674,17 +677,14 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"切換區塊註解",
 		"切換區塊註解(&&B)",
 	],
-	"vs/editor/contrib/contextmenu/browser/contextmenu": [
+	"vs/editor/contrib/contextmenu/contextmenu": [
 		"顯示編輯器內容功能表",
 	],
-	"vs/editor/contrib/cursorUndo/browser/cursorUndo": [
+	"vs/editor/contrib/cursorUndo/cursorUndo": [
 		"游標復原",
 		"游標重做",
 	],
-	"vs/editor/contrib/editorState/browser/keybindingCancellation": [
-		"編輯器是否執行可取消的作業，例如「預覽參考」",
-	],
-	"vs/editor/contrib/find/browser/findController": [
+	"vs/editor/contrib/find/findController": [
 		"尋找",
 		"尋找(&&F)",
 		"覆寫 \"Use Regular Expression\" 旗標。\r\n日後將不會儲存此旗標。\r\n0: 不執行任何動作\r\n1: True\r\n2: False",
@@ -700,7 +700,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"取代",
 		"取代(&&R)",
 	],
-	"vs/editor/contrib/find/browser/findWidget": [
+	"vs/editor/contrib/find/findWidget": [
 		"編輯器尋找小工具中 [在選取範圍中尋找] 的圖示。",
 		"表示編輯器尋找小工具已摺疊的圖示。",
 		"表示編輯器尋找小工具已展開的圖示。",
@@ -728,8 +728,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"已以 \'{1}\' 找到 {0}",
 		"Ctrl+Enter 現在會插入分行符號，而不會全部取代。您可以修改 editor.action.replaceAll 的按鍵繫結關係，以覆寫此行為。",
 	],
-	"vs/editor/contrib/folding/browser/folding": [
-		"可摺疊區域的數目限制為上限 {0}。增加設定選項 [\'Folding Maximum Regions\'](command:workbench.action.openSettings?[\"editor.foldingMaximumRegions\"]) 以啟用更多數目。",
+	"vs/editor/contrib/folding/folding": [
 		"展開",
 		"以遞迴方式展開",
 		"摺疊",
@@ -749,26 +748,26 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"已摺疊範圍後的背景色彩。色彩不得處於不透明狀態，以免隱藏底層裝飾。",
 		"編輯器裝訂邊的摺疊控制項色彩。",
 	],
-	"vs/editor/contrib/folding/browser/foldingDecorations": [
+	"vs/editor/contrib/folding/foldingDecorations": [
 		"編輯器字符邊界中 [展開的範圍] 的圖示。",
 		"編輯器字符邊界中 [摺疊的範圍] 的圖示。",
 	],
-	"vs/editor/contrib/fontZoom/browser/fontZoom": [
+	"vs/editor/contrib/fontZoom/fontZoom": [
 		"編輯器字體放大",
 		"編輯器字型縮小",
 		"編輯器字體重設縮放",
 	],
-	"vs/editor/contrib/format/browser/format": [
+	"vs/editor/contrib/format/format": [
 		"在行 {0} 編輯了 1 項格式",
 		"在行 {1} 編輯了 {0} 項格式",
 		"在行 {0} 與行 {1} 之間編輯了 1 項格式",
 		"在行 {1} 與行 {2} 之間編輯了 {0} 項格式",
 	],
-	"vs/editor/contrib/format/browser/formatActions": [
+	"vs/editor/contrib/format/formatActions": [
 		"格式化文件",
 		"格式化選取範圍",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoError": [
+	"vs/editor/contrib/gotoError/gotoError": [
 		"移至下一個問題 (錯誤, 警告, 資訊)",
 		"[前往下一個標記] 的圖示。",
 		"移至上一個問題 (錯誤, 警告, 資訊)",
@@ -778,7 +777,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"移至檔案裡面的上一個問題 (錯誤, 警告, 資訊)",
 		"前一個問題(&&P)",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoErrorWidget": [
+	"vs/editor/contrib/gotoError/gotoErrorWidget": [
 		"錯誤",
 		"警告",
 		"資訊",
@@ -794,7 +793,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"編輯器標記導覽小工具資訊標題背景。",
 		"編輯器標記導覽小工具的背景。",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/goToCommands": [
+	"vs/editor/contrib/gotoSymbol/goToCommands": [
 		"查看",
 		"定義",
 		"找不到 \'{0}\' 的定義",
@@ -835,25 +834,25 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"前往實作(&&I)",
 		"前往參考(&&R)",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/link/goToDefinitionAtPosition": [
+	"vs/editor/contrib/gotoSymbol/link/goToDefinitionAtPosition": [
 		"按一下以顯示 {0} 項定義。",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesController": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesController": [
 		"是否顯示參考瞄核，例如「瞄核參考」或「瞄核定義」",
 		"正在載入...",
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesTree": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesTree": [
 		"{0} 個參考",
 		"{0} 個參考",
 		"參考",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesWidget": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesWidget": [
 		"無法預覽",
 		"查無結果",
 		"參考",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/referencesModel": [
+	"vs/editor/contrib/gotoSymbol/referencesModel": [
 		"個符號位於 {0} 中的第 {1} 行第 {2} 欄",
 		"符號位於 {0} 中的第 {1} 行第 {2}、{3} 欄",
 		"1 個符號位於 {0}, 完整路徑 {1}",
@@ -863,31 +862,31 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"在 {1} 中找到 {0} 個符號",
 		"在 {1} 個檔案中找到 {0} 個符號",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/symbolNavigation": [
+	"vs/editor/contrib/gotoSymbol/symbolNavigation": [
 		"是否有只能透過鍵盤瀏覽的符號位置。",
 		"{1} 的符號 {0}，{2} 為下一個",
 		"{1} 的符號 {0}",
 	],
-	"vs/editor/contrib/hover/browser/hover": [
+	"vs/editor/contrib/hover/hover": [
 		"動態顯示",
 		"顯示定義預覽懸停",
 	],
-	"vs/editor/contrib/hover/browser/markdownHoverParticipant": [
+	"vs/editor/contrib/hover/markdownHoverParticipant": [
 		"正在載入...",
 		"因效能的緣故，已跳過將長的行 Token 化。您可透過 `editor.maxTokenizationLineLength` 設定。",
 	],
-	"vs/editor/contrib/hover/browser/markerHoverParticipant": [
+	"vs/editor/contrib/hover/markerHoverParticipant": [
 		"檢視問題",
 		"沒有可用的快速修正",
 		"正在檢查快速修正...",
 		"沒有可用的快速修正",
 		"快速修復...",
 	],
-	"vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace": [
+	"vs/editor/contrib/inPlaceReplace/inPlaceReplace": [
 		"以上一個值取代",
 		"以下一個值取代",
 	],
-	"vs/editor/contrib/indentation/browser/indentation": [
+	"vs/editor/contrib/indentation/indentation": [
 		"將縮排轉換成空格",
 		"將縮排轉換成定位點",
 		"已設定的定位點大小",
@@ -898,7 +897,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"重新將行縮排",
 		"重新將選取的行縮排",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/ghostTextController": [
+	"vs/editor/contrib/inlineCompletions/ghostTextController": [
 		"是否顯示內嵌建議",
 		"內嵌建議是否以空白字元開頭",
 		"內嵌建議的開頭是否為空白，且比 Tab 能插入的字元要小",
@@ -906,16 +905,16 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"顯示上一個內嵌建議",
 		"觸發內嵌建議",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionsHoverParticipant": [
+	"vs/editor/contrib/inlineCompletions/inlineCompletionsHoverParticipant": [
 		"下一步",
 		"上一步",
 		"接受",
 		"建議:",
 	],
-	"vs/editor/contrib/lineSelection/browser/lineSelection": [
+	"vs/editor/contrib/lineSelection/lineSelection": [
 		"展開線條選取範圍",
 	],
-	"vs/editor/contrib/linesOperations/browser/linesOperations": [
+	"vs/editor/contrib/linesOperations/linesOperations": [
 		"將行向上複製",
 		"將行向上複製(&&C)",
 		"將行向下複製",
@@ -944,11 +943,11 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"轉換為字首大寫",
 		"轉換為底線連接字",
 	],
-	"vs/editor/contrib/linkedEditing/browser/linkedEditing": [
+	"vs/editor/contrib/linkedEditing/linkedEditing": [
 		"開始連結的編輯",
 		"當編輯器自動重新命名類型時的背景色彩。",
 	],
-	"vs/editor/contrib/links/browser/links": [
+	"vs/editor/contrib/links/links": [
 		"執行命令",
 		"追蹤連結",
 		"cmd + 按一下",
@@ -960,11 +959,11 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"因為此連結目標遺失，所以無法開啟。",
 		"開啟連結",
 	],
-	"vs/editor/contrib/message/browser/messageController": [
+	"vs/editor/contrib/message/messageController": [
 		"編輯器目前是否正在顯示內嵌訊息",
 		"無法在唯讀編輯器中編輯",
 	],
-	"vs/editor/contrib/multicursor/browser/multicursor": [
+	"vs/editor/contrib/multicursor/multicursor": [
 		"新增的資料指標: {0}",
 		"新增的資料指標: {0}",
 		"在上方加入游標",
@@ -985,16 +984,16 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"選取所有項目(&&O)",
 		"變更所有發生次數",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHints": [
+	"vs/editor/contrib/parameterHints/parameterHints": [
 		"觸發參數提示",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHintsWidget": [
+	"vs/editor/contrib/parameterHints/parameterHintsWidget": [
 		"[顯示下一個參數提示] 的圖示。",
 		"[顯示上一個參數提示] 的圖示。",
 		"{0}，提示",
 		"參數提示中使用中項目的前景色彩。",
 	],
-	"vs/editor/contrib/peekView/browser/peekView": [
+	"vs/editor/contrib/peekView/peekView": [
 		"目前的程式碼編輯器是否內嵌於瞄核內",
 		"關閉",
 		"預覽檢視標題區域的背景色彩。",
@@ -1012,14 +1011,14 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"預覽檢視編輯器中比對時的反白顯示色彩。",
 		"在預覽檢視編輯器中比對時的反白顯示邊界。",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoLineQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoLineQuickAccess": [
 		"先開啟文字編輯器，前往某一行。",
 		"前往第 {0} 行的第 {1} 個字元。",
 		"前往第 {0} 行。",
 		"目前行: {0}，字元: {1}。請鍵入介於 1 到 {2} 之間行號，導覽至該行。",
 		"目前行: {0}，字元: {1}。請鍵入要導覽至的行號。",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoSymbolQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoSymbolQuickAccess": [
 		"若要前往符號，請先開啟包含符號資訊的文字編輯器。",
 		"使用中的文字編輯器不提供符號資訊。",
 		"沒有相符的編輯器符號",
@@ -1054,7 +1053,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"欄位 ({0})",
 		"常數 ({0})",
 	],
-	"vs/editor/contrib/rename/browser/rename": [
+	"vs/editor/contrib/rename/rename": [
 		"沒有結果。",
 		"解析重新命名位置時發生未知的錯誤",
 		"正在為 \'{0}\' 重新命名",
@@ -1065,23 +1064,23 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"重新命名符號",
 		"啟用/停用重新命名前先預覽變更的功能",
 	],
-	"vs/editor/contrib/rename/browser/renameInputField": [
+	"vs/editor/contrib/rename/renameInputField": [
 		"是否顯示重新命名輸入小工具",
 		"為輸入重新命名。請鍵入新名稱，然後按 Enter 以認可。",
 		"按 {0} 進行重新命名，按 {1} 進行預覽",
 	],
-	"vs/editor/contrib/smartSelect/browser/smartSelect": [
+	"vs/editor/contrib/smartSelect/smartSelect": [
 		"展開選取項目",
 		"展開選取範圍(&&E)",
 		"縮小選取項目",
 		"壓縮選取範圍(&&S)",
 	],
-	"vs/editor/contrib/snippet/browser/snippetController2": [
+	"vs/editor/contrib/snippet/snippetController2": [
 		"編輯器目前是否在程式碼片段模式中",
 		"在程式碼片段模式中是否有下一個定位停駐點",
 		"在程式碼片段模式中是否有上一個定位停駐點",
 	],
-	"vs/editor/contrib/snippet/browser/snippetVariables": [
+	"vs/editor/contrib/snippet/snippetVariables": [
 		"星期天",
 		"星期一",
 		"星期二",
@@ -1121,7 +1120,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"11 月",
 		"12 月",
 	],
-	"vs/editor/contrib/suggest/browser/suggest": [
+	"vs/editor/contrib/suggest/suggest": [
 		"是否顯示建議",
 		"是否顯示建議詳細資料",
 		"是否有多個建議可以挑選",
@@ -1131,7 +1130,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"預設行為是插入或取代",
 		"目前的建議是否支援解決更多詳細資料",
 	],
-	"vs/editor/contrib/suggest/browser/suggestController": [
+	"vs/editor/contrib/suggest/suggestController": [
 		"接受 ‘{0}’ 進行了其他 {1} 項編輯",
 		"觸發建議",
 		"插入",
@@ -1143,7 +1142,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"顯示更多",
 		"重設建議小工具大小",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidget": [
+	"vs/editor/contrib/suggest/suggestWidget": [
 		"建議小工具的背景色彩。",
 		"建議小工具的邊界色彩。",
 		"建議小工具的前景色彩。",
@@ -1155,24 +1154,21 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"建議小工具狀態的前景色彩。",
 		"正在載入...",
 		"無建議。",
-		"建議",
-		"{0}{1}，{2}",
-		"{0}{1}",
-		"{0}，{1}",
 		"{0}，文件: {1}",
+		"建議",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetDetails": [
+	"vs/editor/contrib/suggest/suggestWidgetDetails": [
 		"關閉",
 		"正在載入...",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetRenderer": [
+	"vs/editor/contrib/suggest/suggestWidgetRenderer": [
 		"建議小工具中 [更多詳細資訊] 的圖示。",
 		"閱讀更多",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetStatus": [
+	"vs/editor/contrib/suggest/suggestWidgetStatus": [
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/symbolIcons/browser/symbolIcons": [
+	"vs/editor/contrib/symbolIcons/symbolIcons": [
 		"陣列符號的前景色彩。這些符號會出現在大綱、階層連結和建議小工具中。",
 		"布林值符號的前景色彩。這些符號會出現在大綱、階層連結和建議小工具中。",
 		"類別符號的前景色彩。這些符號會出現在大綱、階層連結和建議小工具中。",
@@ -1207,15 +1203,15 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"單位符號的前景色彩。這些符號會出現在大綱、階層連結和建議小工具中。",
 		"變數符號的前景色彩。這些符號會出現在大綱、階層連結和建議小工具中。",
 	],
-	"vs/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode": [
+	"vs/editor/contrib/toggleTabFocusMode/toggleTabFocusMode": [
 		"切換 TAB 鍵移動焦點",
 		"按 Tab 現在會將焦點移至下一個可設定焦點的元素。",
 		"按 Tab 現在會插入定位字元。",
 	],
-	"vs/editor/contrib/tokenization/browser/tokenization": [
+	"vs/editor/contrib/tokenization/tokenization": [
 		"開發人員: 強制重新置放",
 	],
-	"vs/editor/contrib/unicodeHighlighter/browser/unicodeHighlighter": [
+	"vs/editor/contrib/unicodeHighlighter/unicodeHighlighter": [
 		"延伸模組編輯器中顯示含有警告訊息的圖示。",
 		"此文件包含許多非基本 ASCII Unicode 字元",
 		"此文件包含許多不明確的 Unicode 字元",
@@ -1224,10 +1220,6 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"字元 {0} 隱藏。",
 		"字元 {0} 不是基本的 ASCII 字元。",
 		"調整設定",
-		"停用註解中的醒目提示",
-		"停用註解中字元的醒目提示",
-		"停用字串中的醒目提示",
-		"停用字串中字元的醒目提示",
 		"停用不明確的醒目提示",
 		"停用不明確字元的醒目提示",
 		"停用隱藏醒目提示",
@@ -1237,17 +1229,16 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"顯示排除選項",
 		"排除 {0} (隱藏字元) 的反白顯示",
 		"將 {0} 排除在已醒目提示",
-		"允許在語言「{0}」中較常用的 Unicode 字元。",
 		"設定 Unicode 醒目提示選項",
 	],
-	"vs/editor/contrib/unusualLineTerminators/browser/unusualLineTerminators": [
+	"vs/editor/contrib/unusualLineTerminators/unusualLineTerminators": [
 		"異常的行結束字元",
 		"偵測到異常的行結束字元",
 		"檔案 \'{0}\' 包含一或多個異常的行結束字元，例如行分隔符號 (LS) 或段落分隔符號 (PS)。\r\n\r\n建議您將其從檔案中移除。這可以透過 `editor.unusualLineTerminators` 進行設定。",
 		"移除異常的行結束字元",
 		"忽略",
 	],
-	"vs/editor/contrib/wordHighlighter/browser/wordHighlighter": [
+	"vs/editor/contrib/wordHighlighter/wordHighlighter": [
 		"讀取權限期間 (如讀取變數) 符號的背景色彩。其不得為不透明色彩，以免隱藏底層裝飾。",
 		"寫入權限期間 (如寫入變數) 符號的背景色彩。其不得為不透明色彩，以免隱藏底層裝飾。",
 		"讀取存取期間 (例如讀取變數時) 符號的邊框顏色。",
@@ -1258,7 +1249,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"移至上一個反白符號",
 		"觸發符號反白顯示",
 	],
-	"vs/editor/contrib/wordOperations/browser/wordOperations": [
+	"vs/editor/contrib/wordOperations/wordOperations": [
 		"刪除字組",
 	],
 	"vs/platform/actions/browser/menuEntryActionViewItem": [
@@ -1505,6 +1496,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"內嵌合併衝突中的共同上階概觀尺規前景。",
 		"尋找相符項目的概觀尺規標記色彩。其不得為不透明色彩，以免隱藏底層裝飾。",
 		"選取項目醒目提示的概觀尺規標記。其不得為不透明色彩，以免隱藏底層裝飾。",
+		"醒目提示 Unicode 字元的概觀尺規標記色彩。其不得為不透明色彩，以免隱藏底層裝飾。",
 		"用於尋找相符項目的縮圖標記色彩。",
 		"重複編輯器選取項目的縮圖標記色彩。",
 		"編輯器選取範圍的迷你地圖標記色彩。",
@@ -1512,6 +1504,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"警告的縮圖標記色彩。",
 		"縮圖背景色彩。",
 		"在縮圖中呈現的前景元素不透明度。例如，\"#000000c0\" 會以不透明度 75% 轉譯元素。",
+		"醒目提示 Unicode 字元的迷你地圖標記色彩。",
 		"縮圖滑桿背景色彩。",
 		"暫留時的縮圖滑桿背景色彩。",
 		"按一下時的縮圖滑桿背景色彩。",
@@ -1549,7 +1542,7 @@ define("vs/editor/editor.main.nls.zh-tw", {
 		"因為已經有正在執行的復原或重做作業，所以無法復原 \'{0}\'。",
 		"要復原 \'{0}\' 嗎?",
 		"是",
-		"否",
+		"取消",
 		"無法復原所有檔案的 \'{0}\'。{1}",
 		"無法復原所有檔案的 \'{0}\'。{1}",
 		"因為已對 {1} 進行變更，所以無法復原所有檔案的 \'{0}\'",

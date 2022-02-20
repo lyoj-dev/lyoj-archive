@@ -1,7 +1,7 @@
 import '../editor/editor.api.js';
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -25,7 +25,6 @@ import "./ecl/ecl.contribution.js";
 import "./elixir/elixir.contribution.js";
 import "./flow9/flow9.contribution.js";
 import "./fsharp/fsharp.contribution.js";
-import "./freemarker2/freemarker2.contribution.js";
 import "./go/go.contribution.js";
 import "./graphql/graphql.contribution.js";
 import "./handlebars/handlebars.contribution.js";

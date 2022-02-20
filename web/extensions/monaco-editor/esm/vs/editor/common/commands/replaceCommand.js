@@ -13,8 +13,8 @@ export class ReplaceCommand {
         builder.addTrackedEditOperation(this._range, this._text);
     }
     computeCursorState(model, helper) {
-        const inverseEditOperations = helper.getInverseEditOperations();
-        const srcRange = inverseEditOperations[0].range;
+        let inverseEditOperations = helper.getInverseEditOperations();
+        let srcRange = inverseEditOperations[0].range;
         return Selection.fromPositions(srcRange.getEndPosition());
     }
 }
@@ -42,8 +42,8 @@ export class ReplaceCommandWithoutChangingPosition {
         builder.addTrackedEditOperation(this._range, this._text);
     }
     computeCursorState(model, helper) {
-        const inverseEditOperations = helper.getInverseEditOperations();
-        const srcRange = inverseEditOperations[0].range;
+        let inverseEditOperations = helper.getInverseEditOperations();
+        let srcRange = inverseEditOperations[0].range;
         return Selection.fromPositions(srcRange.getStartPosition());
     }
 }
@@ -59,8 +59,8 @@ export class ReplaceCommandWithOffsetCursorState {
         builder.addTrackedEditOperation(this._range, this._text);
     }
     computeCursorState(model, helper) {
-        const inverseEditOperations = helper.getInverseEditOperations();
-        const srcRange = inverseEditOperations[0].range;
+        let inverseEditOperations = helper.getInverseEditOperations();
+        let srcRange = inverseEditOperations[0].range;
         return Selection.fromPositions(srcRange.getEndPosition().delta(this._lineNumberDeltaOffset, this._columnDeltaOffset));
     }
 }

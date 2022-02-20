@@ -2,7 +2,8 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { applyFontInfo } from './domFontInfo.js';
+import { isSafari } from '../../../base/browser/browser.js';
+import { EDITOR_FONT_DEFAULTS } from '../../common/config/editorOptions.js';
 export class CharWidthRequest {
     constructor(chr, type) {
         this.chr = chr;
@@ -33,19 +34,34 @@ class DomCharWidthReader {
         this._testElements = null;
     }
     _createDomElements() {
+        const fontFamily = this._bareFontInfo.getMassagedFontFamily(isSafari ? EDITOR_FONT_DEFAULTS.fontFamily : null);
         const container = document.createElement('div');
         container.style.position = 'absolute';
         container.style.top = '-50000px';
         container.style.width = '50000px';
         const regularDomNode = document.createElement('div');
-        applyFontInfo(regularDomNode, this._bareFontInfo);
+        regularDomNode.style.fontFamily = fontFamily;
+        regularDomNode.style.fontWeight = this._bareFontInfo.fontWeight;
+        regularDomNode.style.fontSize = this._bareFontInfo.fontSize + 'px';
+        regularDomNode.style.fontFeatureSettings = this._bareFontInfo.fontFeatureSettings;
+        regularDomNode.style.lineHeight = this._bareFontInfo.lineHeight + 'px';
+        regularDomNode.style.letterSpacing = this._bareFontInfo.letterSpacing + 'px';
         container.appendChild(regularDomNode);
         const boldDomNode = document.createElement('div');
-        applyFontInfo(boldDomNode, this._bareFontInfo);
+        boldDomNode.style.fontFamily = fontFamily;
         boldDomNode.style.fontWeight = 'bold';
+        boldDomNode.style.fontSize = this._bareFontInfo.fontSize + 'px';
+        boldDomNode.style.fontFeatureSettings = this._bareFontInfo.fontFeatureSettings;
+        boldDomNode.style.lineHeight = this._bareFontInfo.lineHeight + 'px';
+        boldDomNode.style.letterSpacing = this._bareFontInfo.letterSpacing + 'px';
         container.appendChild(boldDomNode);
         const italicDomNode = document.createElement('div');
-        applyFontInfo(italicDomNode, this._bareFontInfo);
+        italicDomNode.style.fontFamily = fontFamily;
+        italicDomNode.style.fontWeight = this._bareFontInfo.fontWeight;
+        italicDomNode.style.fontSize = this._bareFontInfo.fontSize + 'px';
+        italicDomNode.style.fontFeatureSettings = this._bareFontInfo.fontFeatureSettings;
+        italicDomNode.style.lineHeight = this._bareFontInfo.lineHeight + 'px';
+        italicDomNode.style.letterSpacing = this._bareFontInfo.letterSpacing + 'px';
         italicDomNode.style.fontStyle = 'italic';
         container.appendChild(italicDomNode);
         const testElements = [];

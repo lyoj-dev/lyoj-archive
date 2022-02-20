@@ -11,6 +11,5 @@ export const IsWindowsContext = new RawContextKey('isWindows', isWindows, locali
 export const IsWebContext = new RawContextKey('isWeb', isWeb, localize('isWeb', "Whether the platform is a web browser"));
 export const IsMacNativeContext = new RawContextKey('isMacNative', isMacintosh && !isWeb, localize('isMacNative', "Whether the operating system is macOS on a non-browser platform"));
 export const IsIOSContext = new RawContextKey('isIOS', isIOS, localize('isIOS', "Whether the operating system is IOS"));
-export const IsDevelopmentContext = new RawContextKey('isDevelopment', false, true);
 export const InputFocusedContextKey = 'inputFocus';
 export const InputFocusedContext = new RawContextKey(InputFocusedContextKey, false, localize('inputFocus', "Whether keyboard focus is inside an input box"));

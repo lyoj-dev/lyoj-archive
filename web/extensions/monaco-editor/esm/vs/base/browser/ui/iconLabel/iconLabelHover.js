@@ -15,14 +15,12 @@ import * as dom from '../../dom.js';
 import { TimeoutTimer } from '../../../common/async.js';
 import { CancellationTokenSource } from '../../../common/cancellation.js';
 import { isMarkdownString } from '../../../common/htmlContent.js';
-import { stripIcons } from '../../../common/iconLabels.js';
 import { DisposableStore } from '../../../common/lifecycle.js';
 import { isFunction, isString } from '../../../common/types.js';
 import { localize } from '../../../../nls.js';
 export function setupNativeHover(htmlElement, tooltip) {
     if (isString(tooltip)) {
-        // Icons don't render in the native hover so we strip them out
-        htmlElement.title = stripIcons(tooltip);
+        htmlElement.title = tooltip;
     }
     else if (tooltip === null || tooltip === void 0 ? void 0 : tooltip.markdownNotSupportedFallback) {
         htmlElement.title = tooltip.markdownNotSupportedFallback;

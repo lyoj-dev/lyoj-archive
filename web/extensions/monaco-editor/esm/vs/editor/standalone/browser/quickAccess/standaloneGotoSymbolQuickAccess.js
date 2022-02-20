@@ -12,8 +12,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import '../../../../base/browser/ui/codicons/codiconStyles.js'; // The codicon symbol styles are defined here and must be loaded
-import '../../../contrib/symbolIcons/browser/symbolIcons.js'; // The codicon symbol colors are defined here and must be loaded to get colors
-import { AbstractGotoSymbolQuickAccessProvider } from '../../../contrib/quickAccess/browser/gotoSymbolQuickAccess.js';
+import '../../../contrib/symbolIcons/symbolIcons.js'; // The codicon symbol colors are defined here and must be loaded to get colors
+import { AbstractGotoSymbolQuickAccessProvider } from '../../../contrib/quickAccess/gotoSymbolQuickAccess.js';
 import { Registry } from '../../../../platform/registry/common/platform.js';
 import { Extensions } from '../../../../platform/quickinput/common/quickAccess.js';
 import { ICodeEditorService } from '../../../browser/services/codeEditorService.js';
@@ -23,10 +23,9 @@ import { Event } from '../../../../base/common/event.js';
 import { EditorAction, registerEditorAction } from '../../../browser/editorExtensions.js';
 import { EditorContextKeys } from '../../../common/editorContextKeys.js';
 import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
-import { IOutlineModelService } from '../../../contrib/documentSymbols/browser/outlineModel.js';
 let StandaloneGotoSymbolQuickAccessProvider = class StandaloneGotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
-    constructor(editorService, outlineModelService) {
-        super(outlineModelService);
+    constructor(editorService) {
+        super();
         this.editorService = editorService;
         this.onDidActiveTextEditorControlChange = Event.None;
     }
@@ -35,8 +34,7 @@ let StandaloneGotoSymbolQuickAccessProvider = class StandaloneGotoSymbolQuickAcc
     }
 };
 StandaloneGotoSymbolQuickAccessProvider = __decorate([
-    __param(0, ICodeEditorService),
-    __param(1, IOutlineModelService)
+    __param(0, ICodeEditorService)
 ], StandaloneGotoSymbolQuickAccessProvider);
 export { StandaloneGotoSymbolQuickAccessProvider };
 Registry.as(Extensions.Quickaccess).registerQuickAccessProvider({

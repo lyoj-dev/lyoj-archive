@@ -88,28 +88,6 @@ export const ElectronAcceleratorLabelProvider = new ModifierLabelProvider({
     metaKey: 'Super',
     separator: '+',
 });
-/**
- * A label provider that prints modifiers in a suitable format for user settings.
- */
-export const UserSettingsLabelProvider = new ModifierLabelProvider({
-    ctrlKey: 'ctrl',
-    shiftKey: 'shift',
-    altKey: 'alt',
-    metaKey: 'cmd',
-    separator: '+',
-}, {
-    ctrlKey: 'ctrl',
-    shiftKey: 'shift',
-    altKey: 'alt',
-    metaKey: 'win',
-    separator: '+',
-}, {
-    ctrlKey: 'ctrl',
-    shiftKey: 'shift',
-    altKey: 'alt',
-    metaKey: 'meta',
-    separator: '+',
-});
 function _simpleAsString(modifiers, key, labels) {
     if (key === null) {
         return '';

@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 import { Schemas } from '../../../base/common/network.js';
 import { DataUri, basenameOrAuthority } from '../../../base/common/resources.js';
-import { PLAINTEXT_LANGUAGE_ID } from '../languages/modesRegistry.js';
+import { PLAINTEXT_MODE_ID } from '../modes/modesRegistry.js';
 import { FileKind } from '../../../platform/files/common/files.js';
-export function getIconClasses(modelService, languageService, resource, fileKind) {
+export function getIconClasses(modelService, modeService, resource, fileKind) {
     // we always set these base classes even if we do not have a path
     const classes = fileKind === FileKind.ROOT_FOLDER ? ['rootfolder-icon'] : fileKind === FileKind.FOLDER ? ['folder-icon'] : ['file-icon'];
     if (resource) {
@@ -40,40 +40,40 @@ export function getIconClasses(modelService, languageService, resource, fileKind
                 classes.push(`ext-file-icon`); // extra segment to increase file-ext score
             }
             // Detected Mode
-            const detectedLanguageId = detectLanguageId(modelService, languageService, resource);
-            if (detectedLanguageId) {
-                classes.push(`${cssEscape(detectedLanguageId)}-lang-file-icon`);
+            const detectedModeId = detectModeId(modelService, modeService, resource);
+            if (detectedModeId) {
+                classes.push(`${cssEscape(detectedModeId)}-lang-file-icon`);
             }
         }
     }
     return classes;
 }
-function detectLanguageId(modelService, languageService, resource) {
+function detectModeId(modelService, modeService, resource) {
     if (!resource) {
         return null; // we need a resource at least
     }
-    let languageId = null;
+    let modeId = null;
     // Data URI: check for encoded metadata
     if (resource.scheme === Schemas.data) {
         const metadata = DataUri.parseMetaData(resource);
         const mime = metadata.get(DataUri.META_DATA_MIME);
         if (mime) {
-            languageId = languageService.getLanguageIdByMimeType(mime);
+            modeId = modeService.getModeId(mime);
         }
     }
     // Any other URI: check for model if existing
     else {
         const model = modelService.getModel(resource);
         if (model) {
-            languageId = model.getLanguageId();
+            modeId = model.getLanguageId();
         }
     }
-    // only take if the language id is specific (aka no just plain text)
-    if (languageId && languageId !== PLAINTEXT_LANGUAGE_ID) {
-        return languageId;
+    // only take if the mode is specific (aka no just plain text)
+    if (modeId && modeId !== PLAINTEXT_MODE_ID) {
+        return modeId;
     }
     // otherwise fallback to path based detection
-    return languageService.guessLanguageIdByFilepathOrFirstLine(resource);
+    return modeService.getModeIdByFilepathOrFirstLine(resource);
 }
 export function cssEscape(str) {
     return str.replace(/[\11\12\14\15\40]/g, '/'); // HTML class names can not contain certain whitespace characters, use / instead, which doesn't exist in file names.

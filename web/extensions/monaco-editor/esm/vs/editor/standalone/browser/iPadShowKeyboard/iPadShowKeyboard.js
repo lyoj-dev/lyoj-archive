@@ -18,7 +18,7 @@ export class IPadShowKeyboard extends Disposable {
         }
     }
     update() {
-        const shouldHaveWidget = (!this.editor.getOption(81 /* readOnly */));
+        const shouldHaveWidget = (!this.editor.getOption(80 /* readOnly */));
         if (!this.widget && shouldHaveWidget) {
             this.widget = new ShowKeyboardWidget(this.editor);
         }

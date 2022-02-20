@@ -99,11 +99,6 @@ export function getRoot(path, sep = posix.sep) {
     }
     return '';
 }
-/**
- * @deprecated please use `IUriIdentityService.extUri.isEqualOrParent` instead. If
- * you are in a context without services, consider to pass down the `extUri` from the
- * outside, or use `extUriBiasedIgnorePathCase` if you know what you are doing.
- */
 export function isEqualOrParent(base, parentCandidate, ignoreCase, separator = sep) {
     if (base === parentCandidate) {
         return true;

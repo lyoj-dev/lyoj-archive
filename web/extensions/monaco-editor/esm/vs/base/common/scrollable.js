@@ -5,17 +5,14 @@
 import { Emitter } from './event.js';
 import { Disposable } from './lifecycle.js';
 export class ScrollState {
-    constructor(_forceIntegerValues, width, scrollWidth, scrollLeft, height, scrollHeight, scrollTop) {
-        this._forceIntegerValues = _forceIntegerValues;
+    constructor(width, scrollWidth, scrollLeft, height, scrollHeight, scrollTop) {
         this._scrollStateBrand = undefined;
-        if (this._forceIntegerValues) {
-            width = width | 0;
-            scrollWidth = scrollWidth | 0;
-            scrollLeft = scrollLeft | 0;
-            height = height | 0;
-            scrollHeight = scrollHeight | 0;
-            scrollTop = scrollTop | 0;
-        }
+        width = width | 0;
+        scrollWidth = scrollWidth | 0;
+        scrollLeft = scrollLeft | 0;
+        height = height | 0;
+        scrollHeight = scrollHeight | 0;
+        scrollTop = scrollTop | 0;
         this.rawScrollLeft = scrollLeft; // before validation
         this.rawScrollTop = scrollTop; // before validation
         if (width < 0) {
@@ -54,10 +51,10 @@ export class ScrollState {
             && this.scrollTop === other.scrollTop);
     }
     withScrollDimensions(update, useRawScrollPositions) {
-        return new ScrollState(this._forceIntegerValues, (typeof update.width !== 'undefined' ? update.width : this.width), (typeof update.scrollWidth !== 'undefined' ? update.scrollWidth : this.scrollWidth), useRawScrollPositions ? this.rawScrollLeft : this.scrollLeft, (typeof update.height !== 'undefined' ? update.height : this.height), (typeof update.scrollHeight !== 'undefined' ? update.scrollHeight : this.scrollHeight), useRawScrollPositions ? this.rawScrollTop : this.scrollTop);
+        return new ScrollState((typeof update.width !== 'undefined' ? update.width : this.width), (typeof update.scrollWidth !== 'undefined' ? update.scrollWidth : this.scrollWidth), useRawScrollPositions ? this.rawScrollLeft : this.scrollLeft, (typeof update.height !== 'undefined' ? update.height : this.height), (typeof update.scrollHeight !== 'undefined' ? update.scrollHeight : this.scrollHeight), useRawScrollPositions ? this.rawScrollTop : this.scrollTop);
     }
     withScrollPosition(update) {
-        return new ScrollState(this._forceIntegerValues, this.width, this.scrollWidth, (typeof update.scrollLeft !== 'undefined' ? update.scrollLeft : this.rawScrollLeft), this.height, this.scrollHeight, (typeof update.scrollTop !== 'undefined' ? update.scrollTop : this.rawScrollTop));
+        return new ScrollState(this.width, this.scrollWidth, (typeof update.scrollLeft !== 'undefined' ? update.scrollLeft : this.rawScrollLeft), this.height, this.scrollHeight, (typeof update.scrollTop !== 'undefined' ? update.scrollTop : this.rawScrollTop));
     }
     createScrollEvent(previous, inSmoothScrolling) {
         const widthChanged = (this.width !== previous.width);
@@ -90,14 +87,14 @@ export class ScrollState {
     }
 }
 export class Scrollable extends Disposable {
-    constructor(options) {
+    constructor(smoothScrollDuration, scheduleAtNextAnimationFrame) {
         super();
         this._scrollableBrand = undefined;
         this._onScroll = this._register(new Emitter());
         this.onScroll = this._onScroll.event;
-        this._smoothScrollDuration = options.smoothScrollDuration;
-        this._scheduleAtNextAnimationFrame = options.scheduleAtNextAnimationFrame;
-        this._state = new ScrollState(options.forceIntegerValues, 0, 0, 0, 0, 0, 0);
+        this._smoothScrollDuration = smoothScrollDuration;
+        this._scheduleAtNextAnimationFrame = scheduleAtNextAnimationFrame;
+        this._state = new ScrollState(0, 0, 0, 0, 0, 0);
         this._smoothScrolling = null;
     }
     dispose() {

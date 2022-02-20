@@ -14,6 +14,9 @@ export class ServiceCollection {
         this._entries.set(id, instanceOrDescriptor);
         return result;
     }
+    has(id) {
+        return this._entries.has(id);
+    }
     get(id) {
         return this._entries.get(id);
     }

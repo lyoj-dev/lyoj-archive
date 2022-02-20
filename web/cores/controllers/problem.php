@@ -27,5 +27,26 @@ class Problem_Controller {
         for ($i=$l-1;$i<count($array)&&$i<$r;$i++) $res[]=$array[$i];
         return $res;
     }
+
+    /**
+     * 获取题目总数 GetProblemTotal
+     * @return int
+     */
+    static function GetProblemTotal():int {
+        $array=self::$db->Query("SELECT * FROM problem WHERE banned=0 AND hidden=0");
+        return $array==null?0:count($array);
+    }
+
+    /**
+     * 输出api题目信息 OutputAPIInfo
+     * @param int $pid 题目id
+     * @return array|null
+     */
+    static function OutputAPIInfo(int $pid):array|null {
+        $arr=self::$db->Query("SELECT * FROM problem WHERE id=$pid");
+        $arr=$arr[0];
+        return array("pid"=>$arr["id"],"name"=>$arr["name"],
+        "hidden"=>$arr["hidden"],"banned"=>$arr["banned"],"difficult"=>$arr["difficult"]);
+    }
 }
 ?>

@@ -87,7 +87,7 @@ export function resetSentinel() {
     SENTINEL.parent = SENTINEL;
 }
 export function leftRotate(tree, x) {
-    const y = x.right;
+    let y = x.right;
     // fix size_left
     y.size_left += x.size_left + (x.piece ? x.piece.length : 0);
     y.lf_left += x.lf_left + (x.piece ? x.piece.lineFeedCnt : 0);
@@ -109,7 +109,7 @@ export function leftRotate(tree, x) {
     x.parent = y;
 }
 export function rightRotate(tree, y) {
-    const x = y.left;
+    let x = y.left;
     y.left = x.right;
     if (x.right !== SENTINEL) {
         x.right.parent = y;
@@ -154,7 +154,7 @@ export function rbDelete(tree, z) {
         tree.root.parent = SENTINEL;
         return;
     }
-    const yWasRed = (y.color === 1 /* Red */);
+    let yWasRed = (y.color === 1 /* Red */);
     if (y === y.parent.left) {
         y.parent.left = x;
     }
@@ -203,11 +203,11 @@ export function rbDelete(tree, z) {
     }
     z.detach();
     if (x.parent.left === x) {
-        const newSizeLeft = calculateSize(x);
-        const newLFLeft = calculateLF(x);
+        let newSizeLeft = calculateSize(x);
+        let newLFLeft = calculateLF(x);
         if (newSizeLeft !== x.parent.size_left || newLFLeft !== x.parent.lf_left) {
-            const delta = newSizeLeft - x.parent.size_left;
-            const lf_delta = newLFLeft - x.parent.lf_left;
+            let delta = newSizeLeft - x.parent.size_left;
+            let lf_delta = newLFLeft - x.parent.lf_left;
             x.parent.size_left = newSizeLeft;
             x.parent.lf_left = newLFLeft;
             updateTreeMetadata(tree, x.parent, delta, lf_delta);

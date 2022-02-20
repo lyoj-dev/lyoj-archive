@@ -16,7 +16,7 @@ import { parseHrefAndDimensions, removeMarkdownEscapes } from '../common/htmlCon
 import { markdownEscapeEscapedIcons } from '../common/iconLabels.js';
 import { defaultGenerator } from '../common/idGenerator.js';
 import { DisposableStore } from '../common/lifecycle.js';
-import { marked } from '../common/marked/marked.js';
+import * as marked from '../common/marked/marked.js';
 import { parse } from '../common/marshalling.js';
 import { FileAccess, Schemas } from '../common/network.js';
 import { cloneAndChange } from '../common/objects.js';
@@ -107,9 +107,6 @@ export function renderMarkdown(markdown, options = {}, markedOptions = {}) {
         return '<img ' + attributes.join(' ') + '>';
     };
     renderer.link = (href, title, text) => {
-        if (typeof href !== 'string') {
-            return '';
-        }
         // Remove markdown escapes. Workaround for https://github.com/chjj/marked/issues/829
         if (href === text) { // raw link case
             text = removeMarkdownEscapes(text);
@@ -121,7 +118,7 @@ export function renderMarkdown(markdown, options = {}, markedOptions = {}) {
                 href = resolvePath(options.baseUrl, href).toString();
             }
         }
-        title = typeof title === 'string' ? removeMarkdownEscapes(title) : '';
+        title = removeMarkdownEscapes(title);
         href = removeMarkdownEscapes(href);
         if (!href
             || href.match(/^data:|javascript:/i)
@@ -137,7 +134,7 @@ export function renderMarkdown(markdown, options = {}, markedOptions = {}) {
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
-            return `<a data-href="${href}" title="${title || href}">${text}</a>`;
+            return `<a href="#" data-href="${href}" title="${title || href}">${text}</a>`;
         }
     };
     renderer.paragraph = (text) => {
@@ -145,9 +142,6 @@ export function renderMarkdown(markdown, options = {}, markedOptions = {}) {
     };
     if (options.codeBlockRenderer) {
         renderer.code = (code, lang) => {
-            if (typeof lang !== 'string') {
-                return '';
-            }
             const value = options.codeBlockRenderer(lang, code);
             // when code-block rendering is async we return sync
             // but update the node with the real result later.

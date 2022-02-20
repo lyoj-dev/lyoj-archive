@@ -1,33 +1,18 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
-define("vs/basic-languages/swift/swift", ["require"],(require)=>{
+define("vs/basic-languages/swift/swift",[],()=>{
 var moduleExports = (() => {
   var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
   var __export = (target, all) => {
+    __markAsModule(target);
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
   };
-  var __reExport = (target, module, copyDefault, desc) => {
-    if (module && typeof module === "object" || typeof module === "function") {
-      for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
-          __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
-    }
-    return target;
-  };
-  var __toCommonJS = /* @__PURE__ */ ((cache) => {
-    return (module, temp) => {
-      return cache && cache.get(module) || (temp = __reExport(__markAsModule({}), module, 1), cache && cache.set(module, temp), temp);
-    };
-  })(typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : 0);
 
   // src/basic-languages/swift/swift.ts
   var swift_exports = {};
@@ -67,80 +52,31 @@ var moduleExports = (() => {
     tokenPostfix: ".swift",
     identifier: /[a-zA-Z_][\w$]*/,
     attributes: [
-      "@GKInspectable",
-      "@IBAction",
-      "@IBDesignable",
-      "@IBInspectable",
-      "@IBOutlet",
-      "@IBSegueAction",
+      "@autoclosure",
+      "@noescape",
+      "@noreturn",
       "@NSApplicationMain",
       "@NSCopying",
       "@NSManaged",
-      "@Sendable",
-      "@UIApplicationMain",
-      "@autoclosure",
-      "@actorIndependent",
-      "@asyncHandler",
-      "@available",
-      "@convention",
-      "@derivative",
-      "@differentiable",
-      "@discardableResult",
-      "@dynamicCallable",
-      "@dynamicMemberLookup",
-      "@escaping",
-      "@frozen",
-      "@globalActor",
-      "@inlinable",
-      "@inline",
-      "@main",
-      "@nonobjc",
-      "@noreturn",
       "@objc",
-      "@objcMembers",
-      "@preconcurrency",
-      "@propertyWrapper",
-      "@requires_stored_property_inits",
-      "@resultBuilder",
-      "@testable",
-      "@unchecked",
-      "@unknown",
-      "@usableFromInline",
-      "@warn_unqualified_access"
+      "@UIApplicationMain",
+      "@noreturn",
+      "@availability",
+      "@IBAction",
+      "@IBDesignable",
+      "@IBInspectable",
+      "@IBOutlet"
     ],
-    accessmodifiers: ["open", "public", "internal", "fileprivate", "private"],
+    accessmodifiers: ["public", "private", "fileprivate", "internal"],
     keywords: [
-      "#available",
-      "#colorLiteral",
-      "#column",
-      "#dsohandle",
-      "#else",
-      "#elseif",
-      "#endif",
-      "#error",
-      "#file",
-      "#fileID",
-      "#fileLiteral",
-      "#filePath",
-      "#function",
-      "#if",
-      "#imageLiteral",
-      "#keyPath",
-      "#line",
-      "#selector",
-      "#sourceLocation",
-      "#warning",
-      "Any",
-      "Protocol",
-      "Self",
-      "Type",
-      "actor",
+      "__COLUMN__",
+      "__FILE__",
+      "__FUNCTION__",
+      "__LINE__",
       "as",
-      "assignment",
-      "associatedtype",
+      "as!",
+      "as?",
       "associativity",
-      "async",
-      "await",
       "break",
       "case",
       "catch",
@@ -148,7 +84,6 @@ var moduleExports = (() => {
       "continue",
       "convenience",
       "default",
-      "defer",
       "deinit",
       "didSet",
       "do",
@@ -158,53 +93,44 @@ var moduleExports = (() => {
       "enum",
       "extension",
       "fallthrough",
-      "false",
       "fileprivate",
       "final",
       "for",
       "func",
       "get",
       "guard",
-      "higherThan",
       "if",
       "import",
       "in",
-      "indirect",
       "infix",
       "init",
       "inout",
       "internal",
       "is",
-      "isolated",
       "lazy",
       "left",
       "let",
-      "lowerThan",
       "mutating",
       "nil",
       "none",
-      "nonisolated",
       "nonmutating",
-      "open",
       "operator",
       "optional",
       "override",
       "postfix",
       "precedence",
-      "precedencegroup",
       "prefix",
       "private",
       "protocol",
+      "Protocol",
       "public",
       "repeat",
       "required",
-      "rethrows",
       "return",
       "right",
-      "safe",
       "self",
+      "Self",
       "set",
-      "some",
       "static",
       "struct",
       "subscript",
@@ -212,18 +138,18 @@ var moduleExports = (() => {
       "switch",
       "throw",
       "throws",
-      "true",
       "try",
+      "try!",
+      "Type",
       "typealias",
       "unowned",
-      "unsafe",
       "var",
       "weak",
       "where",
       "while",
       "willSet",
-      "__consuming",
-      "__owned"
+      "FALSE",
+      "TRUE"
     ],
     symbols: /[=(){}\[\].,:;@#\_&\-<>`?!+*\\\/]/,
     operatorstart: /[\/=\-+!*%<>&|^~?\u00A1-\u00A7\u00A9\u00AB\u00AC\u00AE\u00B0-\u00B1\u00B6\u00BB\u00BF\u00D7\u00F7\u2016-\u2017\u2020-\u2027\u2030-\u203E\u2041-\u2053\u2055-\u205E\u2190-\u23FF\u2500-\u2775\u2794-\u2BFF\u2E00-\u2E7F\u3001-\u3003\u3008-\u3030]/,
@@ -337,7 +263,7 @@ var moduleExports = (() => {
       ]
     }
   };
-  return __toCommonJS(swift_exports);
+  return swift_exports;
 })();
 /*!---------------------------------------------------------------------------------------------
  *  Copyright (C) David Owens II, owensd.io. All rights reserved.

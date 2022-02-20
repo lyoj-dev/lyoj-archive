@@ -269,13 +269,13 @@ class QuickInput extends Disposable {
             this.ui.message.style.color = styles.foreground ? `${styles.foreground}` : '';
             this.ui.message.style.backgroundColor = styles.background ? `${styles.background}` : '';
             this.ui.message.style.border = styles.border ? `1px solid ${styles.border}` : '';
-            this.ui.message.style.marginBottom = '-2px';
+            this.ui.message.style.paddingBottom = '4px';
         }
         else {
             this.ui.message.style.color = '';
             this.ui.message.style.backgroundColor = '';
             this.ui.message.style.border = '';
-            this.ui.message.style.marginBottom = '';
+            this.ui.message.style.paddingBottom = '';
         }
     }
     dispose() {
@@ -335,20 +335,9 @@ class QuickPick extends QuickInput {
         return this._value;
     }
     set value(value) {
-        this.doSetValue(value);
-    }
-    doSetValue(value, skipUpdate) {
         if (this._value !== value) {
-            this._value = value;
-            if (!skipUpdate) {
-                this.update();
-            }
-            if (this.visible) {
-                const didFilter = this.ui.list.filter(this.filterValue(this._value));
-                if (didFilter) {
-                    this.trySelectFirst();
-                }
-            }
+            this._value = value || '';
+            this.update();
             this.onDidChangeValueEmitter.fire(this._value);
         }
     }
@@ -516,7 +505,15 @@ class QuickPick extends QuickInput {
     show() {
         if (!this.visible) {
             this.visibleDisposables.add(this.ui.inputBox.onDidChange(value => {
-                this.doSetValue(value, true /* skip update since this originates from the UI */);
+                if (value === this.value) {
+                    return;
+                }
+                this._value = value;
+                const didFilter = this.ui.list.filter(this.filterValue(this.ui.inputBox.value));
+                if (didFilter) {
+                    this.trySelectFirst();
+                }
+                this.onDidChangeValueEmitter.fire(value);
             }));
             this.visibleDisposables.add(this.ui.inputBox.onMouseDown(event => {
                 if (!this.autoFocusOnList) {

@@ -261,51 +261,6 @@ export function splice(array, start, deleteCount, newItems) {
 function getActualStartIndex(array, start) {
     return start < 0 ? Math.max(start + array.length, 0) : Math.min(start, array.length);
 }
-export function compareBy(selector, comparator) {
-    return (a, b) => comparator(selector(a), selector(b));
-}
-/**
- * The natural order on numbers.
-*/
-export const numberComparator = (a, b) => a - b;
-/**
- * Returns the first item that is equal to or greater than every other item.
-*/
-export function findMaxBy(items, comparator) {
-    if (items.length === 0) {
-        return undefined;
-    }
-    let max = items[0];
-    for (let i = 1; i < items.length; i++) {
-        const item = items[i];
-        if (comparator(item, max) > 0) {
-            max = item;
-        }
-    }
-    return max;
-}
-/**
- * Returns the last item that is equal to or greater than every other item.
-*/
-export function findLastMaxBy(items, comparator) {
-    if (items.length === 0) {
-        return undefined;
-    }
-    let max = items[0];
-    for (let i = 1; i < items.length; i++) {
-        const item = items[i];
-        if (comparator(item, max) >= 0) {
-            max = item;
-        }
-    }
-    return max;
-}
-/**
- * Returns the first item that is equal to or less than every other item.
-*/
-export function findMinBy(items, comparator) {
-    return findMaxBy(items, (a, b) => -comparator(a, b));
-}
 export class ArrayQueue {
     /**
      * Constructs a queue that is backed by the given array. Runtime is O(1).

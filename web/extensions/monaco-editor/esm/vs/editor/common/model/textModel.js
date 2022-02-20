@@ -11,36 +11,35 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { ArrayQueue } from '../../../base/common/arrays.js';
-import { Color } from '../../../base/common/color.js';
 import { onUnexpectedError } from '../../../base/common/errors.js';
 import { Emitter } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import * as strings from '../../../base/common/strings.js';
 import { URI } from '../../../base/common/uri.js';
+import { EDITOR_MODEL_DEFAULTS } from '../config/editorOptions.js';
 import { Position } from '../core/position.js';
 import { Range } from '../core/range.js';
 import { Selection } from '../core/selection.js';
 import * as model from '../model.js';
-import { BracketPairsTextModelPart } from './bracketPairsTextModelPart/bracketPairsImpl.js';
-import { ColorizedBracketPairsDecorationProvider } from './bracketPairsTextModelPart/colorizedBracketPairsDecorationProvider.js';
 import { EditStack } from './editStack.js';
-import { GuidesTextModelPart } from './guidesTextModelPart.js';
 import { guessIndentation } from './indentationGuesser.js';
 import { IntervalNode, IntervalTree, recomputeMaxEnd } from './intervalTree.js';
-import { PieceTreeTextBuffer } from './pieceTreeTextBuffer/pieceTreeTextBuffer.js';
 import { PieceTreeTextBufferBuilder } from './pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js';
-import { InternalModelContentChangeEvent, LineInjectedText, ModelInjectedTextChangedEvent, ModelRawContentChangedEvent, ModelRawEOLChanged, ModelRawFlush, ModelRawLineChanged, ModelRawLinesDeleted, ModelRawLinesInserted } from '../textModelEvents.js';
+import { InternalModelContentChangeEvent, LineInjectedText, ModelInjectedTextChangedEvent, ModelRawContentChangedEvent, ModelRawEOLChanged, ModelRawFlush, ModelRawLineChanged, ModelRawLinesDeleted, ModelRawLinesInserted } from './textModelEvents.js';
 import { SearchParams, TextModelSearch } from './textModelSearch.js';
 import { TextModelTokenization } from './textModelTokens.js';
-import { countEOL } from '../core/eolCounter.js';
-import { ContiguousTokensStore } from '../tokens/contiguousTokensStore.js';
-import { SparseTokensStore } from '../tokens/sparseTokensStore.js';
-import { getWordAtText } from '../core/wordHelper.js';
-import { ILanguageConfigurationService } from '../languages/languageConfigurationRegistry.js';
-import { ILanguageService } from '../services/language.js';
+import { getWordAtText } from './wordHelper.js';
+import { ILanguageConfigurationService } from '../modes/languageConfigurationRegistry.js';
+import { NULL_MODE_ID } from '../modes/nullMode.js';
+import { TokensStore, countEOL, TokensStore2 } from './tokensStore.js';
+import { Color } from '../../../base/common/color.js';
 import { IUndoRedoService } from '../../../platform/undoRedo/common/undoRedo.js';
-import { EDITOR_MODEL_DEFAULTS } from '../core/textModelDefaults.js';
+import { PieceTreeTextBuffer } from './pieceTreeTextBuffer/pieceTreeTextBuffer.js';
+import { ArrayQueue, findLast } from '../../../base/common/arrays.js';
+import { BracketPairs } from './bracketPairs/bracketPairsImpl.js';
+import { ColorizedBracketPairsDecorationProvider } from './bracketPairs/colorizedBracketPairsDecorationProvider.js';
+import { CursorColumns } from '../controller/cursorColumns.js';
+import { IModeService } from '../services/modeService.js';
 function createTextBufferBuilder() {
     return new PieceTreeTextBufferBuilder();
 }
@@ -65,11 +64,9 @@ class TextModelSnapshot {
         if (this._eos) {
             return null;
         }
-        const result = [];
-        let resultCnt = 0;
-        let resultLength = 0;
+        let result = [], resultCnt = 0, resultLength = 0;
         do {
-            const tmp = this._source.read();
+            let tmp = this._source.read();
             if (tmp === null) {
                 // end-of-stream
                 this._eos = true;
@@ -92,10 +89,10 @@ class TextModelSnapshot {
 }
 const invalidFunc = () => { throw new Error(`Invalid change accessor`); };
 let TextModel = class TextModel extends Disposable {
-    constructor(source, languageId, creationOptions, associatedResource = null, _undoRedoService, _languageService, _languageConfigurationService) {
+    constructor(source, creationOptions, languageId, associatedResource = null, _undoRedoService, _modeService, _languageConfigurationService) {
         super();
         this._undoRedoService = _undoRedoService;
-        this._languageService = _languageService;
+        this._modeService = _modeService;
         this._languageConfigurationService = _languageConfigurationService;
         //#region Events
         this._onWillDispose = this._register(new Emitter());
@@ -154,7 +151,7 @@ let TextModel = class TextModel extends Disposable {
         this._initialUndoRedoSnapshot = null;
         this._isDisposed = false;
         this._isDisposing = false;
-        this._languageId = languageId;
+        this._languageId = languageId || NULL_MODE_ID;
         this._languageRegistryListener = this._languageConfigurationService.onDidChange(e => {
             if (e.affects(this._languageId)) {
                 this._onDidChangeLanguageConfiguration.fire({});
@@ -168,11 +165,10 @@ let TextModel = class TextModel extends Disposable {
         this._isUndoing = false;
         this._isRedoing = false;
         this._trimAutoWhitespaceLines = null;
-        this._tokens = new ContiguousTokensStore(this._languageService.languageIdCodec);
-        this._semanticTokens = new SparseTokensStore(this._languageService.languageIdCodec);
-        this._tokenization = new TextModelTokenization(this, this._languageService.languageIdCodec);
-        this._bracketPairColorizer = this._register(new BracketPairsTextModelPart(this, this._languageConfigurationService));
-        this._guidesTextModelPart = this._register(new GuidesTextModelPart(this, this._languageConfigurationService));
+        this._tokens = new TokensStore(this._modeService.languageIdCodec);
+        this._tokens2 = new TokensStore2(this._modeService.languageIdCodec);
+        this._tokenization = new TextModelTokenization(this, this._modeService.languageIdCodec);
+        this._bracketPairColorizer = this._register(new BracketPairs(this, this._languageConfigurationService));
         this._decorationProvider = this._register(new ColorizedBracketPairsDecorationProvider(this));
         this._register(this._decorationProvider.onDidChange(() => {
             this._onDidChangeDecorations.beginDeferredEmit();
@@ -208,7 +204,6 @@ let TextModel = class TextModel extends Disposable {
         return this._eventEmitter.slowEvent((e) => listener(e.contentChangedEvent));
     }
     get bracketPairs() { return this._bracketPairColorizer; }
-    get guides() { return this._guidesTextModelPart; }
     get backgroundTokenizationState() {
         return this._backgroundTokenizationState;
     }
@@ -287,7 +282,7 @@ let TextModel = class TextModel extends Disposable {
         this._increaseVersionId();
         // Flush all tokens
         this._tokens.flush();
-        this._semanticTokens.flush();
+        this._tokens2.flush();
         // Destroy all my decorations
         this._decorations = Object.create(null);
         this._decorationsTree = new DecorationsTrees();
@@ -402,12 +397,12 @@ let TextModel = class TextModel extends Disposable {
     }
     updateOptions(_newOpts) {
         this._assertNotDisposed();
-        const tabSize = (typeof _newOpts.tabSize !== 'undefined') ? _newOpts.tabSize : this._options.tabSize;
-        const indentSize = (typeof _newOpts.indentSize !== 'undefined') ? _newOpts.indentSize : this._options.indentSize;
-        const insertSpaces = (typeof _newOpts.insertSpaces !== 'undefined') ? _newOpts.insertSpaces : this._options.insertSpaces;
-        const trimAutoWhitespace = (typeof _newOpts.trimAutoWhitespace !== 'undefined') ? _newOpts.trimAutoWhitespace : this._options.trimAutoWhitespace;
-        const bracketPairColorizationOptions = (typeof _newOpts.bracketColorizationOptions !== 'undefined') ? _newOpts.bracketColorizationOptions : this._options.bracketPairColorizationOptions;
-        const newOpts = new model.TextModelResolvedOptions({
+        let tabSize = (typeof _newOpts.tabSize !== 'undefined') ? _newOpts.tabSize : this._options.tabSize;
+        let indentSize = (typeof _newOpts.indentSize !== 'undefined') ? _newOpts.indentSize : this._options.indentSize;
+        let insertSpaces = (typeof _newOpts.insertSpaces !== 'undefined') ? _newOpts.insertSpaces : this._options.insertSpaces;
+        let trimAutoWhitespace = (typeof _newOpts.trimAutoWhitespace !== 'undefined') ? _newOpts.trimAutoWhitespace : this._options.trimAutoWhitespace;
+        let bracketPairColorizationOptions = (typeof _newOpts.bracketColorizationOptions !== 'undefined') ? _newOpts.bracketColorizationOptions : this._options.bracketPairColorizationOptions;
+        let newOpts = new model.TextModelResolvedOptions({
             tabSize: tabSize,
             indentSize: indentSize,
             insertSpaces: insertSpaces,
@@ -418,13 +413,13 @@ let TextModel = class TextModel extends Disposable {
         if (this._options.equals(newOpts)) {
             return;
         }
-        const e = this._options.createChangeEvent(newOpts);
+        let e = this._options.createChangeEvent(newOpts);
         this._options = newOpts;
         this._onDidChangeOptions.fire(e);
     }
     detectIndentation(defaultInsertSpaces, defaultTabSize) {
         this._assertNotDisposed();
-        const guessedIndentation = guessIndentation(this._buffer, defaultTabSize, defaultInsertSpaces);
+        let guessedIndentation = guessIndentation(this._buffer, defaultTabSize, defaultInsertSpaces);
         this.updateOptions({
             insertSpaces: guessedIndentation.insertSpaces,
             tabSize: guessedIndentation.tabSize,
@@ -443,7 +438,7 @@ let TextModel = class TextModel extends Disposable {
         }
         let result = '';
         if (!insertSpaces) {
-            const tabsCnt = Math.floor(spacesCnt / indentSize);
+            let tabsCnt = Math.floor(spacesCnt / indentSize);
             spacesCnt = spacesCnt % indentSize;
             for (let i = 0; i < tabsCnt; i++) {
                 result += '\t';
@@ -495,12 +490,12 @@ let TextModel = class TextModel extends Disposable {
     }
     getOffsetAt(rawPosition) {
         this._assertNotDisposed();
-        const position = this._validatePosition(rawPosition.lineNumber, rawPosition.column, 0 /* Relaxed */);
+        let position = this._validatePosition(rawPosition.lineNumber, rawPosition.column, 0 /* Relaxed */);
         return this._buffer.getOffsetAt(position.lineNumber, position.column);
     }
     getPositionAt(rawOffset) {
         this._assertNotDisposed();
-        const offset = (Math.min(this._buffer.getLength(), Math.max(0, rawOffset)));
+        let offset = (Math.min(this._buffer.getLength(), Math.max(0, rawOffset)));
         return this._buffer.getPositionAt(offset);
     }
     _increaseVersionId() {
@@ -805,7 +800,7 @@ let TextModel = class TextModel extends Disposable {
     }
     modifyPosition(rawPosition, offset) {
         this._assertNotDisposed();
-        const candidate = this.getOffsetAt(rawPosition) + offset;
+        let candidate = this.getOffsetAt(rawPosition) + offset;
         return this.getPositionAt(Math.min(this._buffer.getLength(), Math.max(0, candidate)));
     }
     getFullModelRange() {
@@ -938,7 +933,7 @@ let TextModel = class TextModel extends Disposable {
         if (this._options.trimAutoWhitespace && this._trimAutoWhitespaceLines) {
             // Go through each saved line number and insert a trim whitespace edit
             // if it is safe to do so (no conflicts with other edits).
-            const incomingEdits = editOperations.map((op) => {
+            let incomingEdits = editOperations.map((op) => {
                 return {
                     range: this.validateRange(op.range),
                     text: op.text
@@ -949,12 +944,12 @@ let TextModel = class TextModel extends Disposable {
             let editsAreNearCursors = true;
             if (beforeCursorState) {
                 for (let i = 0, len = beforeCursorState.length; i < len; i++) {
-                    const sel = beforeCursorState[i];
+                    let sel = beforeCursorState[i];
                     let foundEditNearSel = false;
                     for (let j = 0, lenJ = incomingEdits.length; j < lenJ; j++) {
-                        const editRange = incomingEdits[j].range;
-                        const selIsAbove = editRange.startLineNumber > sel.endLineNumber;
-                        const selIsBelow = sel.startLineNumber > editRange.endLineNumber;
+                        let editRange = incomingEdits[j].range;
+                        let selIsAbove = editRange.startLineNumber > sel.endLineNumber;
+                        let selIsBelow = sel.startLineNumber > editRange.endLineNumber;
                         if (!selIsAbove && !selIsBelow) {
                             foundEditNearSel = true;
                             break;
@@ -968,12 +963,12 @@ let TextModel = class TextModel extends Disposable {
             }
             if (editsAreNearCursors) {
                 for (let i = 0, len = this._trimAutoWhitespaceLines.length; i < len; i++) {
-                    const trimLineNumber = this._trimAutoWhitespaceLines[i];
-                    const maxLineColumn = this.getLineMaxColumn(trimLineNumber);
+                    let trimLineNumber = this._trimAutoWhitespaceLines[i];
+                    let maxLineColumn = this.getLineMaxColumn(trimLineNumber);
                     let allowTrimLine = true;
                     for (let j = 0, lenJ = incomingEdits.length; j < lenJ; j++) {
-                        const editRange = incomingEdits[j].range;
-                        const editText = incomingEdits[j].text;
+                        let editRange = incomingEdits[j].range;
+                        let editText = incomingEdits[j].text;
                         if (trimLineNumber < editRange.startLineNumber || trimLineNumber > editRange.endLineNumber) {
                             // `trimLine` is completely outside this edit
                             continue;
@@ -1073,10 +1068,10 @@ let TextModel = class TextModel extends Disposable {
                 const change = contentChanges[i];
                 const [eolCount, firstLineLength, lastLineLength] = countEOL(change.text);
                 this._tokens.acceptEdit(change.range, eolCount, firstLineLength);
-                this._semanticTokens.acceptEdit(change.range, eolCount, firstLineLength, lastLineLength, change.text.length > 0 ? change.text.charCodeAt(0) : 0 /* Null */);
+                this._tokens2.acceptEdit(change.range, eolCount, firstLineLength, lastLineLength, change.text.length > 0 ? change.text.charCodeAt(0) : 0 /* Null */);
                 this._decorationsTree.acceptReplace(change.rangeOffset, change.rangeLength, change.text.length, change.forceMoveMarkers);
             }
-            const rawContentChanges = [];
+            let rawContentChanges = [];
             this._increaseVersionId();
             let lineCount = oldLineCount;
             for (let i = 0, len = contentChanges.length; i < len; i++) {
@@ -1113,10 +1108,10 @@ let TextModel = class TextModel extends Disposable {
                     const spliceLineNumber = startLineNumber + editingLinesCnt;
                     const cnt = insertingLinesCnt - editingLinesCnt;
                     const fromLineNumber = newLineCount - lineCount - cnt + spliceLineNumber + 1;
-                    const injectedTexts = [];
-                    const newLines = [];
+                    let injectedTexts = [];
+                    let newLines = [];
                     for (let i = 0; i < cnt; i++) {
-                        const lineNumber = fromLineNumber + i;
+                        let lineNumber = fromLineNumber + i;
                         newLines[i] = this.getLineContent(lineNumber);
                         injectedTextInEditedRangeQueue.takeWhile(r => r.lineNumber < lineNumber);
                         injectedTexts[i] = injectedTextInEditedRangeQueue.takeWhile(r => r.lineNumber === lineNumber);
@@ -1170,7 +1165,7 @@ let TextModel = class TextModel extends Disposable {
         }
     }
     _changeDecorations(ownerId, callback) {
-        const changeAccessor = {
+        let changeAccessor = {
             addDecoration: (range, options) => {
                 return this._deltaDecorationsImpl(ownerId, [], [{ range: range, options: options }])[0];
             },
@@ -1284,17 +1279,17 @@ let TextModel = class TextModel extends Disposable {
         return this.getLinesDecorations(lineNumber, lineNumber, ownerId, filterOutValidation);
     }
     getLinesDecorations(_startLineNumber, _endLineNumber, ownerId = 0, filterOutValidation = false) {
-        const lineCount = this.getLineCount();
-        const startLineNumber = Math.min(lineCount, Math.max(1, _startLineNumber));
-        const endLineNumber = Math.min(lineCount, Math.max(1, _endLineNumber));
-        const endColumn = this.getLineMaxColumn(endLineNumber);
+        let lineCount = this.getLineCount();
+        let startLineNumber = Math.min(lineCount, Math.max(1, _startLineNumber));
+        let endLineNumber = Math.min(lineCount, Math.max(1, _endLineNumber));
+        let endColumn = this.getLineMaxColumn(endLineNumber);
         const range = new Range(startLineNumber, 1, endLineNumber, endColumn);
         const decorations = this._getDecorationsInRange(range, ownerId, filterOutValidation);
         decorations.push(...this._decorationProvider.getDecorationsInRange(range, ownerId, filterOutValidation));
         return decorations;
     }
     getDecorationsInRange(range, ownerId = 0, filterOutValidation = false) {
-        const validatedRange = this.validateRange(range);
+        let validatedRange = this.validateRange(range);
         const decorations = this._getDecorationsInRange(validatedRange, ownerId, filterOutValidation);
         decorations.push(...this._decorationProvider.getDecorationsInRange(validatedRange, ownerId, filterOutValidation));
         return decorations;
@@ -1384,7 +1379,7 @@ let TextModel = class TextModel extends Disposable {
         let oldDecorationIndex = 0;
         const newDecorationsLen = newDecorations.length;
         let newDecorationIndex = 0;
-        const result = new Array(newDecorationsLen);
+        let result = new Array(newDecorationsLen);
         while (oldDecorationIndex < oldDecorationsLen || newDecorationIndex < newDecorationsLen) {
             let node = null;
             if (oldDecorationIndex < oldDecorationsLen) {
@@ -1444,19 +1439,20 @@ let TextModel = class TextModel extends Disposable {
     }
     setTokens(tokens, backgroundTokenizationCompleted = false) {
         if (tokens.length !== 0) {
-            const ranges = [];
+            let ranges = [];
             for (let i = 0, len = tokens.length; i < len; i++) {
                 const element = tokens[i];
                 let minChangedLineNumber = 0;
                 let maxChangedLineNumber = 0;
                 let hasChange = false;
-                for (let lineNumber = element.startLineNumber; lineNumber <= element.endLineNumber; lineNumber++) {
+                for (let j = 0, lenJ = element.tokens.length; j < lenJ; j++) {
+                    const lineNumber = element.startLineNumber + j;
                     if (hasChange) {
-                        this._tokens.setTokens(this._languageId, lineNumber - 1, this._buffer.getLineLength(lineNumber), element.getLineTokens(lineNumber), false);
+                        this._tokens.setTokens(this._languageId, lineNumber - 1, this._buffer.getLineLength(lineNumber), element.tokens[j], false);
                         maxChangedLineNumber = lineNumber;
                     }
                     else {
-                        const lineHasChange = this._tokens.setTokens(this._languageId, lineNumber - 1, this._buffer.getLineLength(lineNumber), element.getLineTokens(lineNumber), true);
+                        const lineHasChange = this._tokens.setTokens(this._languageId, lineNumber - 1, this._buffer.getLineLength(lineNumber), element.tokens[j], true);
                         if (lineHasChange) {
                             hasChange = true;
                             minChangedLineNumber = lineNumber;
@@ -1479,7 +1475,7 @@ let TextModel = class TextModel extends Disposable {
         this.handleTokenizationProgress(backgroundTokenizationCompleted);
     }
     setSemanticTokens(tokens, isComplete) {
-        this._semanticTokens.set(tokens, isComplete);
+        this._tokens2.set(tokens, isComplete);
         this._emitModelTokensChangedEvent({
             tokenizationSupportChanged: false,
             semanticTokensApplied: tokens !== null,
@@ -1487,16 +1483,16 @@ let TextModel = class TextModel extends Disposable {
         });
     }
     hasCompleteSemanticTokens() {
-        return this._semanticTokens.isComplete();
+        return this._tokens2.isComplete();
     }
     hasSomeSemanticTokens() {
-        return !this._semanticTokens.isEmpty();
+        return !this._tokens2.isEmpty();
     }
     setPartialSemanticTokens(range, tokens) {
         if (this.hasCompleteSemanticTokens()) {
             return;
         }
-        const changedRange = this.validateRange(this._semanticTokens.setPartial(range, tokens));
+        const changedRange = this._tokens2.setPartial(range, tokens);
         this._emitModelTokensChangedEvent({
             tokenizationSupportChanged: false,
             semanticTokensApplied: true,
@@ -1550,7 +1546,7 @@ let TextModel = class TextModel extends Disposable {
     _getLineTokens(lineNumber) {
         const lineText = this.getLineContent(lineNumber);
         const syntacticTokens = this._tokens.getTokens(this._languageId, lineNumber - 1, lineText);
-        return this._semanticTokens.addSparseTokens(lineNumber, syntacticTokens);
+        return this._tokens2.addSemanticTokens(lineNumber, syntacticTokens);
     }
     getLanguageId() {
         return this._languageId;
@@ -1560,7 +1556,7 @@ let TextModel = class TextModel extends Disposable {
             // There's nothing to do
             return;
         }
-        const e = {
+        let e = {
             oldLanguage: this._languageId,
             newLanguage: languageId
         };
@@ -1576,10 +1572,6 @@ let TextModel = class TextModel extends Disposable {
     getTokenTypeIfInsertingCharacter(lineNumber, column, character) {
         const position = this.validatePosition(new Position(lineNumber, column));
         return this._tokenization.getTokenTypeIfInsertingCharacter(position, character);
-    }
-    tokenizeLineWithEdit(position, length, newText) {
-        const validatedPosition = this.validatePosition(position);
-        return this._tokenization.tokenizeLineWithEdit(validatedPosition, length, newText);
     }
     getLanguageConfiguration(languageId) {
         return this._languageConfigurationService.getLanguageConfiguration(languageId);
@@ -1639,6 +1631,416 @@ let TextModel = class TextModel extends Disposable {
             endColumn: position.column
         };
     }
+    /**
+     * Returns:
+     *  - -1 => the line consists of whitespace
+     *  - otherwise => the indent level is returned value
+     */
+    static computeIndentLevel(line, tabSize) {
+        let indent = 0;
+        let i = 0;
+        let len = line.length;
+        while (i < len) {
+            let chCode = line.charCodeAt(i);
+            if (chCode === 32 /* Space */) {
+                indent++;
+            }
+            else if (chCode === 9 /* Tab */) {
+                indent = indent - indent % tabSize + tabSize;
+            }
+            else {
+                break;
+            }
+            i++;
+        }
+        if (i === len) {
+            return -1; // line only consists of whitespace
+        }
+        return indent;
+    }
+    _computeIndentLevel(lineIndex) {
+        return TextModel.computeIndentLevel(this._buffer.getLineContent(lineIndex + 1), this._options.tabSize);
+    }
+    getActiveIndentGuide(lineNumber, minLineNumber, maxLineNumber) {
+        this._assertNotDisposed();
+        const lineCount = this.getLineCount();
+        if (lineNumber < 1 || lineNumber > lineCount) {
+            throw new Error('Illegal value for lineNumber');
+        }
+        const foldingRules = this.getLanguageConfiguration(this._languageId).foldingRules;
+        const offSide = Boolean(foldingRules && foldingRules.offSide);
+        let up_aboveContentLineIndex = -2; /* -2 is a marker for not having computed it */
+        let up_aboveContentLineIndent = -1;
+        let up_belowContentLineIndex = -2; /* -2 is a marker for not having computed it */
+        let up_belowContentLineIndent = -1;
+        const up_resolveIndents = (lineNumber) => {
+            if (up_aboveContentLineIndex !== -1 && (up_aboveContentLineIndex === -2 || up_aboveContentLineIndex > lineNumber - 1)) {
+                up_aboveContentLineIndex = -1;
+                up_aboveContentLineIndent = -1;
+                // must find previous line with content
+                for (let lineIndex = lineNumber - 2; lineIndex >= 0; lineIndex--) {
+                    let indent = this._computeIndentLevel(lineIndex);
+                    if (indent >= 0) {
+                        up_aboveContentLineIndex = lineIndex;
+                        up_aboveContentLineIndent = indent;
+                        break;
+                    }
+                }
+            }
+            if (up_belowContentLineIndex === -2) {
+                up_belowContentLineIndex = -1;
+                up_belowContentLineIndent = -1;
+                // must find next line with content
+                for (let lineIndex = lineNumber; lineIndex < lineCount; lineIndex++) {
+                    let indent = this._computeIndentLevel(lineIndex);
+                    if (indent >= 0) {
+                        up_belowContentLineIndex = lineIndex;
+                        up_belowContentLineIndent = indent;
+                        break;
+                    }
+                }
+            }
+        };
+        let down_aboveContentLineIndex = -2; /* -2 is a marker for not having computed it */
+        let down_aboveContentLineIndent = -1;
+        let down_belowContentLineIndex = -2; /* -2 is a marker for not having computed it */
+        let down_belowContentLineIndent = -1;
+        const down_resolveIndents = (lineNumber) => {
+            if (down_aboveContentLineIndex === -2) {
+                down_aboveContentLineIndex = -1;
+                down_aboveContentLineIndent = -1;
+                // must find previous line with content
+                for (let lineIndex = lineNumber - 2; lineIndex >= 0; lineIndex--) {
+                    let indent = this._computeIndentLevel(lineIndex);
+                    if (indent >= 0) {
+                        down_aboveContentLineIndex = lineIndex;
+                        down_aboveContentLineIndent = indent;
+                        break;
+                    }
+                }
+            }
+            if (down_belowContentLineIndex !== -1 && (down_belowContentLineIndex === -2 || down_belowContentLineIndex < lineNumber - 1)) {
+                down_belowContentLineIndex = -1;
+                down_belowContentLineIndent = -1;
+                // must find next line with content
+                for (let lineIndex = lineNumber; lineIndex < lineCount; lineIndex++) {
+                    let indent = this._computeIndentLevel(lineIndex);
+                    if (indent >= 0) {
+                        down_belowContentLineIndex = lineIndex;
+                        down_belowContentLineIndent = indent;
+                        break;
+                    }
+                }
+            }
+        };
+        let startLineNumber = 0;
+        let goUp = true;
+        let endLineNumber = 0;
+        let goDown = true;
+        let indent = 0;
+        let initialIndent = 0;
+        for (let distance = 0; goUp || goDown; distance++) {
+            const upLineNumber = lineNumber - distance;
+            const downLineNumber = lineNumber + distance;
+            if (distance > 1 && (upLineNumber < 1 || upLineNumber < minLineNumber)) {
+                goUp = false;
+            }
+            if (distance > 1 && (downLineNumber > lineCount || downLineNumber > maxLineNumber)) {
+                goDown = false;
+            }
+            if (distance > 50000) {
+                // stop processing
+                goUp = false;
+                goDown = false;
+            }
+            let upLineIndentLevel = -1;
+            if (goUp) {
+                // compute indent level going up
+                const currentIndent = this._computeIndentLevel(upLineNumber - 1);
+                if (currentIndent >= 0) {
+                    // This line has content (besides whitespace)
+                    // Use the line's indent
+                    up_belowContentLineIndex = upLineNumber - 1;
+                    up_belowContentLineIndent = currentIndent;
+                    upLineIndentLevel = Math.ceil(currentIndent / this._options.indentSize);
+                }
+                else {
+                    up_resolveIndents(upLineNumber);
+                    upLineIndentLevel = this._getIndentLevelForWhitespaceLine(offSide, up_aboveContentLineIndent, up_belowContentLineIndent);
+                }
+            }
+            let downLineIndentLevel = -1;
+            if (goDown) {
+                // compute indent level going down
+                const currentIndent = this._computeIndentLevel(downLineNumber - 1);
+                if (currentIndent >= 0) {
+                    // This line has content (besides whitespace)
+                    // Use the line's indent
+                    down_aboveContentLineIndex = downLineNumber - 1;
+                    down_aboveContentLineIndent = currentIndent;
+                    downLineIndentLevel = Math.ceil(currentIndent / this._options.indentSize);
+                }
+                else {
+                    down_resolveIndents(downLineNumber);
+                    downLineIndentLevel = this._getIndentLevelForWhitespaceLine(offSide, down_aboveContentLineIndent, down_belowContentLineIndent);
+                }
+            }
+            if (distance === 0) {
+                initialIndent = upLineIndentLevel;
+                continue;
+            }
+            if (distance === 1) {
+                if (downLineNumber <= lineCount && downLineIndentLevel >= 0 && initialIndent + 1 === downLineIndentLevel) {
+                    // This is the beginning of a scope, we have special handling here, since we want the
+                    // child scope indent to be active, not the parent scope
+                    goUp = false;
+                    startLineNumber = downLineNumber;
+                    endLineNumber = downLineNumber;
+                    indent = downLineIndentLevel;
+                    continue;
+                }
+                if (upLineNumber >= 1 && upLineIndentLevel >= 0 && upLineIndentLevel - 1 === initialIndent) {
+                    // This is the end of a scope, just like above
+                    goDown = false;
+                    startLineNumber = upLineNumber;
+                    endLineNumber = upLineNumber;
+                    indent = upLineIndentLevel;
+                    continue;
+                }
+                startLineNumber = lineNumber;
+                endLineNumber = lineNumber;
+                indent = initialIndent;
+                if (indent === 0) {
+                    // No need to continue
+                    return { startLineNumber, endLineNumber, indent };
+                }
+            }
+            if (goUp) {
+                if (upLineIndentLevel >= indent) {
+                    startLineNumber = upLineNumber;
+                }
+                else {
+                    goUp = false;
+                }
+            }
+            if (goDown) {
+                if (downLineIndentLevel >= indent) {
+                    endLineNumber = downLineNumber;
+                }
+                else {
+                    goDown = false;
+                }
+            }
+        }
+        return { startLineNumber, endLineNumber, indent };
+    }
+    getLinesBracketGuides(startLineNumber, endLineNumber, activePosition, options) {
+        var _a, _b, _c, _d, _e;
+        const result = [];
+        const bracketPairs = this._bracketPairColorizer.getBracketPairsInRangeWithMinIndentation(new Range(startLineNumber, 1, endLineNumber, this.getLineMaxColumn(endLineNumber)));
+        let activeBracketPairRange = undefined;
+        if (activePosition && bracketPairs.length > 0) {
+            const bracketsContainingActivePosition = (startLineNumber <= activePosition.lineNumber && activePosition.lineNumber <= endLineNumber)
+                // Does active position intersect with the view port? -> Intersect bracket pairs with activePosition
+                ? bracketPairs.filter(bp => Range.strictContainsPosition(bp.range, activePosition))
+                : this._bracketPairColorizer.getBracketPairsInRange(Range.fromPositions(activePosition));
+            activeBracketPairRange = (_a = findLast(bracketsContainingActivePosition, 
+            /* Exclude single line bracket pairs for cases such as
+             * ```
+             * function test() {
+             * 		if (true) { | }
+             * }
+             * ```
+             */
+            (i) => i.range.startLineNumber !== i.range.endLineNumber)) === null || _a === void 0 ? void 0 : _a.range;
+        }
+        const queue = new ArrayQueue(bracketPairs);
+        /** Indexed by nesting level */
+        const activeGuides = new Array();
+        const nextGuides = new Array();
+        const colorProvider = new BracketPairGuidesClassNames();
+        for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+            let guides = new Array();
+            if (nextGuides.length > 0) {
+                guides = guides.concat(nextGuides);
+                nextGuides.length = 0;
+            }
+            result.push(guides);
+            // Update activeGuides
+            for (const pair of queue.takeWhile(b => b.openingBracketRange.startLineNumber <= lineNumber) || []) {
+                if (pair.range.startLineNumber === pair.range.endLineNumber) {
+                    // ignore single line brackets
+                    continue;
+                }
+                const guideVisibleColumn = Math.min(this.getVisibleColumnFromPosition(pair.openingBracketRange.getStartPosition()), this.getVisibleColumnFromPosition((_c = (_b = pair.closingBracketRange) === null || _b === void 0 ? void 0 : _b.getStartPosition()) !== null && _c !== void 0 ? _c : pair.range.getEndPosition()), pair.minVisibleColumnIndentation + 1);
+                let renderHorizontalEndLineAtTheBottom = false;
+                if (pair.closingBracketRange) {
+                    const firstNonWsIndex = strings.firstNonWhitespaceIndex(this.getLineContent(pair.closingBracketRange.startLineNumber));
+                    if (firstNonWsIndex < pair.closingBracketRange.startColumn - 1) {
+                        renderHorizontalEndLineAtTheBottom = true;
+                    }
+                }
+                const start = pair.openingBracketRange.getStartPosition();
+                const end = ((_e = (_d = pair.closingBracketRange) === null || _d === void 0 ? void 0 : _d.getStartPosition()) !== null && _e !== void 0 ? _e : pair.range.getEndPosition());
+                if (pair.closingBracketRange === undefined) {
+                    // Don't show guides for bracket pairs that are not balanced.
+                    // See #135125.
+                    activeGuides[pair.nestingLevel] = null;
+                }
+                else {
+                    activeGuides[pair.nestingLevel] = {
+                        nestingLevel: pair.nestingLevel,
+                        guideVisibleColumn,
+                        start,
+                        visibleStartColumn: this.getVisibleColumnFromPosition(start),
+                        end,
+                        visibleEndColumn: this.getVisibleColumnFromPosition(end),
+                        bracketPair: pair,
+                        renderHorizontalEndLineAtTheBottom
+                    };
+                }
+            }
+            for (const line of activeGuides) {
+                if (!line) {
+                    continue;
+                }
+                const isActive = activeBracketPairRange && line.bracketPair.range.equalsRange(activeBracketPairRange);
+                const className = colorProvider.getInlineClassNameOfLevel(line.nestingLevel) +
+                    (options.highlightActive && isActive ? ' ' + colorProvider.activeClassName : '');
+                if ((isActive && options.horizontalGuides !== model.HorizontalGuidesState.Disabled)
+                    || (options.includeInactive && options.horizontalGuides === model.HorizontalGuidesState.Enabled)) {
+                    if (line.start.lineNumber === lineNumber) {
+                        if (line.guideVisibleColumn < line.visibleStartColumn) {
+                            guides.push(new model.IndentGuide(line.guideVisibleColumn, className, new model.IndentGuideHorizontalLine(false, line.start.column)));
+                        }
+                    }
+                    if (line.end.lineNumber === lineNumber + 1) {
+                        // The next line might have horizontal guides.
+                        // However, the next line might also have a new bracket pair with the same indentation,
+                        // so the current bracket pair might get replaced. That's why we push the guide to nextGuides one line ahead.
+                        if (line.guideVisibleColumn < line.visibleEndColumn) {
+                            nextGuides.push(new model.IndentGuide(line.guideVisibleColumn, className, new model.IndentGuideHorizontalLine(!line.renderHorizontalEndLineAtTheBottom, line.end.column)));
+                        }
+                    }
+                }
+            }
+            let lastVisibleColumnCount = Number.MAX_SAFE_INTEGER;
+            // Going backwards, so the last guide potentially replaces others
+            for (let i = activeGuides.length - 1; i >= 0; i--) {
+                const line = activeGuides[i];
+                if (!line) {
+                    continue;
+                }
+                const isActive = options.highlightActive && activeBracketPairRange &&
+                    line.bracketPair.range.equalsRange(activeBracketPairRange);
+                const className = colorProvider.getInlineClassNameOfLevel(line.nestingLevel) +
+                    (isActive ? ' ' + colorProvider.activeClassName : '');
+                if (isActive || options.includeInactive) {
+                    if (line.renderHorizontalEndLineAtTheBottom && line.end.lineNumber === lineNumber + 1) {
+                        nextGuides.push(new model.IndentGuide(line.guideVisibleColumn, className, null));
+                    }
+                }
+                if (line.end.lineNumber <= lineNumber
+                    || line.start.lineNumber >= lineNumber) {
+                    continue;
+                }
+                if (line.guideVisibleColumn >= lastVisibleColumnCount && !isActive) {
+                    // Don't render a guide on top of an existing guide, unless it is active.
+                    continue;
+                }
+                lastVisibleColumnCount = line.guideVisibleColumn;
+                if (isActive || options.includeInactive) {
+                    guides.push(new model.IndentGuide(line.guideVisibleColumn, className, null));
+                }
+            }
+            guides.sort((a, b) => a.visibleColumn - b.visibleColumn);
+        }
+        return result;
+    }
+    getVisibleColumnFromPosition(position) {
+        return CursorColumns.visibleColumnFromColumn(this.getLineContent(position.lineNumber), position.column, this._options.tabSize) + 1;
+    }
+    getLinesIndentGuides(startLineNumber, endLineNumber) {
+        this._assertNotDisposed();
+        const lineCount = this.getLineCount();
+        if (startLineNumber < 1 || startLineNumber > lineCount) {
+            throw new Error('Illegal value for startLineNumber');
+        }
+        if (endLineNumber < 1 || endLineNumber > lineCount) {
+            throw new Error('Illegal value for endLineNumber');
+        }
+        const foldingRules = this.getLanguageConfiguration(this._languageId).foldingRules;
+        const offSide = Boolean(foldingRules && foldingRules.offSide);
+        let result = new Array(endLineNumber - startLineNumber + 1);
+        let aboveContentLineIndex = -2; /* -2 is a marker for not having computed it */
+        let aboveContentLineIndent = -1;
+        let belowContentLineIndex = -2; /* -2 is a marker for not having computed it */
+        let belowContentLineIndent = -1;
+        for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+            let resultIndex = lineNumber - startLineNumber;
+            const currentIndent = this._computeIndentLevel(lineNumber - 1);
+            if (currentIndent >= 0) {
+                // This line has content (besides whitespace)
+                // Use the line's indent
+                aboveContentLineIndex = lineNumber - 1;
+                aboveContentLineIndent = currentIndent;
+                result[resultIndex] = Math.ceil(currentIndent / this._options.indentSize);
+                continue;
+            }
+            if (aboveContentLineIndex === -2) {
+                aboveContentLineIndex = -1;
+                aboveContentLineIndent = -1;
+                // must find previous line with content
+                for (let lineIndex = lineNumber - 2; lineIndex >= 0; lineIndex--) {
+                    let indent = this._computeIndentLevel(lineIndex);
+                    if (indent >= 0) {
+                        aboveContentLineIndex = lineIndex;
+                        aboveContentLineIndent = indent;
+                        break;
+                    }
+                }
+            }
+            if (belowContentLineIndex !== -1 && (belowContentLineIndex === -2 || belowContentLineIndex < lineNumber - 1)) {
+                belowContentLineIndex = -1;
+                belowContentLineIndent = -1;
+                // must find next line with content
+                for (let lineIndex = lineNumber; lineIndex < lineCount; lineIndex++) {
+                    let indent = this._computeIndentLevel(lineIndex);
+                    if (indent >= 0) {
+                        belowContentLineIndex = lineIndex;
+                        belowContentLineIndent = indent;
+                        break;
+                    }
+                }
+            }
+            result[resultIndex] = this._getIndentLevelForWhitespaceLine(offSide, aboveContentLineIndent, belowContentLineIndent);
+        }
+        return result;
+    }
+    _getIndentLevelForWhitespaceLine(offSide, aboveContentLineIndent, belowContentLineIndent) {
+        if (aboveContentLineIndent === -1 || belowContentLineIndent === -1) {
+            // At the top or bottom of the file
+            return 0;
+        }
+        else if (aboveContentLineIndent < belowContentLineIndent) {
+            // we are inside the region above
+            return (1 + Math.floor(aboveContentLineIndent / this._options.indentSize));
+        }
+        else if (aboveContentLineIndent === belowContentLineIndent) {
+            // we are in between two regions
+            return Math.ceil(belowContentLineIndent / this._options.indentSize);
+        }
+        else {
+            if (offSide) {
+                // same level as region below
+                return Math.ceil(belowContentLineIndent / this._options.indentSize);
+            }
+            else {
+                // we are inside the region that ends below
+                return (1 + Math.floor(belowContentLineIndent / this._options.indentSize));
+            }
+        }
+    }
     //#endregion
     normalizePosition(position, affinity) {
         return position;
@@ -1668,7 +2070,7 @@ TextModel.DEFAULT_CREATION_OPTIONS = {
 };
 TextModel = __decorate([
     __param(4, IUndoRedoService),
-    __param(5, ILanguageService),
+    __param(5, IModeService),
     __param(6, ILanguageConfigurationService)
 ], TextModel);
 export { TextModel };
@@ -1683,6 +2085,16 @@ function indentOfLine(line) {
         }
     }
     return indent;
+}
+export class BracketPairGuidesClassNames {
+    constructor() {
+        this.activeClassName = 'indent-active';
+    }
+    getInlineClassNameOfLevel(level) {
+        // To support a dynamic amount of colors up to 6 colors,
+        // we use a number that is a lcm of all numbers from 1 to 6.
+        return `bracket-indent-guide lvl-${level % 30}`;
+    }
 }
 //#region Decorations
 function isNodeInOverviewRuler(node) {
@@ -1839,7 +2251,7 @@ export class ModelDecorationOverviewRulerOptions extends DecorationOptions {
         if (typeof color === 'string') {
             return color;
         }
-        const c = color ? theme.getColor(color.id) : null;
+        let c = color ? theme.getColor(color.id) : null;
         if (!c) {
             return '';
         }
@@ -1877,8 +2289,6 @@ export class ModelDecorationInjectedTextOptions {
         this.content = options.content || '';
         this.inlineClassName = options.inlineClassName || null;
         this.inlineClassNameAffectsLetterSpacing = options.inlineClassNameAffectsLetterSpacing || false;
-        this.attachedData = options.attachedData || null;
-        this.cursorStops = options.cursorStops || null;
     }
     static from(options) {
         if (options instanceof ModelDecorationInjectedTextOptions) {
@@ -1889,7 +2299,7 @@ export class ModelDecorationInjectedTextOptions {
 }
 export class ModelDecorationOptions {
     constructor(options) {
-        var _a, _b;
+        var _a;
         this.description = options.description;
         this.stickiness = options.stickiness || 0 /* AlwaysGrowsWhenTypingAtEdges */;
         this.zIndex = options.zIndex || 0;
@@ -1912,7 +2322,6 @@ export class ModelDecorationOptions {
         this.after = options.after ? ModelDecorationInjectedTextOptions.from(options.after) : null;
         this.before = options.before ? ModelDecorationInjectedTextOptions.from(options.before) : null;
         this.hideInCommentTokens = (_a = options.hideInCommentTokens) !== null && _a !== void 0 ? _a : false;
-        this.hideInStringTokens = (_b = options.hideInStringTokens) !== null && _b !== void 0 ? _b : false;
     }
     static register(options) {
         return new ModelDecorationOptions(options);

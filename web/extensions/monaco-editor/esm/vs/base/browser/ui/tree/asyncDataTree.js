@@ -18,7 +18,7 @@ import { CompressibleObjectTree, ObjectTree } from './objectTree.js';
 import { TreeError, WeakMapper } from './tree.js';
 import { createCancelablePromise, Promises, timeout } from '../../../common/async.js';
 import { Codicon } from '../../../common/codicons.js';
-import { isCancellationError, onUnexpectedError } from '../../../common/errors.js';
+import { isPromiseCanceledError, onUnexpectedError } from '../../../common/errors.js';
 import { Emitter, Event } from '../../../common/event.js';
 import { Iterable } from '../../../common/iterator.js';
 import { DisposableStore, dispose } from '../../../common/lifecycle.js';
@@ -435,7 +435,7 @@ export class AsyncDataTree {
                 if (node !== this.root && this.tree.hasElement(node)) {
                     this.tree.collapse(node);
                 }
-                if (isCancellationError(err)) {
+                if (isPromiseCanceledError(err)) {
                     return [];
                 }
                 throw err;

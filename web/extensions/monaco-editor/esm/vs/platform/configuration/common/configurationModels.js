@@ -33,12 +33,6 @@ export class ConfigurationModel {
     getValue(section) {
         return section ? getConfigurationValue(this.contents, section) : this.contents;
     }
-    getOverrideValue(section, overrideIdentifier) {
-        const overrideContents = this.getContentsForOverrideIdentifer(overrideIdentifier);
-        return overrideContents
-            ? section ? getConfigurationValue(overrideContents, section) : overrideContents
-            : undefined;
-    }
     override(identifier) {
         let overrideConfigurationModel = this.overrideConfigurations.get(identifier);
         if (!overrideConfigurationModel) {
@@ -241,38 +235,6 @@ export class Configuration {
             this._workspaceConsolidatedConfiguration = null;
         }
     }
-    inspect(key, overrides, workspace) {
-        const consolidateConfigurationModel = this.getConsolidateConfigurationModel(overrides, workspace);
-        const folderConfigurationModel = this.getFolderConfigurationModelForResource(overrides.resource, workspace);
-        const memoryConfigurationModel = overrides.resource ? this._memoryConfigurationByResource.get(overrides.resource) || this._memoryConfiguration : this._memoryConfiguration;
-        const defaultValue = overrides.overrideIdentifier ? this._defaultConfiguration.freeze().override(overrides.overrideIdentifier).getValue(key) : this._defaultConfiguration.freeze().getValue(key);
-        const userValue = overrides.overrideIdentifier ? this.userConfiguration.freeze().override(overrides.overrideIdentifier).getValue(key) : this.userConfiguration.freeze().getValue(key);
-        const userLocalValue = overrides.overrideIdentifier ? this.localUserConfiguration.freeze().override(overrides.overrideIdentifier).getValue(key) : this.localUserConfiguration.freeze().getValue(key);
-        const userRemoteValue = overrides.overrideIdentifier ? this.remoteUserConfiguration.freeze().override(overrides.overrideIdentifier).getValue(key) : this.remoteUserConfiguration.freeze().getValue(key);
-        const workspaceValue = workspace ? overrides.overrideIdentifier ? this._workspaceConfiguration.freeze().override(overrides.overrideIdentifier).getValue(key) : this._workspaceConfiguration.freeze().getValue(key) : undefined; //Check on workspace exists or not because _workspaceConfiguration is never null
-        const workspaceFolderValue = folderConfigurationModel ? overrides.overrideIdentifier ? folderConfigurationModel.freeze().override(overrides.overrideIdentifier).getValue(key) : folderConfigurationModel.freeze().getValue(key) : undefined;
-        const memoryValue = overrides.overrideIdentifier ? memoryConfigurationModel.override(overrides.overrideIdentifier).getValue(key) : memoryConfigurationModel.getValue(key);
-        const value = consolidateConfigurationModel.getValue(key);
-        const overrideIdentifiers = arrays.distinct(arrays.flatten(consolidateConfigurationModel.overrides.map(override => override.identifiers))).filter(overrideIdentifier => consolidateConfigurationModel.getOverrideValue(key, overrideIdentifier) !== undefined);
-        return {
-            defaultValue: defaultValue,
-            userValue: userValue,
-            userLocalValue: userLocalValue,
-            userRemoteValue: userRemoteValue,
-            workspaceValue: workspaceValue,
-            workspaceFolderValue: workspaceFolderValue,
-            memoryValue: memoryValue,
-            value,
-            default: defaultValue !== undefined ? { value: this._defaultConfiguration.freeze().getValue(key), override: overrides.overrideIdentifier ? this._defaultConfiguration.freeze().getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            user: userValue !== undefined ? { value: this.userConfiguration.freeze().getValue(key), override: overrides.overrideIdentifier ? this.userConfiguration.freeze().getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            userLocal: userLocalValue !== undefined ? { value: this.localUserConfiguration.freeze().getValue(key), override: overrides.overrideIdentifier ? this.localUserConfiguration.freeze().getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            userRemote: userRemoteValue !== undefined ? { value: this.remoteUserConfiguration.freeze().getValue(key), override: overrides.overrideIdentifier ? this.remoteUserConfiguration.freeze().getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            workspace: workspaceValue !== undefined ? { value: this._workspaceConfiguration.freeze().getValue(key), override: overrides.overrideIdentifier ? this._workspaceConfiguration.freeze().getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            workspaceFolder: workspaceFolderValue !== undefined ? { value: folderConfigurationModel === null || folderConfigurationModel === void 0 ? void 0 : folderConfigurationModel.freeze().getValue(key), override: overrides.overrideIdentifier ? folderConfigurationModel === null || folderConfigurationModel === void 0 ? void 0 : folderConfigurationModel.freeze().getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            memory: memoryValue !== undefined ? { value: memoryConfigurationModel.getValue(key), override: overrides.overrideIdentifier ? memoryConfigurationModel.getOverrideValue(key, overrides.overrideIdentifier) : undefined } : undefined,
-            overrideIdentifiers: overrideIdentifiers.length ? overrideIdentifiers : undefined
-        };
-    }
     get userConfiguration() {
         if (!this._userConfiguration) {
             this._userConfiguration = this._remoteUserConfiguration.isEmpty() ? this._localUserConfiguration : this._localUserConfiguration.merge(this._remoteUserConfiguration);
@@ -281,12 +243,6 @@ export class Configuration {
             }
         }
         return this._userConfiguration;
-    }
-    get localUserConfiguration() {
-        return this._localUserConfiguration;
-    }
-    get remoteUserConfiguration() {
-        return this._remoteUserConfiguration;
     }
     getConsolidateConfigurationModel(overrides, workspace) {
         let configurationModel = this.getConsolidatedConfigurationModelForResource(overrides, workspace);
@@ -332,15 +288,6 @@ export class Configuration {
             }
         }
         return folderConsolidatedConfiguration;
-    }
-    getFolderConfigurationModelForResource(resource, workspace) {
-        if (workspace && resource) {
-            const root = workspace.getFolder(resource);
-            if (root) {
-                return this._folderConfigurations.get(root.uri);
-            }
-        }
-        return undefined;
     }
     toData() {
         return {

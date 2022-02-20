@@ -19,22 +19,22 @@ import { onUnexpectedError } from '../../../base/common/errors.js';
 import { Emitter } from '../../../base/common/event.js';
 import { Disposable, dispose } from '../../../base/common/lifecycle.js';
 import { Schemas } from '../../../base/common/network.js';
-import { EditorConfiguration } from '../config/editorConfiguration.js';
+import { Configuration } from '../config/configuration.js';
 import { EditorExtensionsRegistry } from '../editorExtensions.js';
 import { ICodeEditorService } from '../services/codeEditorService.js';
-import { View } from '../view/view.js';
+import { View } from '../view/viewImpl.js';
 import { ViewUserInputEvents } from '../view/viewUserInputEvents.js';
 import { filterValidationDecorations } from '../../common/config/editorOptions.js';
-import { CursorsController } from '../../common/cursor/cursor.js';
-import { CursorColumns } from '../../common/core/cursorColumns.js';
+import { CursorsController } from '../../common/controller/cursor.js';
+import { CursorColumns } from '../../common/controller/cursorCommon.js';
 import { Position } from '../../common/core/position.js';
 import { Range } from '../../common/core/range.js';
 import { Selection } from '../../common/core/selection.js';
 import { InternalEditorAction } from '../../common/editorAction.js';
 import * as editorCommon from '../../common/editorCommon.js';
 import { EditorContextKeys } from '../../common/editorContextKeys.js';
-import * as modes from '../../common/languages.js';
-import { editorUnnecessaryCodeBorder, editorUnnecessaryCodeOpacity } from '../../common/core/editorColorRegistry.js';
+import * as modes from '../../common/modes.js';
+import { editorUnnecessaryCodeBorder, editorUnnecessaryCodeOpacity } from '../../common/view/editorColorRegistry.js';
 import { editorErrorBorder, editorErrorForeground, editorHintBorder, editorHintForeground, editorInfoBorder, editorInfoForeground, editorWarningBorder, editorWarningForeground, editorForeground, editorErrorBackground, editorInfoBackground, editorWarningBackground } from '../../../platform/theme/common/colorRegistry.js';
 import { ViewModel } from '../../common/viewModel/viewModelImpl.js';
 import { ICommandService } from '../../../platform/commands/common/commands.js';
@@ -47,9 +47,7 @@ import { IAccessibilityService } from '../../../platform/accessibility/common/ac
 import { withNullAsUndefined } from '../../../base/common/types.js';
 import { MonospaceLineBreaksComputerFactory } from '../../common/viewModel/monospaceLineBreaksComputer.js';
 import { DOMLineBreaksComputerFactory } from '../view/domLineBreaksComputer.js';
-import { WordOperations } from '../../common/cursor/cursorWordOperations.js';
-import { ILanguageConfigurationService } from '../../common/languages/languageConfigurationRegistry.js';
-import { applyFontInfo } from '../config/domFontInfo.js';
+import { WordOperations } from '../../common/controller/cursorWordOperations.js';
 let EDITOR_ID = 0;
 class ModelData {
     constructor(model, viewModel, view, hasRealView, listenersToRemove) {
@@ -69,9 +67,8 @@ class ModelData {
     }
 }
 let CodeEditorWidget = class CodeEditorWidget extends Disposable {
-    constructor(domElement, _options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService) {
+    constructor(domElement, _options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService) {
         super();
-        this.languageConfigurationService = languageConfigurationService;
         //#region Eventing
         this._onDidDispose = this._register(new Emitter());
         this.onDidDispose = this._onDidDispose.event;
@@ -151,13 +148,14 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         this._id = (++EDITOR_ID);
         this._decorationTypeKeysToIds = {};
         this._decorationTypeSubtypes = {};
+        this.isSimpleWidget = codeEditorWidgetOptions.isSimpleWidget || false;
         this._telemetryData = codeEditorWidgetOptions.telemetryData;
-        this._configuration = this._register(this._createConfiguration(codeEditorWidgetOptions.isSimpleWidget || false, options, accessibilityService));
+        this._configuration = this._register(this._createConfiguration(options, accessibilityService));
         this._register(this._configuration.onDidChange((e) => {
             this._onDidChangeConfiguration.fire(e);
             const options = this._configuration.options;
-            if (e.hasChanged(131 /* layoutInfo */)) {
-                const layoutInfo = options.get(131 /* layoutInfo */);
+            if (e.hasChanged(130 /* layoutInfo */)) {
+                const layoutInfo = options.get(130 /* layoutInfo */);
                 this._onDidLayoutChange.fire(layoutInfo);
             }
         }));
@@ -212,12 +210,8 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         });
         this._codeEditorService.addCodeEditor(this);
     }
-    //#endregion
-    get isSimpleWidget() {
-        return this._configuration.isSimpleWidget;
-    }
-    _createConfiguration(isSimpleWidget, options, accessibilityService) {
-        return new EditorConfiguration(isSimpleWidget, options, this._domElement, accessibilityService);
+    _createConfiguration(options, accessibilityService) {
+        return new Configuration(this.isSimpleWidget, options, this._domElement, accessibilityService);
     }
     getId() {
         return this.getEditorType() + ':' + this._id;
@@ -246,7 +240,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         return this._instantiationService.invokeFunction(fn);
     }
     updateOptions(newOptions) {
-        this._configuration.updateOptions(newOptions || {});
+        this._configuration.updateOptions(newOptions);
     }
     getOptions() {
         return this._configuration.options;
@@ -264,7 +258,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         if (!this._modelData) {
             return null;
         }
-        return WordOperations.getWordAtPosition(this._modelData.model, this._configuration.options.get(117 /* wordSeparators */), position);
+        return WordOperations.getWordAtPosition(this._modelData.model, this._configuration.options.get(116 /* wordSeparators */), position);
     }
     getValue(options = null) {
         if (!this._modelData) {
@@ -795,7 +789,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         if (!this._modelData) {
             return false;
         }
-        if (this._configuration.options.get(81 /* readOnly */)) {
+        if (this._configuration.options.get(80 /* readOnly */)) {
             // read only editor => sorry!
             return false;
         }
@@ -806,7 +800,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         if (!this._modelData) {
             return false;
         }
-        if (this._configuration.options.get(81 /* readOnly */)) {
+        if (this._configuration.options.get(80 /* readOnly */)) {
             // read only editor => sorry!
             return false;
         }
@@ -817,7 +811,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         if (!this._modelData) {
             return false;
         }
-        if (this._configuration.options.get(81 /* readOnly */)) {
+        if (this._configuration.options.get(80 /* readOnly */)) {
             // read only editor => sorry!
             return false;
         }
@@ -859,12 +853,6 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         }
         return this._modelData.model.getLineDecorations(lineNumber, this._id, filterValidationDecorations(this._configuration.options));
     }
-    getDecorationsInRange(range) {
-        if (!this._modelData) {
-            return null;
-        }
-        return this._modelData.model.getDecorationsInRange(range, this._id, filterValidationDecorations(this._configuration.options));
-    }
     deltaDecorations(oldDecorations, newDecorations) {
         if (!this._modelData) {
             return [];
@@ -889,7 +877,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
     }
     getLayoutInfo() {
         const options = this._configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
         return layoutInfo;
     }
     createOverviewRuler(cssClassName) {
@@ -914,7 +902,7 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         this._modelData.view.delegateVerticalScrollbarMouseDown(browserEvent);
     }
     layout(dimension) {
-        this._configuration.observeContainer(dimension);
+        this._configuration.observeReferenceElement(dimension);
         this.render();
     }
     focus() {
@@ -1016,13 +1004,13 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         }
         const position = this._modelData.model.validatePosition(rawPosition);
         const options = this._configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
         const top = CodeEditorWidget._getVerticalOffsetForPosition(this._modelData, position.lineNumber, position.column) - this.getScrollTop();
         const left = this._modelData.view.getOffsetForColumn(position.lineNumber, position.column) + layoutInfo.glyphMarginWidth + layoutInfo.lineNumbersWidth + layoutInfo.decorationsWidth - this.getScrollLeft();
         return {
             top: top,
             left: left,
-            height: options.get(59 /* lineHeight */)
+            height: options.get(58 /* lineHeight */)
         };
     }
     getOffsetForColumn(lineNumber, column) {
@@ -1044,14 +1032,14 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         this._modelData.view.setAriaOptions(options);
     }
     applyFontInfo(target) {
-        applyFontInfo(target, this._configuration.options.get(44 /* fontInfo */));
+        Configuration.applyFontInfoSlow(target, this._configuration.options.get(43 /* fontInfo */));
     }
     setBanner(domNode, domNodeHeight) {
         if (this._bannerDomNode && this._domElement.contains(this._bannerDomNode)) {
             this._domElement.removeChild(this._bannerDomNode);
         }
         this._bannerDomNode = domNode;
-        this._configuration.setReservedHeight(domNode ? domNodeHeight : 0);
+        this._configuration.reserveHeight(domNode ? domNodeHeight : 0);
         if (this._bannerDomNode) {
             this._domElement.prepend(this._bannerDomNode);
         }
@@ -1064,9 +1052,9 @@ let CodeEditorWidget = class CodeEditorWidget extends Disposable {
         const listenersToRemove = [];
         this._domElement.setAttribute('data-mode-id', model.getLanguageId());
         this._configuration.setIsDominatedByLongLines(model.isDominatedByLongLines());
-        this._configuration.setModelLineCount(model.getLineCount());
+        this._configuration.setMaxLineNumber(model.getLineCount());
         model.onBeforeAttached();
-        const viewModel = new ViewModel(this._id, this._configuration, model, DOMLineBreaksComputerFactory.create(), MonospaceLineBreaksComputerFactory.create(this._configuration.options), (callback) => dom.scheduleAtNextAnimationFrame(callback), this.languageConfigurationService);
+        const viewModel = new ViewModel(this._id, this._configuration, model, DOMLineBreaksComputerFactory.create(), MonospaceLineBreaksComputerFactory.create(this._configuration.options), (callback) => dom.scheduleAtNextAnimationFrame(callback));
         listenersToRemove.push(model.onDidChangeDecorations((e) => this._onDidChangeModelDecorations.fire(e)));
         listenersToRemove.push(model.onDidChangeLanguage((e) => {
             this._domElement.setAttribute('data-mode-id', model.getLanguageId());
@@ -1252,8 +1240,7 @@ CodeEditorWidget = __decorate([
     __param(6, IContextKeyService),
     __param(7, IThemeService),
     __param(8, INotificationService),
-    __param(9, IAccessibilityService),
-    __param(10, ILanguageConfigurationService)
+    __param(9, IAccessibilityService)
 ], CodeEditorWidget);
 export { CodeEditorWidget };
 export class BooleanEventEmitter extends Disposable {
@@ -1312,9 +1299,9 @@ class EditorContextKeysManager extends Disposable {
     }
     _updateFromConfig() {
         const options = this._editor.getOptions();
-        this._editorTabMovesFocus.set(options.get(130 /* tabFocusMode */));
-        this._editorReadonly.set(options.get(81 /* readOnly */));
-        this._inDiffEditor.set(options.get(54 /* inDiffEditor */));
+        this._editorTabMovesFocus.set(options.get(129 /* tabFocusMode */));
+        this._editorReadonly.set(options.get(80 /* readOnly */));
+        this._inDiffEditor.set(options.get(53 /* inDiffEditor */));
         this._editorColumnSelection.set(options.get(18 /* columnSelection */));
     }
     _updateFromSelection() {

@@ -19,7 +19,7 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 import { CancellationTokenSource } from './cancellation.js';
-import { CancellationError } from './errors.js';
+import { canceled } from './errors.js';
 import { Emitter, Event } from './event.js';
 import { toDisposable } from './lifecycle.js';
 import { setTimeout0 } from './platform.js';
@@ -33,7 +33,7 @@ export function createCancelablePromise(callback) {
         const subscription = source.token.onCancellationRequested(() => {
             subscription.dispose();
             source.dispose();
-            reject(new CancellationError());
+            reject(canceled());
         });
         Promise.resolve(thenable).then(value => {
             subscription.dispose();
@@ -61,13 +61,7 @@ export function createCancelablePromise(callback) {
     };
 }
 export function raceCancellation(promise, token, defaultValue) {
-    return new Promise((resolve, reject) => {
-        const ref = token.onCancellationRequested(() => {
-            ref.dispose();
-            resolve(defaultValue);
-        });
-        promise.then(resolve, reject).finally(() => ref.dispose());
-    });
+    return Promise.race([promise, new Promise(resolve => token.onCancellationRequested(() => resolve(defaultValue)))]);
 }
 /**
  * A helper to prevent accumulation of sequential async tasks.
@@ -131,35 +125,6 @@ export class Throttler {
         });
     }
 }
-const timeoutDeferred = (timeout, fn) => {
-    let scheduled = true;
-    const handle = setTimeout(() => {
-        scheduled = false;
-        fn();
-    }, timeout);
-    return {
-        isTriggered: () => scheduled,
-        dispose: () => {
-            clearTimeout(handle);
-            scheduled = false;
-        },
-    };
-};
-const microtaskDeferred = (fn) => {
-    let scheduled = true;
-    queueMicrotask(() => {
-        if (scheduled) {
-            scheduled = false;
-            fn();
-        }
-    });
-    return {
-        isTriggered: () => scheduled,
-        dispose: () => { scheduled = false; },
-    };
-};
-/** Can be passed into the Delayed to defer using a microtask */
-export const MicrotaskDelay = Symbol('MicrotaskDelay');
 /**
  * A helper to delay (debounce) execution of a task that is being requested often.
  *
@@ -186,7 +151,7 @@ export const MicrotaskDelay = Symbol('MicrotaskDelay');
 export class Delayer {
     constructor(defaultDelay) {
         this.defaultDelay = defaultDelay;
-        this.deferred = null;
+        this.timeout = null;
         this.completionPromise = null;
         this.doResolve = null;
         this.doReject = null;
@@ -210,31 +175,31 @@ export class Delayer {
                 return undefined;
             });
         }
-        const fn = () => {
-            var _a;
-            this.deferred = null;
-            (_a = this.doResolve) === null || _a === void 0 ? void 0 : _a.call(this, null);
-        };
-        this.deferred = delay === MicrotaskDelay ? microtaskDeferred(fn) : timeoutDeferred(delay, fn);
+        this.timeout = setTimeout(() => {
+            this.timeout = null;
+            if (this.doResolve) {
+                this.doResolve(null);
+            }
+        }, delay);
         return this.completionPromise;
     }
     isTriggered() {
-        var _a;
-        return !!((_a = this.deferred) === null || _a === void 0 ? void 0 : _a.isTriggered());
+        return this.timeout !== null;
     }
     cancel() {
         this.cancelTimeout();
         if (this.completionPromise) {
             if (this.doReject) {
-                this.doReject(new CancellationError());
+                this.doReject(canceled());
             }
             this.completionPromise = null;
         }
     }
     cancelTimeout() {
-        var _a;
-        (_a = this.deferred) === null || _a === void 0 ? void 0 : _a.dispose();
-        this.deferred = null;
+        if (this.timeout !== null) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
     }
     dispose() {
         this.cancel();
@@ -273,7 +238,7 @@ export function timeout(millis, token) {
         const disposable = token.onCancellationRequested(() => {
             clearTimeout(handle);
             disposable.dispose();
-            reject(new CancellationError());
+            reject(canceled());
         });
     });
 }
@@ -418,7 +383,7 @@ export let runWhenIdle;
                 if (disposed) {
                     return;
                 }
-                const end = Date.now() + 15; // one frame at 64fps
+                const end = Date.now() + 3; // yield often
                 runner(Object.freeze({
                     didTimeout: true,
                     timeRemaining() {
@@ -495,30 +460,16 @@ export class IdleValue {
  */
 export class DeferredPromise {
     constructor() {
-        this.rejected = false;
         this.resolved = false;
         this.p = new Promise((c, e) => {
             this.completeCallback = c;
             this.errorCallback = e;
         });
     }
-    get isRejected() {
-        return this.rejected;
-    }
-    get isSettled() {
-        return this.rejected || this.resolved;
-    }
     complete(value) {
         return new Promise(resolve => {
             this.completeCallback(value);
             this.resolved = true;
-            resolve();
-        });
-    }
-    cancel() {
-        new Promise(resolve => {
-            this.errorCallback(new CancellationError());
-            this.rejected = true;
             resolve();
         });
     }
@@ -804,7 +755,7 @@ export function createCancelableAsyncIterable(callback) {
         const subscription = source.token.onCancellationRequested(() => {
             subscription.dispose();
             source.dispose();
-            emitter.reject(new CancellationError());
+            emitter.reject(canceled());
         });
         try {
             try {

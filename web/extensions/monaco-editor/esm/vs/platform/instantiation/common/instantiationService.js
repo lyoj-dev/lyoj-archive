@@ -225,7 +225,7 @@ export class InstantiationService {
         }
     }
 }
-export class Trace {
+class Trace {
     constructor(type, name) {
         this.type = type;
         this.name = name;

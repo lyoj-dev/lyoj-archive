@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.31.1(5a1b4999493d49c857497ad481d73a737439f305)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
@@ -32,6 +32,9 @@ define("vs/editor/editor.main.nls.ko", {
 	],
 	"vs/base/browser/ui/keybindingLabel/keybindingLabel": [
 		"바인딩 안 됨",
+	],
+	"vs/base/browser/ui/menu/menu": [
+		"{0}({1})",
 	],
 	"vs/base/browser/ui/tree/abstractTree": [
 		"지우기",
@@ -97,6 +100,9 @@ define("vs/editor/editor.main.nls.ko", {
 		"편집기",
 		"현재 편집기에 액세스할 수 없습니다. 옵션을 보려면 {0}을(를) 누릅니다.",
 	],
+	"vs/editor/browser/core/keybindingCancellation": [
+		"편집기에서 취소 가능한 작업(예: \'참조 피킹\')을 실행하는지 여부",
+	],
 	"vs/editor/browser/editorExtensions": [
 		"실행 취소(&&U)",
 		"실행 취소",
@@ -141,7 +147,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"삭제된 줄 복사({0})",
 		"변경된 줄({0}) 복사",
 	],
-	"vs/editor/common/config/editorConfigurationSchema": [
+	"vs/editor/common/config/commonEditorConfig": [
 		"편집기",
 		"탭 한 개에 해당하는 공백 수입니다. `#editor.detectIndentation#`이 켜져 있는 경우 이 설정은 파일 콘텐츠에 따라 재정의됩니다.",
 		"\'탭\' 키를 누를 때 공백을 삽입합니다. `#editor.detectIndentation#`이 켜져 있는 경우 이 설정은 파일 콘텐츠에 따라 재정의됩니다.",
@@ -265,9 +271,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"공백만 예약하거나 너비가 전혀 없는 문자를 강조 표시할지 여부를 제어합니다.",
 		"현재 사용자 로캘에서 공통되는 문자를 제외한 기본 ASCII 문자와 혼동할 수 있는 문자를 강조 표시할지 여부를 제어합니다.",
 		"주석의 문자도 유니코드 강조 표시를 받아야 하는지 여부를 제어합니다.",
-		"문자열의 문자도 유니코드 강조 표시를 받아야 하는지 여부를 제어합니다.",
 		"강조 표시되지 않는 허용된 문자를 정의합니다.",
-		"허용된 로캘에서 공통적인 유니코드 문자는 강조 표시되지 않습니다.",
 		"편집기에서 인라인 제안을 자동으로 표시할지 여부를 제어합니다.",
 		"대괄호 쌍 색 지정이 활성화되었는지 여부를 제어합니다. 대괄호 강조 색상을 재정의하려면 \'workbench.colorCustomizations\'를 사용하세요.",
 		"대괄호 쌍 가이드를 사용하도록 설정합니다.",
@@ -372,7 +376,6 @@ define("vs/editor/editor.main.nls.ko", {
 		"접기 범위를 계산하기 위한 전략을 제어합니다.",
 		"편집기에서 접힌 범위를 강조 표시할지 여부를 제어합니다.",
 		"편집기에서 가져오기 범위를 자동으로 축소할지 여부를 제어합니다.",
-		"폴더블 영역의 최대 수입니다. 현재 원본에 폴더블 영역이 많을 때 이 값을 늘리면 편집기의 반응이 떨어질 수 있습니다.",
 		"접힌 줄이 줄을 펼친 후 빈 콘텐츠를 클릭할지 여부를 제어합니다.",
 		"글꼴 패밀리를 제어합니다.",
 		"붙여넣은 콘텐츠의 서식을 편집기에서 자동으로 지정할지 여부를 제어합니다. 포맷터를 사용할 수 있어야 하며 포맷터가 문서에서 범위의 서식을 지정할 수 있어야 합니다.",
@@ -459,7 +462,81 @@ define("vs/editor/editor.main.nls.ko", {
 		"래핑 점 계산을 브라우저에 위임합니다. 이 알고리즘은 매우 느려서 대용량 파일의 경우 중단될 수 있지만 모든 경우에 적절히 작동합니다.",
 		"래핑 점을 계산하는 알고리즘을 제어합니다.",
 	],
-	"vs/editor/common/core/editorColorRegistry": [
+	"vs/editor/common/editorContextKeys": [
+		"편집기 텍스트에 포커스가 있는지 여부(커서가 깜박임)",
+		"편집기 또는 편집기 위젯에 포커스가 있는지 여부(예: 포커스가 찾기 위젯에 있음)",
+		"편집기 또는 서식 있는 텍스트 입력에 포커스가 있는지 여부(커서가 깜박임)",
+		"편집기가 읽기 전용인지 여부",
+		"컨텍스트가 diff 편집기인지 여부",
+		"\'editor.columnSelection\'을 사용하도록 설정되어 있는지 여부",
+		"편집기에 선택된 텍스트가 있는지 여부",
+		"편집기에 여러 개의 선택 항목이 있는지 여부",
+		"\'Tab\' 키를 누르면 편집기 밖으로 포커스가 이동하는지 여부",
+		"편집기 호버가 표시되는지 여부",
+		"편집기가 더 큰 편집기(예: 전자 필기장)에 속해 있는지 여부",
+		"편집기의 언어 식별자",
+		"편집기에 완성 항목 공급자가 있는지 여부",
+		"편집기에 코드 작업 공급자가 있는지 여부",
+		"편집기에 CodeLens 공급자가 있는지 여부",
+		"편집기에 정의 공급자가 있는지 여부",
+		"편집기에 선언 공급자가 있는지 여부",
+		"편집기에 구현 공급자가 있는지 여부",
+		"편집기에 형식 정의 공급자가 있는지 여부",
+		"편집기에 호버 공급자가 있는지 여부",
+		"편집기에 문서 강조 표시 공급자가 있는지 여부",
+		"편집기에 문서 기호 공급자가 있는지 여부",
+		"편집기에 참조 공급자가 있는지 여부",
+		"편집기에 이름 바꾸기 공급자가 있는지 여부",
+		"편집기에 시그니처 도움말 공급자가 있는지 여부",
+		"편집기에 인라인 힌트 공급자가 있는지 여부",
+		"편집기에 문서 서식 공급자가 있는지 여부",
+		"편집기에 문서 선택 서식 공급자가 있는지 여부",
+		"편집기에 여러 개의 문서 서식 공급자가 있는지 여부",
+		"편집기에 여러 개의 문서 선택 서식 공급자가 있는지 여부",
+	],
+	"vs/editor/common/model/editStack": [
+		"입력하는 중",
+	],
+	"vs/editor/common/modes/modesRegistry": [
+		"일반 텍스트",
+	],
+	"vs/editor/common/standaloneStrings": [
+		"없음 선택",
+		"줄 {0}, 열 {1}({2} 선택됨)입니다.",
+		"행 {0}, 열 {1}",
+		"{0} 선택 항목({1}자 선택됨)",
+		"{0} 선택 항목",
+		"이제 \'accessibilitySupport\' 설정을 \'on\'으로 변경합니다.",
+		"지금 편집기 접근성 문서 페이지를 여세요.",
+		"차이 편집기의 읽기 전용 창에서.",
+		"diff 편집기 창에서.",
+		" 읽기 전용 코드 편집기에서",
+		" 코드 편집기에서",
+		"화면 판독기 사용에 최적화되도록 편집기를 구성하려면 지금 Command+E를 누르세요.",
+		"화면 판독기에 사용할 수 있도록 편집기를 최적화하려면 지금 Ctrl+E를 누르세요.",
+		"에디터를 화면 판독기와 함께 사용하기에 적합하도록 구성했습니다.",
+		"편집기는 화면 판독기 사용을 위해 절대로 최적화되지 않도록 구성됩니다. 현재로서는 그렇지 않습니다.",
+		"현재 편집기에서 <Tab> 키를 누르면 포커스가 다음 포커스 가능한 요소로 이동합니다. {0}을(를) 눌러서 이 동작을 설정/해제합니다.",
+		"현재 편집기에서 <Tab> 키를 누르면 포커스가 다음 포커스 가능한 요소로 이동합니다. {0} 명령은 현재 키 바인딩으로 트리거할 수 없습니다.",
+		"현재 편집기에서 <Tab> 키를 누르면 탭 문자가 삽입됩니다. {0}을(를) 눌러서 이 동작을 설정/해제합니다.",
+		"현재 편집기에서 <Tab> 키를 누르면 탭 문자가 삽입됩니다. {0} 명령은 현재 키 바인딩으로 트리거할 수 없습니다.",
+		"Command+H를 눌러 편집기 접근성과 관련된 자세한 정보가 있는 브라우저 창을 여세요.",
+		"Ctrl+H를 눌러 편집기 접근성과 관련된 자세한 정보가 있는 브라우저 창을 엽니다.",
+		"이 도구 설명을 해제하고 Esc 키 또는 Shift+Esc를 눌러서 편집기로 돌아갈 수 있습니다.",
+		"접근성 도움말 표시",
+		"개발자: 검사 토큰",
+		"줄/열로 이동...",
+		"빠른 액세스 공급자 모두 표시",
+		"명령 팔레트",
+		"명령 표시 및 실행",
+		"기호로 가서...",
+		"범주별 기호로 이동...",
+		"편집기 콘텐츠",
+		"접근성 옵션은 Alt+F1을 눌러여 합니다.",
+		"고대비 테마로 전환",
+		"{1} 파일에서 편집을 {0}개 했습니다.",
+	],
+	"vs/editor/common/view/editorColorRegistry": [
 		"커서 위치의 줄 강조 표시에 대한 배경색입니다.",
 		"커서 위치의 줄 테두리에 대한 배경색입니다.",
 		"빠른 열기 및 찾기 기능 등을 통해 강조 표시된 영역의 배경색입니다. 기본 장식을 숨기지 않도록 색은 불투명하지 않아야 합니다.",
@@ -512,81 +589,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"활성 대괄호 쌍 안내선의 배경색입니다(6). 대괄호 쌍 안내선을 사용하도록 설정해야 합니다.",
 		"유니코드 문자를 강조 표시하는 데 사용되는 테두리 색입니다.",
 	],
-	"vs/editor/common/editorContextKeys": [
-		"편집기 텍스트에 포커스가 있는지 여부(커서가 깜박임)",
-		"편집기 또는 편집기 위젯에 포커스가 있는지 여부(예: 포커스가 찾기 위젯에 있음)",
-		"편집기 또는 서식 있는 텍스트 입력에 포커스가 있는지 여부(커서가 깜박임)",
-		"편집기가 읽기 전용인지 여부",
-		"컨텍스트가 diff 편집기인지 여부",
-		"\'editor.columnSelection\'을 사용하도록 설정되어 있는지 여부",
-		"편집기에 선택된 텍스트가 있는지 여부",
-		"편집기에 여러 개의 선택 항목이 있는지 여부",
-		"\'Tab\' 키를 누르면 편집기 밖으로 포커스가 이동하는지 여부",
-		"편집기 호버가 표시되는지 여부",
-		"편집기가 더 큰 편집기(예: 전자 필기장)에 속해 있는지 여부",
-		"편집기의 언어 식별자",
-		"편집기에 완성 항목 공급자가 있는지 여부",
-		"편집기에 코드 작업 공급자가 있는지 여부",
-		"편집기에 CodeLens 공급자가 있는지 여부",
-		"편집기에 정의 공급자가 있는지 여부",
-		"편집기에 선언 공급자가 있는지 여부",
-		"편집기에 구현 공급자가 있는지 여부",
-		"편집기에 형식 정의 공급자가 있는지 여부",
-		"편집기에 호버 공급자가 있는지 여부",
-		"편집기에 문서 강조 표시 공급자가 있는지 여부",
-		"편집기에 문서 기호 공급자가 있는지 여부",
-		"편집기에 참조 공급자가 있는지 여부",
-		"편집기에 이름 바꾸기 공급자가 있는지 여부",
-		"편집기에 시그니처 도움말 공급자가 있는지 여부",
-		"편집기에 인라인 힌트 공급자가 있는지 여부",
-		"편집기에 문서 서식 공급자가 있는지 여부",
-		"편집기에 문서 선택 서식 공급자가 있는지 여부",
-		"편집기에 여러 개의 문서 서식 공급자가 있는지 여부",
-		"편집기에 여러 개의 문서 선택 서식 공급자가 있는지 여부",
-	],
-	"vs/editor/common/languages/modesRegistry": [
-		"일반 텍스트",
-	],
-	"vs/editor/common/model/editStack": [
-		"입력하는 중",
-	],
-	"vs/editor/common/standaloneStrings": [
-		"없음 선택",
-		"줄 {0}, 열 {1}({2} 선택됨)입니다.",
-		"행 {0}, 열 {1}",
-		"{0} 선택 항목({1}자 선택됨)",
-		"{0} 선택 항목",
-		"이제 \'accessibilitySupport\' 설정을 \'on\'으로 변경합니다.",
-		"지금 편집기 접근성 문서 페이지를 여세요.",
-		"차이 편집기의 읽기 전용 창에서.",
-		"diff 편집기 창에서.",
-		" 읽기 전용 코드 편집기에서",
-		" 코드 편집기에서",
-		"화면 판독기 사용에 최적화되도록 편집기를 구성하려면 지금 Command+E를 누르세요.",
-		"화면 판독기에 사용할 수 있도록 편집기를 최적화하려면 지금 Ctrl+E를 누르세요.",
-		"에디터를 화면 판독기와 함께 사용하기에 적합하도록 구성했습니다.",
-		"편집기는 화면 판독기 사용을 위해 절대로 최적화되지 않도록 구성됩니다. 현재로서는 그렇지 않습니다.",
-		"현재 편집기에서 <Tab> 키를 누르면 포커스가 다음 포커스 가능한 요소로 이동합니다. {0}을(를) 눌러서 이 동작을 설정/해제합니다.",
-		"현재 편집기에서 <Tab> 키를 누르면 포커스가 다음 포커스 가능한 요소로 이동합니다. {0} 명령은 현재 키 바인딩으로 트리거할 수 없습니다.",
-		"현재 편집기에서 <Tab> 키를 누르면 탭 문자가 삽입됩니다. {0}을(를) 눌러서 이 동작을 설정/해제합니다.",
-		"현재 편집기에서 <Tab> 키를 누르면 탭 문자가 삽입됩니다. {0} 명령은 현재 키 바인딩으로 트리거할 수 없습니다.",
-		"Command+H를 눌러 편집기 접근성과 관련된 자세한 정보가 있는 브라우저 창을 여세요.",
-		"Ctrl+H를 눌러 편집기 접근성과 관련된 자세한 정보가 있는 브라우저 창을 엽니다.",
-		"이 도구 설명을 해제하고 Esc 키 또는 Shift+Esc를 눌러서 편집기로 돌아갈 수 있습니다.",
-		"접근성 도움말 표시",
-		"개발자: 검사 토큰",
-		"줄/열로 이동...",
-		"빠른 액세스 공급자 모두 표시",
-		"명령 팔레트",
-		"명령 표시 및 실행",
-		"기호로 가서...",
-		"범주별 기호로 이동...",
-		"편집기 콘텐츠",
-		"접근성 옵션은 Alt+F1을 눌러여 합니다.",
-		"고대비 테마로 전환",
-		"{1} 파일에서 편집을 {0}개 했습니다.",
-	],
-	"vs/editor/contrib/anchorSelect/browser/anchorSelect": [
+	"vs/editor/contrib/anchorSelect/anchorSelect": [
 		"선택 앵커 지점",
 		"{0}에 설정된 앵커: {1}",
 		"선택 앵커 지점 설정",
@@ -594,20 +597,20 @@ define("vs/editor/editor.main.nls.ko", {
 		"앵커에서 커서로 선택",
 		"선택 앵커 지점 취소",
 	],
-	"vs/editor/contrib/bracketMatching/browser/bracketMatching": [
+	"vs/editor/contrib/bracketMatching/bracketMatching": [
 		"괄호에 해당하는 영역을 표시자에 채색하여 표시합니다.",
 		"대괄호로 이동",
 		"괄호까지 선택",
 		"대괄호로 이동(&&B)",
 	],
-	"vs/editor/contrib/caretOperations/browser/caretOperations": [
+	"vs/editor/contrib/caretOperations/caretOperations": [
 		"선택한 텍스트를 왼쪽으로 이동",
 		"선택한 텍스트를 오른쪽으로 이동",
 	],
-	"vs/editor/contrib/caretOperations/browser/transpose": [
+	"vs/editor/contrib/caretOperations/transpose": [
 		"문자 바꾸기",
 	],
-	"vs/editor/contrib/clipboard/browser/clipboard": [
+	"vs/editor/contrib/clipboard/clipboard": [
 		"잘라내기(&&T)",
 		"잘라내기",
 		"잘라내기",
@@ -624,7 +627,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"붙여넣기",
 		"구문을 강조 표시하여 복사",
 	],
-	"vs/editor/contrib/codeAction/browser/codeActionCommands": [
+	"vs/editor/contrib/codeAction/codeActionCommands": [
 		"실행할 코드 작업의 종류입니다.",
 		"반환된 작업이 적용되는 경우를 제어합니다.",
 		"항상 반환된 첫 번째 코드 작업을 적용합니다.",
@@ -655,18 +658,18 @@ define("vs/editor/editor.main.nls.ko", {
 		"자동 수정...",
 		"사용할 수 있는 자동 수정 없음",
 	],
-	"vs/editor/contrib/codeAction/browser/lightBulbWidget": [
+	"vs/editor/contrib/codeAction/lightBulbWidget": [
 		"코드 작업 표시. 기본 설정 빠른 수정 사용 가능({0})",
 		"코드 작업 표시({0})",
 		"코드 작업 표시",
 	],
-	"vs/editor/contrib/codelens/browser/codelensController": [
+	"vs/editor/contrib/codelens/codelensController": [
 		"현재 줄에 대한 코드 렌즈 명령 표시",
 	],
-	"vs/editor/contrib/colorPicker/browser/colorPickerWidget": [
+	"vs/editor/contrib/colorPicker/colorPickerWidget": [
 		"색 옵션을 토글하려면 클릭하세요(rgb/hsl/hex).",
 	],
-	"vs/editor/contrib/comment/browser/comment": [
+	"vs/editor/contrib/comment/comment": [
 		"줄 주석 설정/해제",
 		"줄 주석 설정/해제(&&T)",
 		"줄 주석 추가",
@@ -674,17 +677,14 @@ define("vs/editor/editor.main.nls.ko", {
 		"블록 주석 설정/해제",
 		"블록 주석 설정/해제(&&B)",
 	],
-	"vs/editor/contrib/contextmenu/browser/contextmenu": [
+	"vs/editor/contrib/contextmenu/contextmenu": [
 		"편집기 상황에 맞는 메뉴 표시",
 	],
-	"vs/editor/contrib/cursorUndo/browser/cursorUndo": [
+	"vs/editor/contrib/cursorUndo/cursorUndo": [
 		"커서 실행 취소",
 		"커서 다시 실행",
 	],
-	"vs/editor/contrib/editorState/browser/keybindingCancellation": [
-		"편집기에서 취소 가능한 작업(예: \'참조 피킹\')을 실행하는지 여부",
-	],
-	"vs/editor/contrib/find/browser/findController": [
+	"vs/editor/contrib/find/findController": [
 		"찾기",
 		"찾기(&&F)",
 		"\"정규식 사용\" 플래그를 재정의합니다.\r\n플래그는 미래를 위해 저장되지 않습니다.\r\n0: 아무것도 하지 않음\r\n1: True\r\n2: False",
@@ -700,7 +700,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"바꾸기",
 		"바꾸기(&&R)",
 	],
-	"vs/editor/contrib/find/browser/findWidget": [
+	"vs/editor/contrib/find/findWidget": [
 		"편집기 찾기 위젯에서 \'선택 영역에서 찾기\'의 아이콘입니다.",
 		"편집기 찾기 위젯이 축소되었음을 나타내는 아이콘입니다.",
 		"편집기 찾기 위젯이 확장되었음을 나타내는 아이콘입니다.",
@@ -728,8 +728,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"\'{1}\'에 대한 {0}을(를) 찾음",
 		"Ctrl+Enter를 누르면 이제 모든 항목을 바꾸지 않고 줄 바꿈을 삽입합니다. editor.action.replaceAll의 키 바인딩을 수정하여 이 동작을 재정의할 수 있습니다.",
 	],
-	"vs/editor/contrib/folding/browser/folding": [
-		"폴더블 영역의 수는 최대 {0}개로 제한됩니다. 폴더블 영역 수를 늘리려면 [\'폴딩 최대 영역\'](command:workbench.action.openSettings?[\"editor.foldingMaximumRegions\"]) 구성 옵션을 늘리세요.",
+	"vs/editor/contrib/folding/folding": [
 		"펼치기",
 		"재귀적으로 펼치기",
 		"접기",
@@ -749,26 +748,26 @@ define("vs/editor/editor.main.nls.ko", {
 		"접힌 범위의 배경색입니다. 색은 기본 장식을 숨기지 않기 위해 불투명해서는 안 됩니다.",
 		"편집기 여백의 접기 컨트롤 색입니다.",
 	],
-	"vs/editor/contrib/folding/browser/foldingDecorations": [
+	"vs/editor/contrib/folding/foldingDecorations": [
 		"편집기 문자 모양 여백에서 확장된 범위의 아이콘입니다.",
 		"편집기 문자 모양 여백에서 축소된 범위의 아이콘입니다.",
 	],
-	"vs/editor/contrib/fontZoom/browser/fontZoom": [
+	"vs/editor/contrib/fontZoom/fontZoom": [
 		"편집기 글꼴 확대",
 		"편집기 글꼴 축소",
 		"편집기 글꼴 확대/축소 다시 설정",
 	],
-	"vs/editor/contrib/format/browser/format": [
+	"vs/editor/contrib/format/format": [
 		"줄 {0}에서 1개 서식 편집을 수행했습니다.",
 		"줄 {1}에서 {0}개 서식 편집을 수행했습니다.",
 		"줄 {0}과(와) {1} 사이에서 1개 서식 편집을 수행했습니다.",
 		"줄 {1}과(와) {2} 사이에서 {0}개 서식 편집을 수행했습니다.",
 	],
-	"vs/editor/contrib/format/browser/formatActions": [
+	"vs/editor/contrib/format/formatActions": [
 		"문서 서식",
 		"선택 영역 서식",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoError": [
+	"vs/editor/contrib/gotoError/gotoError": [
 		"다음 문제로 이동 (오류, 경고, 정보)",
 		"다음 마커로 이동의 아이콘입니다.",
 		"이전 문제로 이동 (오류, 경고, 정보)",
@@ -778,7 +777,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"파일의 이전 문제로 이동 (오류, 경고, 정보)",
 		"이전 문제(&&P)",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoErrorWidget": [
+	"vs/editor/contrib/gotoError/gotoErrorWidget": [
 		"오류",
 		"경고",
 		"정보",
@@ -794,7 +793,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"편집기 마커 탐색 위젯 정보 제목 배경.",
 		"편집기 표식 탐색 위젯 배경입니다.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/goToCommands": [
+	"vs/editor/contrib/gotoSymbol/goToCommands": [
 		"피킹",
 		"정의",
 		"\'{0}\'에 대한 정의를 찾을 수 없습니다.",
@@ -835,25 +834,25 @@ define("vs/editor/editor.main.nls.ko", {
 		"구현으로 이동(&&I)",
 		"참조로 이동(&&R)",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/link/goToDefinitionAtPosition": [
+	"vs/editor/contrib/gotoSymbol/link/goToDefinitionAtPosition": [
 		"{0}개 정의를 표시하려면 클릭하세요.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesController": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesController": [
 		"\'참조 피킹\' 또는 \'정의 피킹\'과 같이 참조 피킹이 표시되는지 여부",
 		"로드 중...",
 		"{0}({1})",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesTree": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesTree": [
 		"참조 {0}개",
 		"참조 {0}개",
 		"참조",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesWidget": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesWidget": [
 		"미리 보기를 사용할 수 없음",
 		"결과 없음",
 		"참조",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/referencesModel": [
+	"vs/editor/contrib/gotoSymbol/referencesModel": [
 		"{2}열, {1}줄, {0}의 기호",
 		"열 {2}, {3}의 줄 {1}에 있는 {0}의 기호",
 		"{0}의 기호 1개, 전체 경로 {1}",
@@ -863,31 +862,31 @@ define("vs/editor/editor.main.nls.ko", {
 		"{1}에서 기호 {0}개를 찾았습니다.",
 		"{1}개 파일에서 기호 {0}개를 찾았습니다.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/symbolNavigation": [
+	"vs/editor/contrib/gotoSymbol/symbolNavigation": [
 		"키보드만으로 탐색할 수 있는 기호 위치가 있는지 여부",
 		"{1}의 {0} 기호, 다음의 경우 {2}",
 		"{1}의 기호 {0}",
 	],
-	"vs/editor/contrib/hover/browser/hover": [
+	"vs/editor/contrib/hover/hover": [
 		"가리키기 표시",
 		"정의 미리 보기 가리킨 항목 표시",
 	],
-	"vs/editor/contrib/hover/browser/markdownHoverParticipant": [
+	"vs/editor/contrib/hover/markdownHoverParticipant": [
 		"로드 중...",
 		"성능상의 이유로 긴 줄의 경우 토큰화를 건너뜁니다. 이 항목은 \'editor.maxTokenizationLineLength\'를 통해 구성할 수 있습니다.",
 	],
-	"vs/editor/contrib/hover/browser/markerHoverParticipant": [
+	"vs/editor/contrib/hover/markerHoverParticipant": [
 		"문제 보기",
 		"빠른 수정을 사용할 수 없음",
 		"빠른 수정을 확인하는 중...",
 		"빠른 수정을 사용할 수 없음",
 		"빠른 수정...",
 	],
-	"vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace": [
+	"vs/editor/contrib/inPlaceReplace/inPlaceReplace": [
 		"이전 값으로 바꾸기",
 		"다음 값으로 바꾸기",
 	],
-	"vs/editor/contrib/indentation/browser/indentation": [
+	"vs/editor/contrib/indentation/indentation": [
 		"들여쓰기를 공백으로 변환",
 		"들여쓰기를 탭으로 변환",
 		"구성된 탭 크기",
@@ -898,7 +897,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"줄 다시 들여쓰기",
 		"선택한 줄 다시 들여쓰기",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/ghostTextController": [
+	"vs/editor/contrib/inlineCompletions/ghostTextController": [
 		"인라인 제안 표시 여부",
 		"인라인 제안이 공백으로 시작하는지 여부",
 		"인라인 제안이 탭에 의해 삽입되는 것보다 작은 공백으로 시작하는지 여부",
@@ -906,16 +905,16 @@ define("vs/editor/editor.main.nls.ko", {
 		"이전 인라인 제안 표시",
 		"인라인 제안 트리거",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionsHoverParticipant": [
+	"vs/editor/contrib/inlineCompletions/inlineCompletionsHoverParticipant": [
 		"다음",
 		"이전",
 		"수락",
 		"제안:",
 	],
-	"vs/editor/contrib/lineSelection/browser/lineSelection": [
+	"vs/editor/contrib/lineSelection/lineSelection": [
 		"선 선택 영역 확장",
 	],
-	"vs/editor/contrib/linesOperations/browser/linesOperations": [
+	"vs/editor/contrib/linesOperations/linesOperations": [
 		"위에 줄 복사",
 		"위에 줄 복사(&&C)",
 		"아래에 줄 복사",
@@ -944,11 +943,11 @@ define("vs/editor/editor.main.nls.ko", {
 		"단어의 첫 글자를 대문자로 변환",
 		"스네이크 표기법으로 변환",
 	],
-	"vs/editor/contrib/linkedEditing/browser/linkedEditing": [
+	"vs/editor/contrib/linkedEditing/linkedEditing": [
 		"연결된 편집 시작",
 		"형식의 편집기에서 자동으로 이름을 바꿀 때의 배경색입니다.",
 	],
-	"vs/editor/contrib/links/browser/links": [
+	"vs/editor/contrib/links/links": [
 		"명령 실행",
 		"링크로 이동",
 		"Cmd+클릭",
@@ -960,11 +959,11 @@ define("vs/editor/editor.main.nls.ko", {
 		"대상이 없으므로 이 링크를 열지 못했습니다.",
 		"링크 열기",
 	],
-	"vs/editor/contrib/message/browser/messageController": [
+	"vs/editor/contrib/message/messageController": [
 		"편집기에서 현재 인라인 메시지를 표시하는지 여부",
 		"읽기 전용 편집기에서는 편집할 수 없습니다.",
 	],
-	"vs/editor/contrib/multicursor/browser/multicursor": [
+	"vs/editor/contrib/multicursor/multicursor": [
 		"커서가 추가됨: {0}",
 		"커서가 추가됨: {0}",
 		"위에 커서 추가",
@@ -985,16 +984,16 @@ define("vs/editor/editor.main.nls.ko", {
 		"모든 항목 선택(&&O)",
 		"모든 항목 변경",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHints": [
+	"vs/editor/contrib/parameterHints/parameterHints": [
 		"매개 변수 힌트 트리거",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHintsWidget": [
+	"vs/editor/contrib/parameterHints/parameterHintsWidget": [
 		"다음 매개 변수 힌트 표시의 아이콘입니다.",
 		"이전 매개 변수 힌트 표시의 아이콘입니다.",
 		"{0}, 힌트",
 		"매개 변수 힌트에 있는 활성 항목의 전경색입니다.",
 	],
-	"vs/editor/contrib/peekView/browser/peekView": [
+	"vs/editor/contrib/peekView/peekView": [
 		"현재 코드 편집기가 피킹 내부에 포함되었는지 여부",
 		"닫기",
 		"Peek 뷰 제목 영역의 배경색입니다.",
@@ -1012,14 +1011,14 @@ define("vs/editor/editor.main.nls.ko", {
 		"Peek 뷰 편집기의 일치 항목 강조 표시 색입니다.",
 		"Peek 뷰 편집기의 일치 항목 강조 표시 테두리입니다.",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoLineQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoLineQuickAccess": [
 		"우선 텍스트 편집기를 열고 줄로 이동합니다.",
 		"줄 {0} 및 문자 {1}(으)로 이동합니다.",
 		"{0} 줄로 이동합니다.",
 		"현재 줄: {0}, 문자: {1} 이동할 줄 1~{2} 사이의 번호를 입력합니다.",
 		"현재 줄: {0}, 문자: {1}. 이동할 줄 번호를 입력합니다.",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoSymbolQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoSymbolQuickAccess": [
 		"기호로 이동하려면 먼저 기호 정보가 있는 텍스트 편집기를 엽니다.",
 		"활성 상태의 텍스트 편집기는 기호 정보를 제공하지 않습니다.",
 		"일치하는 편집기 기호 없음",
@@ -1054,7 +1053,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"필드({0})",
 		"상수({0})",
 	],
-	"vs/editor/contrib/rename/browser/rename": [
+	"vs/editor/contrib/rename/rename": [
 		"결과가 없습니다.",
 		"위치 이름을 바꾸는 중 알 수 없는 오류가 발생했습니다.",
 		"\'{0}\'의 이름을 바꾸는 중",
@@ -1065,23 +1064,23 @@ define("vs/editor/editor.main.nls.ko", {
 		"기호 이름 바꾸기",
 		"이름을 바꾸기 전에 변경 내용을 미리 볼 수 있는 기능 사용/사용 안 함",
 	],
-	"vs/editor/contrib/rename/browser/renameInputField": [
+	"vs/editor/contrib/rename/renameInputField": [
 		"입력 이름 바꾸기 위젯이 표시되는지 여부",
 		"입력 이름을 바꾸세요. 새 이름을 입력한 다음 [Enter] 키를 눌러 커밋하세요.",
 		"이름 바꾸기 {0}, 미리 보기 {1}",
 	],
-	"vs/editor/contrib/smartSelect/browser/smartSelect": [
+	"vs/editor/contrib/smartSelect/smartSelect": [
 		"선택 영역 확장",
 		"선택 영역 확장(&&E)",
 		"선택 영역 축소",
 		"선택 영역 축소(&&S)",
 	],
-	"vs/editor/contrib/snippet/browser/snippetController2": [
+	"vs/editor/contrib/snippet/snippetController2": [
 		"현재 편집기가 코드 조각 모드인지 여부",
 		"코드 조각 모드일 때 다음 탭 정지가 있는지 여부",
 		"코드 조각 모드일 때 이전 탭 정지가 있는지 여부",
 	],
-	"vs/editor/contrib/snippet/browser/snippetVariables": [
+	"vs/editor/contrib/snippet/snippetVariables": [
 		"일요일",
 		"월요일",
 		"화요일",
@@ -1121,7 +1120,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"11월",
 		"12월",
 	],
-	"vs/editor/contrib/suggest/browser/suggest": [
+	"vs/editor/contrib/suggest/suggest": [
 		"제안이 표시되는지 여부",
 		"제안 세부 정보가 표시되는지 여부",
 		"선택할 수 있는 여러 제안이 있는지 여부",
@@ -1131,7 +1130,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"기본 동작이 삽입인지 또는 바꾸기인지 여부",
 		"현재 제안에서 추가 세부 정보를 확인하도록 지원하는지 여부",
 	],
-	"vs/editor/contrib/suggest/browser/suggestController": [
+	"vs/editor/contrib/suggest/suggestController": [
 		"{0}의 {1}개의 수정사항을 수락하는 중",
 		"제안 항목 트리거",
 		"삽입",
@@ -1143,7 +1142,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"더 보기",
 		"제안 위젯 크기 다시 설정",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidget": [
+	"vs/editor/contrib/suggest/suggestWidget": [
 		"제안 위젯의 배경색입니다.",
 		"제안 위젯의 테두리 색입니다.",
 		"제안 위젯의 전경색입니다.",
@@ -1155,24 +1154,21 @@ define("vs/editor/editor.main.nls.ko", {
 		"제안 위젯 상태의 배경색입니다.",
 		"로드 중...",
 		"제안 항목이 없습니다.",
-		"제안",
-		"({0},{1}) {2}",
-		"{0}{1}",
-		"{0}, {1}",
 		"{0}, 문서: {1}",
+		"제안",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetDetails": [
+	"vs/editor/contrib/suggest/suggestWidgetDetails": [
 		"닫기",
 		"로드 중...",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetRenderer": [
+	"vs/editor/contrib/suggest/suggestWidgetRenderer": [
 		"제안 위젯에서 자세한 정보의 아이콘입니다.",
 		"자세한 정보",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetStatus": [
+	"vs/editor/contrib/suggest/suggestWidgetStatus": [
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/symbolIcons/browser/symbolIcons": [
+	"vs/editor/contrib/symbolIcons/symbolIcons": [
 		"배열 기호의 전경색입니다. 이러한 기호는 개요, 이동 경로 및 제안 위젯에 나타납니다.",
 		"부울 기호의 전경색입니다. 이러한 기호는 개요, 이동 경로 및 제안 위젯에 나타납니다.",
 		"클래스 기호의 전경색입니다. 이러한 기호는 개요, 이동 경로 및 제안 위젯에 나타납니다.",
@@ -1207,15 +1203,15 @@ define("vs/editor/editor.main.nls.ko", {
 		"단위 기호의 전경색입니다. 이러한 기호는 개요, 이동 경로 및 제안 위젯에 표시됩니다.",
 		"변수 기호의 전경색입니다. 이러한 기호는 개요, 이동 경로 및 제안 위젯에 표시됩니다.",
 	],
-	"vs/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode": [
+	"vs/editor/contrib/toggleTabFocusMode/toggleTabFocusMode": [
 		"<Tab> 키로 포커스 이동 설정/해제",
 		"이제 <Tab> 키를 누르면 포커스가 다음 포커스 가능한 요소로 이동합니다.",
 		"이제 <Tab> 키를 누르면 탭 문자가 삽입됩니다.",
 	],
-	"vs/editor/contrib/tokenization/browser/tokenization": [
+	"vs/editor/contrib/tokenization/tokenization": [
 		"개발자: 강제로 다시 토큰화",
 	],
-	"vs/editor/contrib/unicodeHighlighter/browser/unicodeHighlighter": [
+	"vs/editor/contrib/unicodeHighlighter/unicodeHighlighter": [
 		"확장 편집기에 경고 메시지와 함께 표시되는 아이콘입니다.",
 		"이 문서에는 기본 ASCII 유니코드 문자가 아닌 문자가 많이 포함되어 있습니다.",
 		"이 문서에는 모호한 유니코드 문자가 많이 포함되어 있습니다.",
@@ -1224,10 +1220,6 @@ define("vs/editor/editor.main.nls.ko", {
 		"{0} 문자가 보이지 않습니다.",
 		"{0} 문자는 기본 ASCII 문자가 아닙니다.",
 		"설정 조정",
-		"메모에서 강조 표시 사용 안 함",
-		"메모에서 문자 강조 표시 사용 안 함",
-		"문자열에서 강조 표시 사용 안 함",
-		"문자열에서 문자 강조 표시 사용 안 함",
 		"모호한 강조 사용 안 함",
 		"모호한 문자 강조 표시 사용 안 함",
 		"보이지 않는 강조 사용 안 함",
@@ -1237,17 +1229,16 @@ define("vs/editor/editor.main.nls.ko", {
 		"제외 옵션 표시",
 		"{0}(보이지 않는 문자)이(가) 강조 표시되지 않도록 제외",
 		"강조 표시에서 {0} 제외",
-		"언어 \"{0}\"에서 더 일반적인 유니코드 문자를 허용합니다.",
 		"유니코드 강조 표시 옵션 구성",
 	],
-	"vs/editor/contrib/unusualLineTerminators/browser/unusualLineTerminators": [
+	"vs/editor/contrib/unusualLineTerminators/unusualLineTerminators": [
 		"비정상적인 줄 종결자",
 		"비정상적인 줄 종결자가 검색됨",
 		"이 파일 ‘\r\n’에 LS(줄 구분 기호) 또는 PS(단락 구분 기호) 같은 하나 이상의 비정상적인 줄 종결자 문자가 포함되어 있습니다.{0}\r\n파일에서 제거하는 것이 좋습니다. `editor.unusualLineTerminators`를 통해 구성할 수 있습니다.",
 		"비정상적인 줄 종결자 제거",
 		"무시",
 	],
-	"vs/editor/contrib/wordHighlighter/browser/wordHighlighter": [
+	"vs/editor/contrib/wordHighlighter/wordHighlighter": [
 		"변수 읽기와 같은 읽기 액세스 중 기호의 배경색입니다. 기본 장식을 숨기지 않도록 색은 불투명하지 않아야 합니다.",
 		"변수에 쓰기와 같은 쓰기 액세스 중 기호의 배경색입니다. 기본 장식을 숨기지 않도록 색은 불투명하지 않아야 합니다.",
 		"변수 읽기와 같은 읽기 액세스 중 기호의 테두리 색입니다.",
@@ -1258,7 +1249,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"이전 강조 기호로 이동",
 		"기호 강조 표시 트리거",
 	],
-	"vs/editor/contrib/wordOperations/browser/wordOperations": [
+	"vs/editor/contrib/wordOperations/wordOperations": [
 		"단어 삭제",
 	],
 	"vs/platform/actions/browser/menuEntryActionViewItem": [
@@ -1505,6 +1496,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"인라인 병합 충돌에서 공통 과거 개요 눈금 전경색입니다.",
 		"일치 항목 찾기의 개요 눈금자 표식 색입니다. 기본 장식을 숨기지 않도록 색은 불투명하지 않아야 합니다.",
 		"선택 항목의 개요 눈금자 표식 색이 강조 표시됩니다. 기본 장식을 숨기지 않도록 색은 불투명하지 않아야 합니다.",
+		"강조 표시된 유니코드 문자의 눈금자 표시 색상을 간략히 설명합니다. 기본 장식이 숨겨지지 않도록 색상이 불투명하면 안 됩니다.",
 		"일치하는 항목을 찾기 위한 미니맵 표식 색입니다.",
 		"편집기 선택을 반복하기 위한 미니맵 표식 색입니다.",
 		"편집기 선택 작업을 위한 미니맵 마커 색입니다.",
@@ -1512,6 +1504,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"경고의 미니맵 마커 색상입니다.",
 		"미니맵 배경색입니다.",
 		"미니맵에서 렌더링된 전경 요소의 불투명도입니다. 예를 들어, \"#000000c0\"은 불투명도 75%로 요소를 렌더링합니다.",
+		"강조 표시된 유니코드 문자의 미니맵 표식 색입니다.",
 		"미니맵 슬라이더 배경색입니다.",
 		"마우스로 가리킬 때 미니맵 슬라이더 배경색입니다.",
 		"클릭했을 때 미니맵 슬라이더 배경색입니다.",
@@ -1549,7 +1542,7 @@ define("vs/editor/editor.main.nls.ko", {
 		"실행 취소 또는 다시 실행 작업이 이미 실행 중이므로 \'{0}\'을(를) 실행 취소할 수 없습니다.",
 		"\'{0}\'을(를) 실행 취소하시겠습니까?",
 		"예",
-		"아니요",
+		"취소",
 		"모든 파일에서 \'{0}\'을(를) 다시 실행할 수 없습니다. {1}",
 		"모든 파일에서 \'{0}\'을(를) 다시 실행할 수 없습니다. {1}",
 		"{1}에 변경 내용이 적용되었으므로 모든 파일에서 \'{0}\'을(를) 다시 실행할 수 없습니다.",

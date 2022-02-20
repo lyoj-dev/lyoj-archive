@@ -515,9 +515,6 @@ class TreeResourceNavigator extends ResourceNavigator {
 function createKeyboardNavigationEventFilter(container, keybindingService) {
     let inChord = false;
     return event => {
-        if (event.toKeybinding().isModifierKey()) {
-            return false;
-        }
         if (inChord) {
             inChord = false;
             return false;
@@ -839,7 +836,7 @@ configurationRegistry.registerConfiguration({
         [treeIndentKey]: {
             type: 'number',
             default: 8,
-            minimum: 4,
+            minimum: 0,
             maximum: 40,
             description: localize('tree indent setting', "Controls tree indentation in pixels.")
         },

@@ -2,9 +2,10 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { isChrome, isEdge, isFirefox, isLinux, isMacintosh, isSafari, isWeb, isWindows } from '../../../base/common/platform.js';
+import { isLinux, isMacintosh, isWeb, isWindows, userAgent } from '../../../base/common/platform.js';
 import { isFalsyOrWhitespace } from '../../../base/common/strings.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
+let _userAgent = userAgent || '';
 const CONSTANT_VALUES = new Map();
 CONSTANT_VALUES.set('false', false);
 CONSTANT_VALUES.set('true', true);
@@ -13,10 +14,10 @@ CONSTANT_VALUES.set('isLinux', isLinux);
 CONSTANT_VALUES.set('isWindows', isWindows);
 CONSTANT_VALUES.set('isWeb', isWeb);
 CONSTANT_VALUES.set('isMacNative', isMacintosh && !isWeb);
-CONSTANT_VALUES.set('isEdge', isEdge);
-CONSTANT_VALUES.set('isFirefox', isFirefox);
-CONSTANT_VALUES.set('isChrome', isChrome);
-CONSTANT_VALUES.set('isSafari', isSafari);
+CONSTANT_VALUES.set('isEdge', _userAgent.indexOf('Edg/') >= 0);
+CONSTANT_VALUES.set('isFirefox', _userAgent.indexOf('Firefox') >= 0);
+CONSTANT_VALUES.set('isChrome', _userAgent.indexOf('Chrome') >= 0);
+CONSTANT_VALUES.set('isSafari', _userAgent.indexOf('Safari') >= 0);
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 export class ContextKeyExpr {
     static has(key) {

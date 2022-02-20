@@ -11,8 +11,8 @@ export class ViewZones extends ViewPart {
     constructor(context) {
         super(context);
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
+        this._lineHeight = options.get(58 /* lineHeight */);
         this._contentWidth = layoutInfo.contentWidth;
         this._contentLeft = layoutInfo.contentLeft;
         this.domNode = createFastDomNode(document.createElement('div'));
@@ -58,11 +58,11 @@ export class ViewZones extends ViewPart {
     }
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
+        this._lineHeight = options.get(58 /* lineHeight */);
         this._contentWidth = layoutInfo.contentWidth;
         this._contentLeft = layoutInfo.contentLeft;
-        if (e.hasChanged(59 /* lineHeight */)) {
+        if (e.hasChanged(58 /* lineHeight */)) {
             this._recomputeWhitespacesProps();
         }
         return true;
@@ -125,7 +125,7 @@ export class ViewZones extends ViewPart {
                 column: zoneAfterModelPosition.column + 1
             });
         }
-        const viewPosition = this._context.model.coordinatesConverter.convertModelPositionToViewPosition(zoneAfterModelPosition, zone.afterColumnAffinity);
+        const viewPosition = this._context.model.coordinatesConverter.convertModelPositionToViewPosition(zoneAfterModelPosition);
         const isVisible = this._context.model.coordinatesConverter.modelPositionIsVisible(zoneBeforeModelPosition);
         return {
             isInHiddenArea: !isVisible,

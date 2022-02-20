@@ -19,6 +19,7 @@ import { stripIcons } from '../../../common/iconLabels.js';
 import { DisposableStore } from '../../../common/lifecycle.js';
 import { isLinux, isMacintosh } from '../../../common/platform.js';
 import * as strings from '../../../common/strings.js';
+import * as nls from '../../../../nls.js';
 export const MENU_MNEMONIC_REGEX = /\(&([^\s&])\)|(^|[^&])&([^\s&])/;
 export const MENU_ESCAPED_MNEMONIC_REGEX = /(&amp;)?(&amp;)([^\s&])/g;
 export var Direction;
@@ -46,7 +47,6 @@ export class Menu extends ActionBar {
         this.actionsList.setAttribute('role', 'menu');
         this.actionsList.tabIndex = 0;
         this.menuDisposables = this._register(new DisposableStore());
-        this.initializeOrUpdateStyleSheet(container, {});
         this._register(Gesture.addTarget(menuElement));
         addDisposableListener(menuElement, EventType.KEY_DOWN, (e) => {
             const event = new StandardKeyboardEvent(e);
@@ -437,7 +437,19 @@ class BaseMenuActionViewItem extends BaseActionViewItem {
         }
     }
     updateTooltip() {
-        // menus should function like native menus and they do not have tooltips
+        let title = null;
+        if (this.getAction().tooltip) {
+            title = this.getAction().tooltip;
+        }
+        else if (!this.options.label && this.getAction().label && this.options.icon) {
+            title = this.getAction().label;
+            if (this.options.keybinding) {
+                title = nls.localize({ key: 'titleLabel', comment: ['action title', 'action keybinding'] }, "{0} ({1})", title, this.options.keybinding);
+            }
+        }
+        if (title && this.item) {
+            this.item.title = title;
+        }
     }
     updateClass() {
         if (this.cssClass && this.item) {

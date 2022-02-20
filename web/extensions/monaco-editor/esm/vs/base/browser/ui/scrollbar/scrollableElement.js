@@ -163,9 +163,6 @@ export class AbstractScrollableElement extends Widget {
         this._shouldRender = true;
         this._revealOnScroll = true;
     }
-    get options() {
-        return this._options;
-    }
     dispose() {
         this._mouseWheelToDispose = dispose(this._mouseWheelToDispose);
         super.dispose();
@@ -423,16 +420,15 @@ export class ScrollableElement extends AbstractScrollableElement {
     constructor(element, options) {
         options = options || {};
         options.mouseWheelSmoothScroll = false;
-        const scrollable = new Scrollable({
-            forceIntegerValues: true,
-            smoothScrollDuration: 0,
-            scheduleAtNextAnimationFrame: (callback) => dom.scheduleAtNextAnimationFrame(callback)
-        });
+        const scrollable = new Scrollable(0, (callback) => dom.scheduleAtNextAnimationFrame(callback));
         super(element, options, scrollable);
         this._register(scrollable);
     }
     setScrollPosition(update) {
         this._scrollable.setScrollPositionNow(update);
+    }
+    getScrollPosition() {
+        return this._scrollable.getCurrentScrollPosition();
     }
 }
 export class SmoothScrollableElement extends AbstractScrollableElement {
@@ -451,17 +447,9 @@ export class SmoothScrollableElement extends AbstractScrollableElement {
         return this._scrollable.getCurrentScrollPosition();
     }
 }
-export class DomScrollableElement extends AbstractScrollableElement {
+export class DomScrollableElement extends ScrollableElement {
     constructor(element, options) {
-        options = options || {};
-        options.mouseWheelSmoothScroll = false;
-        const scrollable = new Scrollable({
-            forceIntegerValues: false,
-            smoothScrollDuration: 0,
-            scheduleAtNextAnimationFrame: (callback) => dom.scheduleAtNextAnimationFrame(callback)
-        });
-        super(element, options, scrollable);
-        this._register(scrollable);
+        super(element, options);
         this._element = element;
         this.onScroll((e) => {
             if (e.scrollTopChanged) {
@@ -472,12 +460,6 @@ export class DomScrollableElement extends AbstractScrollableElement {
             }
         });
         this.scanDomNode();
-    }
-    setScrollPosition(update) {
-        this._scrollable.setScrollPositionNow(update);
-    }
-    getScrollPosition() {
-        return this._scrollable.getCurrentScrollPosition();
     }
     scanDomNode() {
         // width, scrollLeft, scrollWidth, height, scrollTop, scrollHeight

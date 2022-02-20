@@ -144,12 +144,6 @@ export class DisposableStore {
         this.clear();
     }
     /**
-     * Returns `true` if this object has been disposed
-     */
-    get isDisposed() {
-        return this._isDisposed;
-    }
-    /**
      * Dispose of all registered disposables but do not mark this object as disposed.
      */
     clear() {

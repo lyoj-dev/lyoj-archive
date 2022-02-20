@@ -46,7 +46,7 @@ export class DiffNavigator extends Disposable {
         this._init();
     }
     _init() {
-        const changes = this._editor.getLineChanges();
+        let changes = this._editor.getLineChanges();
         if (!changes) {
             return;
         }
@@ -101,13 +101,13 @@ export class DiffNavigator extends Disposable {
     }
     _initIdx(fwd) {
         let found = false;
-        const position = this._editor.getPosition();
+        let position = this._editor.getPosition();
         if (!position) {
             this.nextIdx = 0;
             return;
         }
         for (let i = 0, len = this.ranges.length; i < len && !found; i++) {
-            const range = this.ranges[i].range;
+            let range = this.ranges[i].range;
             if (position.isBeforeOrEqual(range.getStartPosition())) {
                 this.nextIdx = i + (fwd ? 0 : -1);
                 found = true;
@@ -141,10 +141,10 @@ export class DiffNavigator extends Disposable {
                 this.nextIdx = this.ranges.length - 1;
             }
         }
-        const info = this.ranges[this.nextIdx];
+        let info = this.ranges[this.nextIdx];
         this.ignoreSelectionChange = true;
         try {
-            const pos = info.range.getStartPosition();
+            let pos = info.range.getStartPosition();
             this._editor.setPosition(pos);
             this._editor.revealRangeInCenter(info.range, scrollType);
         }

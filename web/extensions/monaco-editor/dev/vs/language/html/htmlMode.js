@@ -1,10 +1,10 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
-define("vs/language/html/htmlMode", ["require"],(require)=>{
+define("vs/language/html/htmlMode",[],()=>{
 var moduleExports = (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
@@ -13,84 +13,48 @@ var moduleExports = (() => {
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
-  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-  }) : x)(function(x) {
-    if (typeof require !== "undefined")
-      return require.apply(this, arguments);
-    throw new Error('Dynamic require of "' + x + '" is not supported');
-  });
-  var __commonJS = (cb, mod) => function __require2() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var __export = (target, all) => {
+    __markAsModule(target);
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
   };
-  var __reExport = (target, module, copyDefault, desc) => {
+  var __reExport = (target, module, desc) => {
     if (module && typeof module === "object" || typeof module === "function") {
       for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
+        if (!__hasOwnProp.call(target, key) && key !== "default")
           __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
     }
     return target;
   };
-  var __toESM = (module, isNodeMode) => {
-    return __reExport(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", !isNodeMode && module && module.__esModule ? { get: () => module.default, enumerable: true } : { value: module, enumerable: true })), module);
+  var __toModule = (module) => {
+    return __reExport(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", module && module.__esModule && "default" in module ? { get: () => module.default, enumerable: true } : { value: module, enumerable: true })), module);
   };
-  var __toCommonJS = /* @__PURE__ */ ((cache) => {
-    return (module, temp) => {
-      return cache && cache.get(module) || (temp = __reExport(__markAsModule({}), module, 1), cache && cache.set(module, temp), temp);
-    };
-  })(typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : 0);
 
-  // src/fillers/monaco-editor-core-amd.ts
+  // build/fillers/monaco-editor-core-amd.ts
   var require_monaco_editor_core_amd = __commonJS({
-    "src/fillers/monaco-editor-core-amd.ts"(exports, module) {
-      var api = __toESM(__require("vs/editor/editor.api"));
-      module.exports = api;
+    "build/fillers/monaco-editor-core-amd.ts"(exports, module) {
+      module.exports = self.monaco;
     }
   });
 
-  // src/language/html/htmlMode.ts
+  // src/html/htmlMode.ts
   var htmlMode_exports = {};
   __export(htmlMode_exports, {
-    CompletionAdapter: () => CompletionAdapter,
-    DefinitionAdapter: () => DefinitionAdapter,
-    DiagnosticsAdapter: () => DiagnosticsAdapter,
-    DocumentColorAdapter: () => DocumentColorAdapter,
-    DocumentFormattingEditProvider: () => DocumentFormattingEditProvider,
-    DocumentHighlightAdapter: () => DocumentHighlightAdapter,
-    DocumentLinkAdapter: () => DocumentLinkAdapter,
-    DocumentRangeFormattingEditProvider: () => DocumentRangeFormattingEditProvider,
-    DocumentSymbolAdapter: () => DocumentSymbolAdapter,
-    FoldingRangeAdapter: () => FoldingRangeAdapter,
-    HoverAdapter: () => HoverAdapter,
-    ReferenceAdapter: () => ReferenceAdapter,
-    RenameAdapter: () => RenameAdapter,
-    SelectionRangeAdapter: () => SelectionRangeAdapter,
-    WorkerManager: () => WorkerManager,
-    fromPosition: () => fromPosition,
-    fromRange: () => fromRange,
     setupMode: () => setupMode,
-    setupMode1: () => setupMode1,
-    toRange: () => toRange,
-    toTextEdit: () => toTextEdit
+    setupMode1: () => setupMode1
   });
 
   // src/fillers/monaco-editor-core.ts
   var monaco_editor_core_exports = {};
-  __reExport(monaco_editor_core_exports, __toESM(require_monaco_editor_core_amd()));
+  __markAsModule(monaco_editor_core_exports);
+  __reExport(monaco_editor_core_exports, __toModule(require_monaco_editor_core_amd()));
 
-  // src/language/html/workerManager.ts
+  // src/html/workerManager.ts
   var STOP_WHEN_IDLE_FOR = 2 * 60 * 1e3;
   var WorkerManager = class {
-    _defaults;
-    _idleCheckInterval;
-    _lastUsedTime;
-    _configChangeListener;
-    _worker;
-    _client;
     constructor(defaults) {
       this._defaults = defaults;
       this._worker = null;
@@ -148,6 +112,7 @@ var moduleExports = (() => {
   };
 
   // node_modules/vscode-languageserver-types/lib/esm/main.js
+  "use strict";
   var integer;
   (function(integer2) {
     integer2.MIN_VALUE = -2147483648;
@@ -615,7 +580,7 @@ var moduleExports = (() => {
   }();
   var ChangeAnnotations = function() {
     function ChangeAnnotations2(annotations) {
-      this._annotations = annotations === void 0 ? /* @__PURE__ */ Object.create(null) : annotations;
+      this._annotations = annotations === void 0 ? Object.create(null) : annotations;
       this._counter = 0;
       this._size = 0;
     }
@@ -656,7 +621,7 @@ var moduleExports = (() => {
   var WorkspaceChange = function() {
     function WorkspaceChange2(workspaceEdit) {
       var _this = this;
-      this._textEditChanges = /* @__PURE__ */ Object.create(null);
+      this._textEditChanges = Object.create(null);
       if (workspaceEdit !== void 0) {
         this._workspaceEdit = workspaceEdit;
         if (workspaceEdit.documentChanges) {
@@ -736,7 +701,7 @@ var moduleExports = (() => {
     };
     WorkspaceChange2.prototype.initChanges = function() {
       if (this._workspaceEdit.documentChanges === void 0 && this._workspaceEdit.changes === void 0) {
-        this._workspaceEdit.changes = /* @__PURE__ */ Object.create(null);
+        this._workspaceEdit.changes = Object.create(null);
       }
     };
     WorkspaceChange2.prototype.createFile = function(uri, optionsOrAnnotation, options) {
@@ -1404,103 +1369,7 @@ var moduleExports = (() => {
     Is2.typedArray = typedArray;
   })(Is || (Is = {}));
 
-  // src/language/common/lspLanguageFeatures.ts
-  var DiagnosticsAdapter = class {
-    constructor(_languageId, _worker, configChangeEvent) {
-      this._languageId = _languageId;
-      this._worker = _worker;
-      const onModelAdd = (model) => {
-        let modeId = model.getLanguageId();
-        if (modeId !== this._languageId) {
-          return;
-        }
-        let handle;
-        this._listener[model.uri.toString()] = model.onDidChangeContent(() => {
-          window.clearTimeout(handle);
-          handle = window.setTimeout(() => this._doValidate(model.uri, modeId), 500);
-        });
-        this._doValidate(model.uri, modeId);
-      };
-      const onModelRemoved = (model) => {
-        monaco_editor_core_exports.editor.setModelMarkers(model, this._languageId, []);
-        let uriStr = model.uri.toString();
-        let listener = this._listener[uriStr];
-        if (listener) {
-          listener.dispose();
-          delete this._listener[uriStr];
-        }
-      };
-      this._disposables.push(monaco_editor_core_exports.editor.onDidCreateModel(onModelAdd));
-      this._disposables.push(monaco_editor_core_exports.editor.onWillDisposeModel(onModelRemoved));
-      this._disposables.push(monaco_editor_core_exports.editor.onDidChangeModelLanguage((event) => {
-        onModelRemoved(event.model);
-        onModelAdd(event.model);
-      }));
-      this._disposables.push(configChangeEvent((_) => {
-        monaco_editor_core_exports.editor.getModels().forEach((model) => {
-          if (model.getLanguageId() === this._languageId) {
-            onModelRemoved(model);
-            onModelAdd(model);
-          }
-        });
-      }));
-      this._disposables.push({
-        dispose: () => {
-          monaco_editor_core_exports.editor.getModels().forEach(onModelRemoved);
-          for (let key in this._listener) {
-            this._listener[key].dispose();
-          }
-        }
-      });
-      monaco_editor_core_exports.editor.getModels().forEach(onModelAdd);
-    }
-    _disposables = [];
-    _listener = /* @__PURE__ */ Object.create(null);
-    dispose() {
-      this._disposables.forEach((d) => d && d.dispose());
-      this._disposables.length = 0;
-    }
-    _doValidate(resource, languageId) {
-      this._worker(resource).then((worker) => {
-        return worker.doValidation(resource.toString());
-      }).then((diagnostics) => {
-        const markers = diagnostics.map((d) => toDiagnostics(resource, d));
-        let model = monaco_editor_core_exports.editor.getModel(resource);
-        if (model && model.getLanguageId() === languageId) {
-          monaco_editor_core_exports.editor.setModelMarkers(model, languageId, markers);
-        }
-      }).then(void 0, (err) => {
-        console.error(err);
-      });
-    }
-  };
-  function toSeverity(lsSeverity) {
-    switch (lsSeverity) {
-      case DiagnosticSeverity.Error:
-        return monaco_editor_core_exports.MarkerSeverity.Error;
-      case DiagnosticSeverity.Warning:
-        return monaco_editor_core_exports.MarkerSeverity.Warning;
-      case DiagnosticSeverity.Information:
-        return monaco_editor_core_exports.MarkerSeverity.Info;
-      case DiagnosticSeverity.Hint:
-        return monaco_editor_core_exports.MarkerSeverity.Hint;
-      default:
-        return monaco_editor_core_exports.MarkerSeverity.Info;
-    }
-  }
-  function toDiagnostics(resource, diag) {
-    let code = typeof diag.code === "number" ? String(diag.code) : diag.code;
-    return {
-      severity: toSeverity(diag.severity),
-      startLineNumber: diag.range.start.line + 1,
-      startColumn: diag.range.start.character + 1,
-      endLineNumber: diag.range.end.line + 1,
-      endColumn: diag.range.end.character + 1,
-      message: diag.message,
-      code,
-      source: diag.source
-    };
-  }
+  // src/common/lspLanguageFeatures.ts
   var CompletionAdapter = class {
     constructor(_worker, _triggerCharacters) {
       this._worker = _worker;
@@ -1717,44 +1586,6 @@ var moduleExports = (() => {
     }
     return monaco_editor_core_exports.languages.DocumentHighlightKind.Text;
   }
-  var DefinitionAdapter = class {
-    constructor(_worker) {
-      this._worker = _worker;
-    }
-    provideDefinition(model, position, token) {
-      const resource = model.uri;
-      return this._worker(resource).then((worker) => {
-        return worker.findDefinition(resource.toString(), fromPosition(position));
-      }).then((definition) => {
-        if (!definition) {
-          return;
-        }
-        return [toLocation(definition)];
-      });
-    }
-  };
-  function toLocation(location) {
-    return {
-      uri: monaco_editor_core_exports.Uri.parse(location.uri),
-      range: toRange(location.range)
-    };
-  }
-  var ReferenceAdapter = class {
-    constructor(_worker) {
-      this._worker = _worker;
-    }
-    provideReferences(model, position, context, token) {
-      const resource = model.uri;
-      return this._worker(resource).then((worker) => {
-        return worker.findReferences(resource.toString(), fromPosition(position));
-      }).then((entries) => {
-        if (!entries) {
-          return;
-        }
-        return entries.map(toLocation);
-      });
-    }
-  };
   var RenameAdapter = class {
     constructor(_worker) {
       this._worker = _worker;
@@ -1910,43 +1741,6 @@ var moduleExports = (() => {
       insertSpaces: options.insertSpaces
     };
   }
-  var DocumentColorAdapter = class {
-    constructor(_worker) {
-      this._worker = _worker;
-    }
-    provideDocumentColors(model, token) {
-      const resource = model.uri;
-      return this._worker(resource).then((worker) => worker.findDocumentColors(resource.toString())).then((infos) => {
-        if (!infos) {
-          return;
-        }
-        return infos.map((item) => ({
-          color: item.color,
-          range: toRange(item.range)
-        }));
-      });
-    }
-    provideColorPresentations(model, info, token) {
-      const resource = model.uri;
-      return this._worker(resource).then((worker) => worker.getColorPresentations(resource.toString(), info.color, fromRange(info.range))).then((presentations) => {
-        if (!presentations) {
-          return;
-        }
-        return presentations.map((presentation) => {
-          let item = {
-            label: presentation.label
-          };
-          if (presentation.textEdit) {
-            item.textEdit = toTextEdit(presentation.textEdit);
-          }
-          if (presentation.additionalTextEdits) {
-            item.additionalTextEdits = presentation.additionalTextEdits.map(toTextEdit);
-          }
-          return item;
-        });
-      });
-    }
-  };
   var FoldingRangeAdapter = class {
     constructor(_worker) {
       this._worker = _worker;
@@ -2003,7 +1797,7 @@ var moduleExports = (() => {
     }
   };
 
-  // src/language/html/htmlMode.ts
+  // src/html/htmlMode.ts
   var HTMLCompletionAdapter = class extends CompletionAdapter {
     constructor(worker) {
       super(worker, [".", ":", "<", '"', "=", "/"]);
@@ -2082,7 +1876,7 @@ var moduleExports = (() => {
       disposables.pop().dispose();
     }
   }
-  return __toCommonJS(htmlMode_exports);
+  return htmlMode_exports;
 })();
 return moduleExports;
 });

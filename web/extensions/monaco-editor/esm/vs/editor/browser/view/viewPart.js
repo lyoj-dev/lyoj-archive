@@ -2,6 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+import { FastDomNode } from '../../../base/browser/fastDomNode.js';
 import { ViewEventHandler } from '../../common/viewModel/viewEventHandler.js';
 export class ViewPart extends ViewEventHandler {
     constructor(context) {
@@ -16,7 +17,12 @@ export class ViewPart extends ViewEventHandler {
 }
 export class PartFingerprints {
     static write(target, partId) {
-        target.setAttribute('data-mprt', String(partId));
+        if (target instanceof FastDomNode) {
+            target.setAttribute('data-mprt', String(partId));
+        }
+        else {
+            target.setAttribute('data-mprt', String(partId));
+        }
     }
     static read(target) {
         const r = target.getAttribute('data-mprt');
@@ -26,8 +32,7 @@ export class PartFingerprints {
         return parseInt(r, 10);
     }
     static collect(child, stopAt) {
-        const result = [];
-        let resultLen = 0;
+        let result = [], resultLen = 0;
         while (child && child !== document.body) {
             if (child === stopAt) {
                 break;

@@ -31,7 +31,7 @@ import { URI } from '../../../base/common/uri.js';
 import { ICodeEditorService } from './codeEditorService.js';
 import { ICommandService } from '../../../platform/commands/common/commands.js';
 import { EditorOpenContext } from '../../../platform/editor/common/editor.js';
-import { matchesScheme, matchesSomeScheme, selectionFragment } from '../../../platform/opener/common/opener.js';
+import { matchesScheme, matchesSomeScheme } from '../../../platform/opener/common/opener.js';
 let CommandOpener = class CommandOpener {
     constructor(_commandService) {
         this._commandService = _commandService;
@@ -84,8 +84,16 @@ let EditorOpener = class EditorOpener {
             if (typeof target === 'string') {
                 target = URI.parse(target);
             }
-            const selection = selectionFragment(target);
-            if (selection) {
+            let selection = undefined;
+            const match = /^L?(\d+)(?:,(\d+))?/.exec(target.fragment);
+            if (match) {
+                // support file:///some/file.js#73,84
+                // support file:///some/file.js#L73
+                selection = {
+                    startLineNumber: parseInt(match[1]),
+                    startColumn: match[2] ? parseInt(match[2]) : 1
+                };
+                // remove fragment
                 target = target.with({ fragment: '' });
             }
             if (target.scheme === Schemas.file) {

@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -130,13 +130,10 @@ var language = {
     "yes",
     "zsh"
   ],
-  startingWithDash: /\-+\w+/,
-  identifiersWithDashes: /[a-zA-Z]\w+(?:@startingWithDash)+/,
   symbols: /[=><!~?&|+\-*\/\^;\.,]+/,
   tokenizer: {
     root: [
-      [/@identifiersWithDashes/, ""],
-      [/(\s)((?:@startingWithDash)+)/, ["white", "attribute.name"]],
+      { include: "@whitespace" },
       [
         /[a-zA-Z]\w*/,
         {
@@ -147,11 +144,11 @@ var language = {
           }
         }
       ],
-      { include: "@whitespace" },
       { include: "@strings" },
       { include: "@parameters" },
       { include: "@heredoc" },
       [/[{}\[\]()]/, "@brackets"],
+      [/-+\w+/, "attribute.name"],
       [/@symbols/, "delimiter"],
       { include: "@numbers" },
       [/[,;]/, "delimiter"]

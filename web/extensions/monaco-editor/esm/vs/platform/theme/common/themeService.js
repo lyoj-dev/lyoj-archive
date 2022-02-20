@@ -35,10 +35,6 @@ export var ThemeIcon;
         return { id: name };
     }
     ThemeIcon.fromString = fromString;
-    function fromId(id) {
-        return { id };
-    }
-    ThemeIcon.fromId = fromId;
     function modify(icon, modifier) {
         let id = icon.id;
         const tildeIndex = id.lastIndexOf('~');

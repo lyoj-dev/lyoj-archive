@@ -130,16 +130,16 @@ class Widget {
         this.allowEditorOverflow = this._actual.allowEditorOverflow || false;
         this.suppressMouseDown = this._actual.suppressMouseDown || false;
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
         this._fixedOverflowWidgets = options.get(36 /* fixedOverflowWidgets */);
         this._contentWidth = layoutInfo.contentWidth;
         this._contentLeft = layoutInfo.contentLeft;
-        this._lineHeight = options.get(59 /* lineHeight */);
+        this._lineHeight = options.get(58 /* lineHeight */);
         this._range = null;
         this._viewRange = null;
         this._preference = [];
-        this._cachedDomNodeOffsetWidth = -1;
-        this._cachedDomNodeOffsetHeight = -1;
+        this._cachedDomNodeClientWidth = -1;
+        this._cachedDomNodeClientHeight = -1;
         this._maxWidth = this._getMaxWidth();
         this._isVisible = false;
         this._renderData = null;
@@ -151,9 +151,9 @@ class Widget {
     }
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        this._lineHeight = options.get(59 /* lineHeight */);
-        if (e.hasChanged(131 /* layoutInfo */)) {
-            const layoutInfo = options.get(131 /* layoutInfo */);
+        this._lineHeight = options.get(58 /* lineHeight */);
+        if (e.hasChanged(130 /* layoutInfo */)) {
+            const layoutInfo = options.get(130 /* layoutInfo */);
             this._contentLeft = layoutInfo.contentLeft;
             this._contentWidth = layoutInfo.contentWidth;
             this._maxWidth = this._getMaxWidth();
@@ -175,7 +175,7 @@ class Widget {
     }
     _getMaxWidth() {
         return (this.allowEditorOverflow
-            ? window.innerWidth || document.documentElement.offsetWidth || document.body.offsetWidth
+            ? window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
             : this._contentWidth);
     }
     setPosition(range, preference) {
@@ -191,8 +191,8 @@ class Widget {
         else {
             this.domNode.setDisplay('none');
         }
-        this._cachedDomNodeOffsetWidth = -1;
-        this._cachedDomNodeOffsetHeight = -1;
+        this._cachedDomNodeClientWidth = -1;
+        this._cachedDomNodeClientHeight = -1;
     }
     _layoutBoxInViewport(topLeft, bottomLeft, width, height, ctx) {
         // Our visible box is split horizontally by the current line => 2 boxes
@@ -330,27 +330,27 @@ class Widget {
         if (!topLeft || !bottomLeft) {
             return null;
         }
-        if (this._cachedDomNodeOffsetWidth === -1 || this._cachedDomNodeOffsetHeight === -1) {
+        if (this._cachedDomNodeClientWidth === -1 || this._cachedDomNodeClientHeight === -1) {
             let preferredDimensions = null;
             if (typeof this._actual.beforeRender === 'function') {
                 preferredDimensions = safeInvoke(this._actual.beforeRender, this._actual);
             }
             if (preferredDimensions) {
-                this._cachedDomNodeOffsetWidth = preferredDimensions.width;
-                this._cachedDomNodeOffsetHeight = preferredDimensions.height;
+                this._cachedDomNodeClientWidth = preferredDimensions.width;
+                this._cachedDomNodeClientHeight = preferredDimensions.height;
             }
             else {
                 const domNode = this.domNode.domNode;
-                this._cachedDomNodeOffsetWidth = domNode.offsetWidth;
-                this._cachedDomNodeOffsetHeight = domNode.offsetHeight;
+                this._cachedDomNodeClientWidth = domNode.clientWidth;
+                this._cachedDomNodeClientHeight = domNode.clientHeight;
             }
         }
         let placement;
         if (this.allowEditorOverflow) {
-            placement = this._layoutBoxInPage(topLeft, bottomLeft, this._cachedDomNodeOffsetWidth, this._cachedDomNodeOffsetHeight, ctx);
+            placement = this._layoutBoxInPage(topLeft, bottomLeft, this._cachedDomNodeClientWidth, this._cachedDomNodeClientHeight, ctx);
         }
         else {
-            placement = this._layoutBoxInViewport(topLeft, bottomLeft, this._cachedDomNodeOffsetWidth, this._cachedDomNodeOffsetHeight, ctx);
+            placement = this._layoutBoxInViewport(topLeft, bottomLeft, this._cachedDomNodeClientWidth, this._cachedDomNodeClientHeight, ctx);
         }
         // Do two passes, first for perfect fit, second picks first option
         for (let pass = 1; pass <= 2; pass++) {

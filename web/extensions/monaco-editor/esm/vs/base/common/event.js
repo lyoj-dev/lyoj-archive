@@ -87,32 +87,8 @@ export var Event;
         });
         return emitter.event;
     }
-    function debouncedListener(event, listener, merge, delay = 100, leading = false) {
-        let output = undefined;
-        let handle = undefined;
-        let numDebouncedCalls = 0;
-        return event(cur => {
-            numDebouncedCalls++;
-            output = merge(output, cur);
-            if (leading && !handle) {
-                listener(output);
-                output = undefined;
-            }
-            clearTimeout(handle);
-            handle = setTimeout(() => {
-                const _output = output;
-                output = undefined;
-                handle = undefined;
-                if (!leading || numDebouncedCalls > 1) {
-                    listener(_output);
-                }
-                numDebouncedCalls = 0;
-            }, delay);
-        });
-    }
-    Event.debouncedListener = debouncedListener;
     /**
-     * @deprecated this leaks memory, {@link debouncedListener} or {@link DebounceEmitter} instead
+     * @deprecated DO NOT use, this leaks memory
      */
     function debounce(event, merge, delay = 100, leading = false, leakWarningThreshold) {
         let subscription;
@@ -273,26 +249,6 @@ export var Event;
         return new Promise(resolve => once(event)(resolve));
     }
     Event.toPromise = toPromise;
-    function runAndSubscribe(event, handler) {
-        handler(undefined);
-        return event(e => handler(e));
-    }
-    Event.runAndSubscribe = runAndSubscribe;
-    function runAndSubscribeWithStore(event, handler) {
-        let store = null;
-        function run(e) {
-            store === null || store === void 0 ? void 0 : store.dispose();
-            store = new DisposableStore();
-            handler(e, store);
-        }
-        run(undefined);
-        const disposable = event(e => run(e));
-        return toDisposable(() => {
-            disposable.dispose();
-            store === null || store === void 0 ? void 0 : store.dispose();
-        });
-    }
-    Event.runAndSubscribeWithStore = runAndSubscribeWithStore;
 })(Event || (Event = {}));
 class EventProfiling {
     constructor(name) {

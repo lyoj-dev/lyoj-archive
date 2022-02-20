@@ -28,14 +28,14 @@ export class ErrorHandler {
 export const errorHandler = new ErrorHandler();
 export function onUnexpectedError(e) {
     // ignore errors from cancelled promises
-    if (!isCancellationError(e)) {
+    if (!isPromiseCanceledError(e)) {
         errorHandler.onUnexpectedError(e);
     }
     return undefined;
 }
 export function onUnexpectedExternalError(e) {
     // ignore errors from cancelled promises
-    if (!isCancellationError(e)) {
+    if (!isPromiseCanceledError(e)) {
         errorHandler.onUnexpectedExternalError(e);
     }
     return undefined;
@@ -58,22 +58,11 @@ const canceledName = 'Canceled';
 /**
  * Checks if the given error is a promise in canceled state
  */
-export function isCancellationError(error) {
-    if (error instanceof CancellationError) {
-        return true;
-    }
+export function isPromiseCanceledError(error) {
     return error instanceof Error && error.name === canceledName && error.message === canceledName;
 }
-// !!!IMPORTANT!!!
-// Do NOT change this class because it is also used as an API-type.
-export class CancellationError extends Error {
-    constructor() {
-        super(canceledName);
-        this.name = this.message;
-    }
-}
 /**
- * @deprecated uses {@link CancellationError}
+ * Returns an error that signals cancellation.
  */
 export function canceled() {
     const error = new Error(canceledName);

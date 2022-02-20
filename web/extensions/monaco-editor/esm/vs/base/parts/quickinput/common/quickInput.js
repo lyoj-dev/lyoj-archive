@@ -25,10 +25,4 @@ export var ItemActivation;
     ItemActivation[ItemActivation["SECOND"] = 2] = "SECOND";
     ItemActivation[ItemActivation["LAST"] = 3] = "LAST";
 })(ItemActivation || (ItemActivation = {}));
-export class QuickPickItemScorerAccessor {
-    constructor(options) {
-        this.options = options;
-    }
-}
-export const quickPickItemScorerAccessor = new QuickPickItemScorerAccessor();
 //#endregion

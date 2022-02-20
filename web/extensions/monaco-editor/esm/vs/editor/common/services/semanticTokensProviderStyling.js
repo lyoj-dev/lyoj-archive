@@ -11,22 +11,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { TokenMetadata } from '../languages.js';
+import { TokenMetadata } from '../modes.js';
 import { IThemeService } from '../../../platform/theme/common/themeService.js';
 import { ILogService, LogLevel } from '../../../platform/log/common/log.js';
-import { SparseMultilineTokens } from '../tokens/sparseMultilineTokens.js';
-import { ILanguageService } from './language.js';
+import { MultilineTokens2, SparseEncodedTokens } from '../model/tokensStore.js';
+import { IModeService } from './modeService.js';
 let SemanticTokensProviderStyling = class SemanticTokensProviderStyling {
-    constructor(_legend, _themeService, _languageService, _logService) {
+    constructor(_legend, _themeService, _modeService, _logService) {
         this._legend = _legend;
         this._themeService = _themeService;
-        this._languageService = _languageService;
+        this._modeService = _modeService;
         this._logService = _logService;
         this._hashTable = new HashTable();
         this._hasWarnedOverlappingTokens = false;
     }
     getMetadata(tokenTypeIndex, tokenModifierSet, languageId) {
-        const encodedLanguageId = this._languageService.languageIdCodec.encodeLanguageId(languageId);
+        const encodedLanguageId = this._modeService.languageIdCodec.encodeLanguageId(languageId);
         const entry = this._hashTable.get(tokenTypeIndex, tokenModifierSet, encodedLanguageId);
         let metadata;
         if (entry) {
@@ -57,24 +57,20 @@ let SemanticTokensProviderStyling = class SemanticTokensProviderStyling {
                 else {
                     metadata = 0;
                     if (typeof tokenStyle.italic !== 'undefined') {
-                        const italicBit = (tokenStyle.italic ? 1 /* Italic */ : 0) << 10 /* FONT_STYLE_OFFSET */;
+                        const italicBit = (tokenStyle.italic ? 1 /* Italic */ : 0) << 11 /* FONT_STYLE_OFFSET */;
                         metadata |= italicBit | 1 /* SEMANTIC_USE_ITALIC */;
                     }
                     if (typeof tokenStyle.bold !== 'undefined') {
-                        const boldBit = (tokenStyle.bold ? 2 /* Bold */ : 0) << 10 /* FONT_STYLE_OFFSET */;
+                        const boldBit = (tokenStyle.bold ? 2 /* Bold */ : 0) << 11 /* FONT_STYLE_OFFSET */;
                         metadata |= boldBit | 2 /* SEMANTIC_USE_BOLD */;
                     }
                     if (typeof tokenStyle.underline !== 'undefined') {
-                        const underlineBit = (tokenStyle.underline ? 4 /* Underline */ : 0) << 10 /* FONT_STYLE_OFFSET */;
+                        const underlineBit = (tokenStyle.underline ? 4 /* Underline */ : 0) << 11 /* FONT_STYLE_OFFSET */;
                         metadata |= underlineBit | 4 /* SEMANTIC_USE_UNDERLINE */;
-                    }
-                    if (typeof tokenStyle.strikethrough !== 'undefined') {
-                        const strikethroughBit = (tokenStyle.strikethrough ? 8 /* Strikethrough */ : 0) << 10 /* FONT_STYLE_OFFSET */;
-                        metadata |= strikethroughBit | 8 /* SEMANTIC_USE_STRIKETHROUGH */;
                     }
                     if (tokenStyle.foreground) {
                         const foregroundBits = (tokenStyle.foreground) << 14 /* FOREGROUND_OFFSET */;
-                        metadata |= foregroundBits | 16 /* SEMANTIC_USE_FOREGROUND */;
+                        metadata |= foregroundBits | 8 /* SEMANTIC_USE_FOREGROUND */;
                     }
                     if (metadata === 0) {
                         // Nothing!
@@ -105,7 +101,7 @@ let SemanticTokensProviderStyling = class SemanticTokensProviderStyling {
 };
 SemanticTokensProviderStyling = __decorate([
     __param(1, IThemeService),
-    __param(2, ILanguageService),
+    __param(2, IModeService),
     __param(3, ILogService)
 ], SemanticTokensProviderStyling);
 export { SemanticTokensProviderStyling };
@@ -187,7 +183,7 @@ export function toMultilineTokens2(tokens, styling, languageId) {
         if (destOffset !== destData.length) {
             destData = destData.subarray(0, destOffset);
         }
-        const tokens = SparseMultilineTokens.create(areaLine, destData);
+        const tokens = new MultilineTokens2(areaLine, new SparseEncodedTokens(destData));
         result.push(tokens);
     }
     return result;

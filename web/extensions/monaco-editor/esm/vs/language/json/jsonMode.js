@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -9,10 +9,11 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
+var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+var __reExport = (target, module, desc) => {
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
         __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
   }
   return target;
@@ -20,18 +21,13 @@ var __reExport = (target, module, copyDefault, desc) => {
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
+__markAsModule(monaco_editor_core_exports);
 __reExport(monaco_editor_core_exports, monaco_editor_core_star);
 import * as monaco_editor_core_star from "../../editor/editor.api.js";
 
-// src/language/json/workerManager.ts
+// src/json/workerManager.ts
 var STOP_WHEN_IDLE_FOR = 2 * 60 * 1e3;
 var WorkerManager = class {
-  _defaults;
-  _idleCheckInterval;
-  _lastUsedTime;
-  _configChangeListener;
-  _worker;
-  _client;
   constructor(defaults) {
     this._defaults = defaults;
     this._worker = null;
@@ -90,6 +86,7 @@ var WorkerManager = class {
 };
 
 // node_modules/vscode-languageserver-types/lib/esm/main.js
+"use strict";
 var integer;
 (function(integer2) {
   integer2.MIN_VALUE = -2147483648;
@@ -486,61 +483,61 @@ var TextEditChangeImpl = function() {
     this.changeAnnotations = changeAnnotations;
   }
   TextEditChangeImpl2.prototype.insert = function(position, newText, annotation) {
-    var edit;
+    var edit2;
     var id;
     if (annotation === void 0) {
-      edit = TextEdit.insert(position, newText);
+      edit2 = TextEdit.insert(position, newText);
     } else if (ChangeAnnotationIdentifier.is(annotation)) {
       id = annotation;
-      edit = AnnotatedTextEdit.insert(position, newText, annotation);
+      edit2 = AnnotatedTextEdit.insert(position, newText, annotation);
     } else {
       this.assertChangeAnnotations(this.changeAnnotations);
       id = this.changeAnnotations.manage(annotation);
-      edit = AnnotatedTextEdit.insert(position, newText, id);
+      edit2 = AnnotatedTextEdit.insert(position, newText, id);
     }
-    this.edits.push(edit);
+    this.edits.push(edit2);
     if (id !== void 0) {
       return id;
     }
   };
   TextEditChangeImpl2.prototype.replace = function(range, newText, annotation) {
-    var edit;
+    var edit2;
     var id;
     if (annotation === void 0) {
-      edit = TextEdit.replace(range, newText);
+      edit2 = TextEdit.replace(range, newText);
     } else if (ChangeAnnotationIdentifier.is(annotation)) {
       id = annotation;
-      edit = AnnotatedTextEdit.replace(range, newText, annotation);
+      edit2 = AnnotatedTextEdit.replace(range, newText, annotation);
     } else {
       this.assertChangeAnnotations(this.changeAnnotations);
       id = this.changeAnnotations.manage(annotation);
-      edit = AnnotatedTextEdit.replace(range, newText, id);
+      edit2 = AnnotatedTextEdit.replace(range, newText, id);
     }
-    this.edits.push(edit);
+    this.edits.push(edit2);
     if (id !== void 0) {
       return id;
     }
   };
   TextEditChangeImpl2.prototype.delete = function(range, annotation) {
-    var edit;
+    var edit2;
     var id;
     if (annotation === void 0) {
-      edit = TextEdit.del(range);
+      edit2 = TextEdit.del(range);
     } else if (ChangeAnnotationIdentifier.is(annotation)) {
       id = annotation;
-      edit = AnnotatedTextEdit.del(range, annotation);
+      edit2 = AnnotatedTextEdit.del(range, annotation);
     } else {
       this.assertChangeAnnotations(this.changeAnnotations);
       id = this.changeAnnotations.manage(annotation);
-      edit = AnnotatedTextEdit.del(range, id);
+      edit2 = AnnotatedTextEdit.del(range, id);
     }
-    this.edits.push(edit);
+    this.edits.push(edit2);
     if (id !== void 0) {
       return id;
     }
   };
-  TextEditChangeImpl2.prototype.add = function(edit) {
-    this.edits.push(edit);
+  TextEditChangeImpl2.prototype.add = function(edit2) {
+    this.edits.push(edit2);
   };
   TextEditChangeImpl2.prototype.all = function() {
     return this.edits;
@@ -557,7 +554,7 @@ var TextEditChangeImpl = function() {
 }();
 var ChangeAnnotations = function() {
   function ChangeAnnotations2(annotations) {
-    this._annotations = annotations === void 0 ? /* @__PURE__ */ Object.create(null) : annotations;
+    this._annotations = annotations === void 0 ? Object.create(null) : annotations;
     this._counter = 0;
     this._size = 0;
   }
@@ -598,7 +595,7 @@ var ChangeAnnotations = function() {
 var WorkspaceChange = function() {
   function WorkspaceChange2(workspaceEdit) {
     var _this = this;
-    this._textEditChanges = /* @__PURE__ */ Object.create(null);
+    this._textEditChanges = Object.create(null);
     if (workspaceEdit !== void 0) {
       this._workspaceEdit = workspaceEdit;
       if (workspaceEdit.documentChanges) {
@@ -678,7 +675,7 @@ var WorkspaceChange = function() {
   };
   WorkspaceChange2.prototype.initChanges = function() {
     if (this._workspaceEdit.documentChanges === void 0 && this._workspaceEdit.changes === void 0) {
-      this._workspaceEdit.changes = /* @__PURE__ */ Object.create(null);
+      this._workspaceEdit.changes = Object.create(null);
     }
   };
   WorkspaceChange2.prototype.createFile = function(uri, optionsOrAnnotation, options) {
@@ -1346,11 +1343,13 @@ var Is;
   Is2.typedArray = typedArray;
 })(Is || (Is = {}));
 
-// src/language/common/lspLanguageFeatures.ts
+// src/common/lspLanguageFeatures.ts
 var DiagnosticsAdapter = class {
   constructor(_languageId, _worker, configChangeEvent) {
     this._languageId = _languageId;
     this._worker = _worker;
+    this._disposables = [];
+    this._listener = Object.create(null);
     const onModelAdd = (model) => {
       let modeId = model.getLanguageId();
       if (modeId !== this._languageId) {
@@ -1396,8 +1395,6 @@ var DiagnosticsAdapter = class {
     });
     monaco_editor_core_exports.editor.getModels().forEach(onModelAdd);
   }
-  _disposables = [];
-  _listener = /* @__PURE__ */ Object.create(null);
   dispose() {
     this._disposables.forEach((d) => d && d.dispose());
     this._disposables.length = 0;
@@ -1523,8 +1520,8 @@ function toRange(range) {
   }
   return new monaco_editor_core_exports.Range(range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1);
 }
-function isInsertReplaceEdit(edit) {
-  return typeof edit.insert !== "undefined" && typeof edit.replace !== "undefined";
+function isInsertReplaceEdit(edit2) {
+  return typeof edit2.insert !== "undefined" && typeof edit2.replace !== "undefined";
 }
 function toCompletionItemKind(kind) {
   const mItemKind = monaco_editor_core_exports.languages.CompletionItemKind;
@@ -1629,108 +1626,6 @@ function toMarkedStringArray(contents) {
   }
   return [toMarkdownString(contents)];
 }
-var DocumentHighlightAdapter = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideDocumentHighlights(model, position, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => worker.findDocumentHighlights(resource.toString(), fromPosition(position))).then((entries) => {
-      if (!entries) {
-        return;
-      }
-      return entries.map((entry) => {
-        return {
-          range: toRange(entry.range),
-          kind: toDocumentHighlightKind(entry.kind)
-        };
-      });
-    });
-  }
-};
-function toDocumentHighlightKind(kind) {
-  switch (kind) {
-    case DocumentHighlightKind.Read:
-      return monaco_editor_core_exports.languages.DocumentHighlightKind.Read;
-    case DocumentHighlightKind.Write:
-      return monaco_editor_core_exports.languages.DocumentHighlightKind.Write;
-    case DocumentHighlightKind.Text:
-      return monaco_editor_core_exports.languages.DocumentHighlightKind.Text;
-  }
-  return monaco_editor_core_exports.languages.DocumentHighlightKind.Text;
-}
-var DefinitionAdapter = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideDefinition(model, position, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => {
-      return worker.findDefinition(resource.toString(), fromPosition(position));
-    }).then((definition) => {
-      if (!definition) {
-        return;
-      }
-      return [toLocation(definition)];
-    });
-  }
-};
-function toLocation(location) {
-  return {
-    uri: monaco_editor_core_exports.Uri.parse(location.uri),
-    range: toRange(location.range)
-  };
-}
-var ReferenceAdapter = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideReferences(model, position, context, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => {
-      return worker.findReferences(resource.toString(), fromPosition(position));
-    }).then((entries) => {
-      if (!entries) {
-        return;
-      }
-      return entries.map(toLocation);
-    });
-  }
-};
-var RenameAdapter = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideRenameEdits(model, position, newName, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => {
-      return worker.doRename(resource.toString(), fromPosition(position), newName);
-    }).then((edit) => {
-      return toWorkspaceEdit(edit);
-    });
-  }
-};
-function toWorkspaceEdit(edit) {
-  if (!edit || !edit.changes) {
-    return void 0;
-  }
-  let resourceEdits = [];
-  for (let uri in edit.changes) {
-    const _uri = monaco_editor_core_exports.Uri.parse(uri);
-    for (let e of edit.changes[uri]) {
-      resourceEdits.push({
-        resource: _uri,
-        edit: {
-          range: toRange(e.range),
-          text: e.newText
-        }
-      });
-    }
-  }
-  return {
-    edits: resourceEdits
-  };
-}
 var DocumentSymbolAdapter = class {
   constructor(_worker) {
     this._worker = _worker;
@@ -1795,25 +1690,6 @@ function toSymbolKind(kind) {
   }
   return mKind.Function;
 }
-var DocumentLinkAdapter = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideLinks(model, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => worker.findDocumentLinks(resource.toString())).then((items) => {
-      if (!items) {
-        return;
-      }
-      return {
-        links: items.map((item) => ({
-          range: toRange(item.range),
-          url: item.target
-        }))
-      };
-    });
-  }
-};
 var DocumentFormattingEditProvider = class {
   constructor(_worker) {
     this._worker = _worker;
@@ -1946,6 +1822,7 @@ var SelectionRangeAdapter = class {
 };
 
 // node_modules/jsonc-parser/lib/esm/impl/scanner.js
+"use strict";
 function createScanner(text, ignoreTrivia) {
   if (ignoreTrivia === void 0) {
     ignoreTrivia = false;
@@ -2294,7 +2171,11 @@ function isDigit(ch) {
   return ch >= 48 && ch <= 57;
 }
 
+// node_modules/jsonc-parser/lib/esm/impl/format.js
+"use strict";
+
 // node_modules/jsonc-parser/lib/esm/impl/parser.js
+"use strict";
 var ParseOptions;
 (function(ParseOptions2) {
   ParseOptions2.DEFAULT = {
@@ -2302,10 +2183,14 @@ var ParseOptions;
   };
 })(ParseOptions || (ParseOptions = {}));
 
+// node_modules/jsonc-parser/lib/esm/impl/edit.js
+"use strict";
+
 // node_modules/jsonc-parser/lib/esm/main.js
+"use strict";
 var createScanner2 = createScanner;
 
-// src/language/json/tokenization.ts
+// src/json/tokenization.ts
 function createTokenizationSupport(supportComments) {
   return {
     getInitialState: () => new JSONState(null, null, false, null),
@@ -2323,6 +2208,11 @@ var TOKEN_VALUE_NUMBER = "number.json";
 var TOKEN_PROPERTY_NAME = "string.key.json";
 var TOKEN_COMMENT_BLOCK = "comment.block.json";
 var TOKEN_COMMENT_LINE = "comment.line.json";
+var JSONParent;
+(function(JSONParent2) {
+  JSONParent2[JSONParent2["Object"] = 0] = "Object";
+  JSONParent2[JSONParent2["Array"] = 1] = "Array";
+})(JSONParent || (JSONParent = {}));
 var ParentsStack = class {
   constructor(parent, type) {
     this.parent = parent;
@@ -2358,10 +2248,6 @@ var ParentsStack = class {
   }
 };
 var JSONState = class {
-  _state;
-  scanError;
-  lastWasColon;
-  parents;
   constructor(state, scanError, lastWasColon, parents) {
     this._state = state;
     this.scanError = scanError;
@@ -2387,20 +2273,50 @@ var JSONState = class {
     this._state = state;
   }
 };
+var ScanError;
+(function(ScanError2) {
+  ScanError2[ScanError2["None"] = 0] = "None";
+  ScanError2[ScanError2["UnexpectedEndOfComment"] = 1] = "UnexpectedEndOfComment";
+  ScanError2[ScanError2["UnexpectedEndOfString"] = 2] = "UnexpectedEndOfString";
+  ScanError2[ScanError2["UnexpectedEndOfNumber"] = 3] = "UnexpectedEndOfNumber";
+  ScanError2[ScanError2["InvalidUnicode"] = 4] = "InvalidUnicode";
+  ScanError2[ScanError2["InvalidEscapeCharacter"] = 5] = "InvalidEscapeCharacter";
+  ScanError2[ScanError2["InvalidCharacter"] = 6] = "InvalidCharacter";
+})(ScanError || (ScanError = {}));
+var SyntaxKind;
+(function(SyntaxKind2) {
+  SyntaxKind2[SyntaxKind2["OpenBraceToken"] = 1] = "OpenBraceToken";
+  SyntaxKind2[SyntaxKind2["CloseBraceToken"] = 2] = "CloseBraceToken";
+  SyntaxKind2[SyntaxKind2["OpenBracketToken"] = 3] = "OpenBracketToken";
+  SyntaxKind2[SyntaxKind2["CloseBracketToken"] = 4] = "CloseBracketToken";
+  SyntaxKind2[SyntaxKind2["CommaToken"] = 5] = "CommaToken";
+  SyntaxKind2[SyntaxKind2["ColonToken"] = 6] = "ColonToken";
+  SyntaxKind2[SyntaxKind2["NullKeyword"] = 7] = "NullKeyword";
+  SyntaxKind2[SyntaxKind2["TrueKeyword"] = 8] = "TrueKeyword";
+  SyntaxKind2[SyntaxKind2["FalseKeyword"] = 9] = "FalseKeyword";
+  SyntaxKind2[SyntaxKind2["StringLiteral"] = 10] = "StringLiteral";
+  SyntaxKind2[SyntaxKind2["NumericLiteral"] = 11] = "NumericLiteral";
+  SyntaxKind2[SyntaxKind2["LineCommentTrivia"] = 12] = "LineCommentTrivia";
+  SyntaxKind2[SyntaxKind2["BlockCommentTrivia"] = 13] = "BlockCommentTrivia";
+  SyntaxKind2[SyntaxKind2["LineBreakTrivia"] = 14] = "LineBreakTrivia";
+  SyntaxKind2[SyntaxKind2["Trivia"] = 15] = "Trivia";
+  SyntaxKind2[SyntaxKind2["Unknown"] = 16] = "Unknown";
+  SyntaxKind2[SyntaxKind2["EOF"] = 17] = "EOF";
+})(SyntaxKind || (SyntaxKind = {}));
 function tokenize(comments, line, state, offsetDelta = 0) {
   let numberOfInsertedCharacters = 0;
   let adjustOffset = false;
   switch (state.scanError) {
-    case 2 /* UnexpectedEndOfString */:
+    case 2:
       line = '"' + line;
       numberOfInsertedCharacters = 1;
       break;
-    case 1 /* UnexpectedEndOfComment */:
+    case 1:
       line = "/*" + line;
       numberOfInsertedCharacters = 2;
       break;
   }
-  const scanner = createScanner2(line);
+  const scanner2 = createScanner2(line);
   let lastWasColon = state.lastWasColon;
   let parents = state.parents;
   const ret = {
@@ -2408,79 +2324,79 @@ function tokenize(comments, line, state, offsetDelta = 0) {
     endState: state.clone()
   };
   while (true) {
-    let offset = offsetDelta + scanner.getPosition();
+    let offset = offsetDelta + scanner2.getPosition();
     let type = "";
-    const kind = scanner.scan();
-    if (kind === 17 /* EOF */) {
+    const kind = scanner2.scan();
+    if (kind === 17) {
       break;
     }
-    if (offset === offsetDelta + scanner.getPosition()) {
-      throw new Error("Scanner did not advance, next 3 characters are: " + line.substr(scanner.getPosition(), 3));
+    if (offset === offsetDelta + scanner2.getPosition()) {
+      throw new Error("Scanner did not advance, next 3 characters are: " + line.substr(scanner2.getPosition(), 3));
     }
     if (adjustOffset) {
       offset -= numberOfInsertedCharacters;
     }
     adjustOffset = numberOfInsertedCharacters > 0;
     switch (kind) {
-      case 1 /* OpenBraceToken */:
-        parents = ParentsStack.push(parents, 0 /* Object */);
+      case 1:
+        parents = ParentsStack.push(parents, 0);
         type = TOKEN_DELIM_OBJECT;
         lastWasColon = false;
         break;
-      case 2 /* CloseBraceToken */:
+      case 2:
         parents = ParentsStack.pop(parents);
         type = TOKEN_DELIM_OBJECT;
         lastWasColon = false;
         break;
-      case 3 /* OpenBracketToken */:
-        parents = ParentsStack.push(parents, 1 /* Array */);
+      case 3:
+        parents = ParentsStack.push(parents, 1);
         type = TOKEN_DELIM_ARRAY;
         lastWasColon = false;
         break;
-      case 4 /* CloseBracketToken */:
+      case 4:
         parents = ParentsStack.pop(parents);
         type = TOKEN_DELIM_ARRAY;
         lastWasColon = false;
         break;
-      case 6 /* ColonToken */:
+      case 6:
         type = TOKEN_DELIM_COLON;
         lastWasColon = true;
         break;
-      case 5 /* CommaToken */:
+      case 5:
         type = TOKEN_DELIM_COMMA;
         lastWasColon = false;
         break;
-      case 8 /* TrueKeyword */:
-      case 9 /* FalseKeyword */:
+      case 8:
+      case 9:
         type = TOKEN_VALUE_BOOLEAN;
         lastWasColon = false;
         break;
-      case 7 /* NullKeyword */:
+      case 7:
         type = TOKEN_VALUE_NULL;
         lastWasColon = false;
         break;
-      case 10 /* StringLiteral */:
-        const currentParent = parents ? parents.type : 0 /* Object */;
-        const inArray = currentParent === 1 /* Array */;
+      case 10:
+        const currentParent = parents ? parents.type : 0;
+        const inArray = currentParent === 1;
         type = lastWasColon || inArray ? TOKEN_VALUE_STRING : TOKEN_PROPERTY_NAME;
         lastWasColon = false;
         break;
-      case 11 /* NumericLiteral */:
+      case 11:
         type = TOKEN_VALUE_NUMBER;
         lastWasColon = false;
         break;
     }
     if (comments) {
       switch (kind) {
-        case 12 /* LineCommentTrivia */:
+        case 12:
           type = TOKEN_COMMENT_LINE;
           break;
-        case 13 /* BlockCommentTrivia */:
+        case 13:
           type = TOKEN_COMMENT_BLOCK;
           break;
       }
     }
-    ret.endState = new JSONState(state.getStateData(), scanner.getTokenError(), lastWasColon, parents);
+    ret.endState = new JSONState(state.getStateData(), scanner2.getTokenError(), lastWasColon, parents);
     ret.tokens.push({
       startIndex: offset,
       scopes: type
@@ -2489,7 +2405,7 @@ function tokenize(comments, line, state, offsetDelta = 0) {
   return ret;
 }
 
-// src/language/json/jsonMode.ts
+// src/json/jsonMode.ts
 var JSONDiagnosticsAdapter = class extends DiagnosticsAdapter {
   constructor(languageId, worker, defaults) {
     super(languageId, worker, defaults.onDidChange);
@@ -2585,24 +2501,5 @@ var richEditConfiguration = {
   ]
 };
 export {
-  CompletionAdapter,
-  DefinitionAdapter,
-  DiagnosticsAdapter,
-  DocumentColorAdapter,
-  DocumentFormattingEditProvider,
-  DocumentHighlightAdapter,
-  DocumentLinkAdapter,
-  DocumentRangeFormattingEditProvider,
-  DocumentSymbolAdapter,
-  FoldingRangeAdapter,
-  HoverAdapter,
-  ReferenceAdapter,
-  RenameAdapter,
-  SelectionRangeAdapter,
-  WorkerManager,
-  fromPosition,
-  fromRange,
-  setupMode,
-  toRange,
-  toTextEdit
+  setupMode
 };

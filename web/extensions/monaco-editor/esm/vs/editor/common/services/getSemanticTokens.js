@@ -14,8 +14,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { onUnexpectedExternalError } from '../../../base/common/errors.js';
 import { URI } from '../../../base/common/uri.js';
-import { DocumentSemanticTokensProviderRegistry, DocumentRangeSemanticTokensProviderRegistry } from '../languages.js';
-import { IModelService } from './model.js';
+import { DocumentSemanticTokensProviderRegistry, DocumentRangeSemanticTokensProviderRegistry } from '../modes.js';
+import { IModelService } from './modelService.js';
 import { CommandsRegistry, ICommandService } from '../../../platform/commands/common/commands.js';
 import { assertType } from '../../../base/common/types.js';
 import { encodeSemanticTokensDto } from './semanticTokensDto.js';

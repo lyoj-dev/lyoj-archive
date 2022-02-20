@@ -31,19 +31,19 @@ const GUTTER_DECORATION_WIDTH = 2;
 class MinimapOptions {
     constructor(configuration, theme, tokensColorTracker) {
         const options = configuration.options;
-        const pixelRatio = options.get(129 /* pixelRatio */);
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const pixelRatio = options.get(128 /* pixelRatio */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
         const minimapLayout = layoutInfo.minimap;
-        const fontInfo = options.get(44 /* fontInfo */);
-        const minimapOpts = options.get(65 /* minimap */);
+        const fontInfo = options.get(43 /* fontInfo */);
+        const minimapOpts = options.get(64 /* minimap */);
         this.renderMinimap = minimapLayout.renderMinimap;
         this.size = minimapOpts.size;
         this.minimapHeightIsEditorHeight = minimapLayout.minimapHeightIsEditorHeight;
-        this.scrollBeyondLastLine = options.get(94 /* scrollBeyondLastLine */);
+        this.scrollBeyondLastLine = options.get(93 /* scrollBeyondLastLine */);
         this.showSlider = minimapOpts.showSlider;
         this.pixelRatio = pixelRatio;
         this.typicalHalfwidthCharacterWidth = fontInfo.typicalHalfwidthCharacterWidth;
-        this.lineHeight = options.get(59 /* lineHeight */);
+        this.lineHeight = options.get(58 /* lineHeight */);
         this.minimapLeft = minimapLayout.minimapLeft;
         this.minimapWidth = minimapLayout.minimapWidth;
         this.minimapHeight = layoutInfo.height;
@@ -337,7 +337,7 @@ class MinimapSamplingState {
         const ratio = viewLineCount / minimapLineCount;
         const halfRatio = ratio / 2;
         if (!oldSamplingState || oldSamplingState.minimapLines.length === 0) {
-            const result = [];
+            let result = [];
             result[0] = 1;
             if (minimapLineCount > 1) {
                 for (let i = 0, lastIndex = minimapLineCount - 1; i < lastIndex; i++) {
@@ -349,7 +349,7 @@ class MinimapSamplingState {
         }
         const oldMinimapLines = oldSamplingState.minimapLines;
         const oldLength = oldMinimapLines.length;
-        const result = [];
+        let result = [];
         let oldIndex = 0;
         let oldDeltaLineCount = 0;
         let minViewLineNumber = 1;
@@ -596,7 +596,7 @@ export class Minimap extends ViewPart {
     }
     onTokensChanged(e) {
         if (this._samplingState) {
-            const ranges = [];
+            let ranges = [];
             for (const range of e.ranges) {
                 const minimapLineRange = this._samplingState.modelLineRangeToMinimapLineRange(range.fromLineNumber, range.toLineNumber);
                 if (minimapLineRange) {
@@ -695,7 +695,7 @@ export class Minimap extends ViewPart {
     }
     getMinimapLinesRenderingData(startLineNumber, endLineNumber, needed) {
         if (this._samplingState) {
-            const result = [];
+            let result = [];
             for (let lineIndex = 0, lineCount = endLineNumber - startLineNumber + 1; lineIndex < lineCount; lineIndex++) {
                 if (needed[lineIndex]) {
                     result[lineIndex] = this._context.model.getViewLineData(this._samplingState.minimapLines[startLineNumber + lineIndex - 1]);
@@ -735,7 +735,7 @@ export class Minimap extends ViewPart {
         }
         const decorations = this._context.model.getDecorationsInViewport(visibleRange);
         if (this._samplingState) {
-            const result = [];
+            let result = [];
             for (const decoration of decorations) {
                 if (!decoration.options.minimap) {
                     continue;
@@ -1091,7 +1091,7 @@ class InnerMinimap extends Disposable {
                 // entirely outside minimap's viewport
                 continue;
             }
-            const decorationColor = minimapOptions.getColor(this._theme.value);
+            const decorationColor = minimapOptions.getColor(this._theme);
             if (!decorationColor || decorationColor.isTransparent()) {
                 continue;
             }
@@ -1140,7 +1140,7 @@ class InnerMinimap extends Disposable {
                 // entirely outside minimap's viewport
                 continue;
             }
-            const decorationColor = minimapOptions.getColor(this._theme.value);
+            const decorationColor = minimapOptions.getColor(this._theme);
             if (!decorationColor || decorationColor.isTransparent()) {
                 continue;
             }
@@ -1149,12 +1149,11 @@ class InnerMinimap extends Disposable {
                     case MinimapPosition.Inline:
                         this.renderDecorationOnLine(canvasContext, lineOffsetMap, decoration.range, decorationColor, layout, line, lineHeight, lineHeight, tabSize, characterWidth, canvasInnerWidth);
                         continue;
-                    case MinimapPosition.Gutter: {
+                    case MinimapPosition.Gutter:
                         const y = (line - layout.startLineNumber) * lineHeight;
                         const x = 2;
                         this.renderDecoration(canvasContext, decorationColor, x, y, GUTTER_DECORATION_WIDTH, lineHeight);
                         continue;
-                    }
                 }
             }
         }
@@ -1233,7 +1232,7 @@ class InnerMinimap extends Disposable {
             return null;
         }
         // Render untouched lines by using last rendered data.
-        const [_dirtyY1, _dirtyY2, needed] = InnerMinimap._renderUntouchedLines(imageData, startLineNumber, endLineNumber, minimapLineHeight, this._lastRenderData);
+        let [_dirtyY1, _dirtyY2, needed] = InnerMinimap._renderUntouchedLines(imageData, startLineNumber, endLineNumber, minimapLineHeight, this._lastRenderData);
         // Fetch rendering info from view model for rest of lines that need rendering.
         const lineInfo = this._model.getMinimapLinesRenderingData(startLineNumber, endLineNumber, needed);
         const tabSize = this._model.getOptions().tabSize;

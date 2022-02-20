@@ -4,22 +4,22 @@
  *--------------------------------------------------------------------------------------------*/
 import './indentGuides.css';
 import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
-import { editorActiveIndentGuides, editorBracketHighlightingForeground1, editorBracketHighlightingForeground2, editorBracketHighlightingForeground3, editorBracketHighlightingForeground4, editorBracketHighlightingForeground5, editorBracketHighlightingForeground6, editorBracketPairGuideActiveBackground1, editorBracketPairGuideActiveBackground2, editorBracketPairGuideActiveBackground3, editorBracketPairGuideActiveBackground4, editorBracketPairGuideActiveBackground5, editorBracketPairGuideActiveBackground6, editorBracketPairGuideBackground1, editorBracketPairGuideBackground2, editorBracketPairGuideBackground3, editorBracketPairGuideBackground4, editorBracketPairGuideBackground5, editorBracketPairGuideBackground6, editorIndentGuides } from '../../../common/core/editorColorRegistry.js';
+import { editorActiveIndentGuides, editorBracketHighlightingForeground1, editorBracketHighlightingForeground2, editorBracketHighlightingForeground3, editorBracketHighlightingForeground4, editorBracketHighlightingForeground5, editorBracketHighlightingForeground6, editorBracketPairGuideActiveBackground1, editorBracketPairGuideActiveBackground2, editorBracketPairGuideActiveBackground3, editorBracketPairGuideActiveBackground4, editorBracketPairGuideActiveBackground5, editorBracketPairGuideActiveBackground6, editorBracketPairGuideBackground1, editorBracketPairGuideBackground2, editorBracketPairGuideBackground3, editorBracketPairGuideBackground4, editorBracketPairGuideBackground5, editorBracketPairGuideBackground6, editorIndentGuides } from '../../../common/view/editorColorRegistry.js';
 import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 import { Position } from '../../../common/core/position.js';
+import { HorizontalGuidesState, IndentGuide } from '../../../common/model.js';
 import { ArrayQueue } from '../../../../base/common/arrays.js';
+import { BracketPairGuidesClassNames } from '../../../common/model/textModel.js';
 import { isDefined } from '../../../../base/common/types.js';
-import { BracketPairGuidesClassNames } from '../../../common/model/guidesTextModelPart.js';
-import { IndentGuide, HorizontalGuidesState } from '../../../common/textModelGuides.js';
 export class IndentGuidesOverlay extends DynamicViewOverlay {
     constructor(context) {
         super();
         this._context = context;
         this._primaryPosition = null;
         const options = this._context.configuration.options;
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const fontInfo = options.get(44 /* fontInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const wrappingInfo = options.get(131 /* wrappingInfo */);
+        const fontInfo = options.get(43 /* fontInfo */);
+        this._lineHeight = options.get(58 /* lineHeight */);
         this._spaceWidth = fontInfo.spaceWidth;
         this._maxIndentLeft = wrappingInfo.wrappingColumn === -1 ? -1 : (wrappingInfo.wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth);
         this._bracketPairGuideOptions = options.get(13 /* guides */);
@@ -34,9 +34,9 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const fontInfo = options.get(44 /* fontInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const wrappingInfo = options.get(131 /* wrappingInfo */);
+        const fontInfo = options.get(43 /* fontInfo */);
+        this._lineHeight = options.get(58 /* lineHeight */);
         this._spaceWidth = fontInfo.spaceWidth;
         this._maxIndentLeft = wrappingInfo.wrappingColumn === -1 ? -1 : (wrappingInfo.wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth);
         this._bracketPairGuideOptions = options.get(13 /* guides */);
@@ -196,7 +196,7 @@ registerThemingParticipant((theme, collector) => {
         { bracketColor: editorBracketHighlightingForeground6, guideColor: editorBracketPairGuideBackground6, guideColorActive: editorBracketPairGuideActiveBackground6 }
     ];
     const colorProvider = new BracketPairGuidesClassNames();
-    const colorValues = colors
+    let colorValues = colors
         .map(c => {
         var _a, _b;
         const bracketColor = theme.getColor(c.bracketColor);

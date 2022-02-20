@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.31.1(5a1b4999493d49c857497ad481d73a737439f305)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
@@ -32,6 +32,9 @@ define("vs/editor/editor.main.nls.de", {
 	],
 	"vs/base/browser/ui/keybindingLabel/keybindingLabel": [
 		"Ungebunden",
+	],
+	"vs/base/browser/ui/menu/menu": [
+		"{0} ({1})",
 	],
 	"vs/base/browser/ui/tree/abstractTree": [
 		"Löschen",
@@ -97,6 +100,9 @@ define("vs/editor/editor.main.nls.de", {
 		"Editor",
 		"Auf den Editor kann derzeit nicht zugegriffen werden. Drücken Sie {0}, um die Optionen anzuzeigen.",
 	],
+	"vs/editor/browser/core/keybindingCancellation": [
+		"Gibt an, ob der Editor einen abbrechbaren Vorgang ausführt, z. B. \"Verweisvorschau\".",
+	],
 	"vs/editor/browser/editorExtensions": [
 		"&&Rückgängig",
 		"Rückgängig",
@@ -141,7 +147,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Gelöschte Zeile kopieren ({0})",
 		"Geänderte Zeile ({0}) kopieren",
 	],
-	"vs/editor/common/config/editorConfigurationSchema": [
+	"vs/editor/common/config/commonEditorConfig": [
 		"Editor",
 		"Die Anzahl der Leerzeichen, denen ein Tabstopp entspricht. Diese Einstellung wird basierend auf dem Inhalt der Datei überschrieben, wenn \"#editor.detectIndentation#\" aktiviert ist.",
 		"Fügt beim Drücken der TAB-Taste Leerzeichen ein. Diese Einstellung wird basierend auf dem Inhalt der Datei überschrieben, wenn \"#editor.detectIndentation#\" aktiviert ist.",
@@ -265,9 +271,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Legt fest, ob Zeichen, die nur als Platzhalter dienen oder überhaupt keine Breite haben, hervorgehoben werden.",
 		"Legt fest, ob Zeichen hervorgehoben werden, die mit einfachen ASCII-Zeichen verwechselt werden können, mit Ausnahme derjenigen, die im aktuellen Gebietsschema des Benutzers üblich sind.",
 		"Legt fest, ob Zeichen in Kommentaren auch mit Unicode-Hervorhebung versehen werden sollen.",
-		"Legt fest, ob Zeichen in Zeichenfolgen auch mit Unicode-Hervorhebung versehen werden sollen.",
 		"Definiert zulässige Zeichen, die nicht hervorgehoben werden.",
-		"Unicodezeichen, die in zulässigen Gebietsschemas üblich sind, werden nicht hervorgehoben.",
 		"Steuert, ob Inline-Vorschläge automatisch im Editor angezeigt werden.",
 		"Steuert, ob die Farbgebung für das Klammerpaar aktiviert ist. Verwenden Sie „workbench.colorCustomizations“, um die Hervorhebungsfarben der Klammer außer Kraft zu setzen.",
 		"Aktiviert Klammernpaarführungslinien.",
@@ -287,7 +291,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Steuert, ob Filter- und Suchvorschläge geringfügige Tippfehler berücksichtigen.",
 		"Steuert, ob bei der Sortierung Wörter priorisiert werden, die in der Nähe des Cursors stehen.",
 		"Steuert, ob gespeicherte Vorschlagauswahlen in verschiedenen Arbeitsbereichen und Fenstern gemeinsam verwendet werden (dafür ist \"#editor.suggestSelection#\" erforderlich).",
-		"Steuert, ob ein aktiver Schnipsel verhindert, dass der Bereich \"Schnelle Vorschläge\" angezeigt wird.",
+		"Steuert, ob ein aktiver Ausschnitt verhindert, dass der Bereich \"Schnelle Vorschläge\" angezeigt wird.",
 		"Steuert, ob Symbole in Vorschlägen ein- oder ausgeblendet werden.",
 		"Steuert die Sichtbarkeit der Statusleiste unten im Vorschlagswidget.",
 		"Steuert, ob das Ergebnis des Vorschlags im Editor in der Vorschau angezeigt werden soll.",
@@ -372,7 +376,6 @@ define("vs/editor/editor.main.nls.de", {
 		"Steuert die Strategie für die Berechnung von Faltbereichen.",
 		"Steuert, ob der Editor eingefaltete Bereiche hervorheben soll.",
 		"Steuert, ob der Editor Importbereiche automatisch reduziert.",
-		"Die maximale Anzahl von faltbaren Regionen. Eine Erhöhung dieses Werts kann dazu führen, dass der Editor weniger reaktionsfähig wird, wenn die aktuelle Quelle eine große Anzahl von faltbaren Regionen aufweist.",
 		"Steuert, ob eine Zeile aufgefaltet wird, wenn nach einer gefalteten Zeile auf den leeren Inhalt geklickt wird.",
 		"Steuert die Schriftfamilie.",
 		"Steuert, ob der Editor den eingefügten Inhalt automatisch formatieren soll. Es muss ein Formatierer vorhanden sein, der in der Lage ist, auch Dokumentbereiche zu formatieren.",
@@ -421,11 +424,11 @@ define("vs/editor/editor.main.nls.de", {
 		"Steuert, wann die Steuerungselemente für die Codefaltung am Bundsteg angezeigt werden.",
 		"Steuert das Ausblenden von nicht verwendetem Code.",
 		"Steuert durchgestrichene veraltete Variablen.",
-		"Zeige Schnipselvorschläge über den anderen Vorschlägen.",
-		"Schnipselvorschläge unter anderen Vorschlägen anzeigen.",
-		"Zeige Schnipselvorschläge mit anderen Vorschlägen.",
-		"Keine Schnipselvorschläge anzeigen.",
-		"Steuert, ob Codeschnipsel mit anderen Vorschlägen angezeigt und wie diese sortiert werden.",
+		"Zeige Snippet Vorschläge über den anderen Vorschlägen.",
+		"Snippet Vorschläge unter anderen Vorschlägen anzeigen.",
+		"Zeige Snippet Vorschläge mit anderen Vorschlägen.",
+		"Keine Ausschnittvorschläge anzeigen.",
+		"Steuert, ob Codeausschnitte mit anderen Vorschlägen angezeigt und wie diese sortiert werden.",
 		"Legt fest, ob der Editor Bildläufe animiert ausführt.",
 		"Schriftgröße für das vorgeschlagene Widget. Bei Festlegung auf 0 wird der Wert von \"#editor.fontSize#\" verwendet.",
 		"Zeilenhöhe für das vorgeschlagene Widget. Bei Festlegung auf 0 wird der Wert von \"#editor.lineHeight#\" verwendet. Der Mindestwert ist 8.",
@@ -436,7 +439,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Steuert, wie Vorschläge bei Anzeige der Vorschlagsliste vorab ausgewählt werden.",
 		"Die Tab-Vervollständigung fügt den passendsten Vorschlag ein, wenn auf Tab gedrückt wird.",
 		"Tab-Vervollständigungen deaktivieren.",
-		"Codeschnipsel per Tab vervollständigen, wenn die Präfixe übereinstimmen. Funktioniert am besten, wenn \"quickSuggestions\" deaktiviert sind.",
+		"Codeausschnitte per Tab vervollständigen, wenn die Präfixe übereinstimmen. Funktioniert am besten, wenn \"quickSuggestions\" deaktiviert sind.",
 		"Tab-Vervollständigungen aktivieren.",
 		"Ungewöhnliche Zeilenabschlusszeichen werden automatisch entfernt.",
 		"Ungewöhnliche Zeilenabschlusszeichen werden ignoriert.",
@@ -459,7 +462,81 @@ define("vs/editor/editor.main.nls.de", {
 		"Delegiert die Berechnung von Umbruchpunkten an den Browser. Dies ist ein langsamer Algorithmus, der bei großen Dateien Code Freezes verursachen kann, aber in allen Fällen korrekt funktioniert.",
 		"Steuert den Algorithmus, der Umbruchpunkte berechnet.",
 	],
-	"vs/editor/common/core/editorColorRegistry": [
+	"vs/editor/common/editorContextKeys": [
+		"Gibt an, ob der Editor-Text den Fokus besitzt (Cursor blinkt).",
+		"Gibt an, ob der Editor oder ein Editor-Widget den Fokus besitzt (z. B. ob der Fokus sich im Suchwidget befindet).",
+		"Gibt an, ob ein Editor oder eine Rich-Text-Eingabe den Fokus besitzt (Cursor blinkt).",
+		"Gibt an, ob der Editor schreibgeschützt ist.",
+		"Gibt an, ob der Kontext ein Diff-Editor ist.",
+		"Gibt an, ob \"editor.columnSelection\" aktiviert ist.",
+		"Gibt an, ob im Editor Text ausgewählt ist.",
+		"Gibt an, ob der Editor über Mehrfachauswahl verfügt.",
+		"Gibt an, ob die TAB-TASTE den Fokus aus dem Editor verschiebt.",
+		"Gibt an, ob Hover im Editor sichtbar ist.",
+		"Gibt an, ob der Editor Bestandteil eines größeren Editors ist (z. B. Notebooks).",
+		"Der Sprachbezeichner des Editors.",
+		"Gibt an, ob der Editor über einen Vervollständigungselementanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Codeaktionsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen CodeLens-Anbieter verfügt.",
+		"Gibt an, ob der Editor über einen Definitionsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Deklarationsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Implementierungsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Typdefinitionsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Hoveranbieter verfügt.",
+		"Gibt an, ob der Editor über einen Dokumenthervorhebungsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Dokumentsymbolanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Verweisanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Umbenennungsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Signaturhilfeanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Inlinehinweisanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Dokumentformatierungsanbieter verfügt.",
+		"Gibt an, ob der Editor über einen Anbieter für Dokumentauswahlformatierung verfügt.",
+		"Gibt an, ob der Editor über mehrere Dokumentformatierungsanbieter verfügt.",
+		"Gibt an, ob der Editor über mehrere Anbieter für Dokumentauswahlformatierung verfügt.",
+	],
+	"vs/editor/common/model/editStack": [
+		"Eingabe",
+	],
+	"vs/editor/common/modes/modesRegistry": [
+		"Nur-Text",
+	],
+	"vs/editor/common/standaloneStrings": [
+		"Keine Auswahl",
+		"Zeile {0}, Spalte {1} ({2} ausgewählt)",
+		"Zeile {0}, Spalte {1}",
+		"{0} Auswahlen ({1} Zeichen ausgewählt)",
+		"{0} Auswahlen",
+		"Die Einstellung \"accessibilitySupport\" wird jetzt in \"on\" geändert.",
+		"Die Dokumentationsseite zur Barrierefreiheit des Editors wird geöffnet.",
+		" in einem schreibgeschützten Bereich eines Diff-Editors.",
+		" in einem Bereich eines Diff-Editors.",
+		" in einem schreibgeschützten Code-Editor",
+		" in einem Code-Editor",
+		"Drücken Sie BEFEHLSTASTE + E, um den Editor für eine optimierte Verwendung mit Sprachausgabe zu konfigurieren.",
+		"Drücken Sie STRG + E, um den Editor für eine optimierte Verwendung mit Sprachausgabe zu konfigurieren.",
+		"Der Editor ist auf eine optimale Verwendung mit Sprachausgabe konfiguriert.",
+		"Der Editor ist so konfiguriert, dass er nie auf die Verwendung mit Sprachausgabe hin optimiert wird. Dies ist zu diesem Zeitpunkt nicht der Fall.",
+		"Durch Drücken der TAB-TASTE im aktuellen Editor wird der Fokus in das nächste Element verschoben, das den Fokus erhalten kann. Schalten Sie dieses Verhalten um, indem Sie {0} drücken.",
+		"Durch Drücken der TAB-TASTE im aktuellen Editor wird der Fokus in das nächste Element verschoben, das den Fokus erhalten kann. Der {0}-Befehl kann zurzeit nicht durch eine Tastenzuordnung ausgelöst werden.",
+		"Durch Drücken der TAB-TASTE im aktuellen Editor wird das Tabstoppzeichen eingefügt. Schalten Sie dieses Verhalten um, indem Sie {0} drücken.",
+		"Durch Drücken der TAB-TASTE im aktuellen Editor wird das Tabstoppzeichen eingefügt. Der {0}-Befehl kann zurzeit nicht durch eine Tastenzuordnung ausgelöst werden.",
+		"Drücken Sie BEFEHLSTASTE + H, um ein Browserfenster mit weiteren Informationen zur Barrierefreiheit des Editors zu öffnen.",
+		"Drücken Sie STRG + H, um ein Browserfenster mit weiteren Informationen zur Barrierefreiheit des Editors zu öffnen.",
+		"Sie können diese QuickInfo schließen und durch Drücken von ESC oder UMSCHALT+ESC zum Editor zurückkehren.",
+		"Hilfe zur Barrierefreiheit anzeigen",
+		"Entwickler: Token überprüfen",
+		"Gehe zu Zeile/Spalte...",
+		"Alle Anbieter für den Schnellzugriff anzeigen",
+		"Befehlspalette",
+		"Befehle anzeigen und ausführen",
+		"Gehe zu Symbol...",
+		"Gehe zu Symbol nach Kategorie...",
+		"Editor-Inhalt",
+		"Drücken Sie ALT + F1, um die Barrierefreiheitsoptionen aufzurufen.",
+		"Zu Design mit hohem Kontrast umschalten",
+		"{0} Bearbeitungen in {1} Dateien durchgeführt",
+	],
+	"vs/editor/common/view/editorColorRegistry": [
 		"Hintergrundfarbe zur Hervorhebung der Zeile an der Cursorposition.",
 		"Hintergrundfarbe für den Rahmen um die Zeile an der Cursorposition.",
 		"Hintergrundfarbe der markierten Bereiche, wie z.B. Quick Open oder die Suche. Die Farbe darf nicht deckend sein, weil sie sonst die zugrunde liegenden Dekorationen verdeckt.",
@@ -512,81 +589,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Hintergrundfarbe der aktiven Klammerpaar-Hilfslinien (6). Erfordert das Aktivieren von Klammerpaar-Hilfslinien.",
 		"Rahmenfarbe, die zum Hervorheben von Unicode-Zeichen verwendet wird.",
 	],
-	"vs/editor/common/editorContextKeys": [
-		"Gibt an, ob der Editor-Text den Fokus besitzt (Cursor blinkt).",
-		"Gibt an, ob der Editor oder ein Editor-Widget den Fokus besitzt (z. B. ob der Fokus sich im Suchwidget befindet).",
-		"Gibt an, ob ein Editor oder eine Rich-Text-Eingabe den Fokus besitzt (Cursor blinkt).",
-		"Gibt an, ob der Editor schreibgeschützt ist.",
-		"Gibt an, ob der Kontext ein Diff-Editor ist.",
-		"Gibt an, ob \"editor.columnSelection\" aktiviert ist.",
-		"Gibt an, ob im Editor Text ausgewählt ist.",
-		"Gibt an, ob der Editor über Mehrfachauswahl verfügt.",
-		"Gibt an, ob die TAB-TASTE den Fokus aus dem Editor verschiebt.",
-		"Gibt an, ob Hover im Editor sichtbar ist.",
-		"Gibt an, ob der Editor Bestandteil eines größeren Editors ist (z. B. Notebooks).",
-		"Der Sprachbezeichner des Editors.",
-		"Gibt an, ob der Editor über einen Vervollständigungselementanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Codeaktionsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen CodeLens-Anbieter verfügt.",
-		"Gibt an, ob der Editor über einen Definitionsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Deklarationsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Implementierungsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Typdefinitionsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Hoveranbieter verfügt.",
-		"Gibt an, ob der Editor über einen Dokumenthervorhebungsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Dokumentsymbolanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Verweisanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Umbenennungsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Signaturhilfeanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Inlinehinweisanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Dokumentformatierungsanbieter verfügt.",
-		"Gibt an, ob der Editor über einen Anbieter für Dokumentauswahlformatierung verfügt.",
-		"Gibt an, ob der Editor über mehrere Dokumentformatierungsanbieter verfügt.",
-		"Gibt an, ob der Editor über mehrere Anbieter für Dokumentauswahlformatierung verfügt.",
-	],
-	"vs/editor/common/languages/modesRegistry": [
-		"Nur-Text",
-	],
-	"vs/editor/common/model/editStack": [
-		"Eingabe",
-	],
-	"vs/editor/common/standaloneStrings": [
-		"Keine Auswahl",
-		"Zeile {0}, Spalte {1} ({2} ausgewählt)",
-		"Zeile {0}, Spalte {1}",
-		"{0} Auswahlen ({1} Zeichen ausgewählt)",
-		"{0} Auswahlen",
-		"Die Einstellung \"accessibilitySupport\" wird jetzt in \"on\" geändert.",
-		"Die Dokumentationsseite zur Barrierefreiheit des Editors wird geöffnet.",
-		" in einem schreibgeschützten Bereich eines Diff-Editors.",
-		" in einem Bereich eines Diff-Editors.",
-		" in einem schreibgeschützten Code-Editor",
-		" in einem Code-Editor",
-		"Drücken Sie BEFEHLSTASTE + E, um den Editor für eine optimierte Verwendung mit Sprachausgabe zu konfigurieren.",
-		"Drücken Sie STRG + E, um den Editor für eine optimierte Verwendung mit Sprachausgabe zu konfigurieren.",
-		"Der Editor ist auf eine optimale Verwendung mit Sprachausgabe konfiguriert.",
-		"Der Editor ist so konfiguriert, dass er nie auf die Verwendung mit Sprachausgabe hin optimiert wird. Dies ist zu diesem Zeitpunkt nicht der Fall.",
-		"Durch Drücken der TAB-TASTE im aktuellen Editor wird der Fokus in das nächste Element verschoben, das den Fokus erhalten kann. Schalten Sie dieses Verhalten um, indem Sie {0} drücken.",
-		"Durch Drücken der TAB-TASTE im aktuellen Editor wird der Fokus in das nächste Element verschoben, das den Fokus erhalten kann. Der {0}-Befehl kann zurzeit nicht durch eine Tastenzuordnung ausgelöst werden.",
-		"Durch Drücken der TAB-TASTE im aktuellen Editor wird das Tabstoppzeichen eingefügt. Schalten Sie dieses Verhalten um, indem Sie {0} drücken.",
-		"Durch Drücken der TAB-TASTE im aktuellen Editor wird das Tabstoppzeichen eingefügt. Der {0}-Befehl kann zurzeit nicht durch eine Tastenzuordnung ausgelöst werden.",
-		"Drücken Sie BEFEHLSTASTE + H, um ein Browserfenster mit weiteren Informationen zur Barrierefreiheit des Editors zu öffnen.",
-		"Drücken Sie STRG + H, um ein Browserfenster mit weiteren Informationen zur Barrierefreiheit des Editors zu öffnen.",
-		"Sie können diese QuickInfo schließen und durch Drücken von ESC oder UMSCHALT+ESC zum Editor zurückkehren.",
-		"Hilfe zur Barrierefreiheit anzeigen",
-		"Entwickler: Token überprüfen",
-		"Gehe zu Zeile/Spalte...",
-		"Alle Anbieter für den Schnellzugriff anzeigen",
-		"Befehlspalette",
-		"Befehle anzeigen und ausführen",
-		"Gehe zu Symbol...",
-		"Gehe zu Symbol nach Kategorie...",
-		"Editor-Inhalt",
-		"Drücken Sie ALT + F1, um die Barrierefreiheitsoptionen aufzurufen.",
-		"Zu Design mit hohem Kontrast umschalten",
-		"{0} Bearbeitungen in {1} Dateien durchgeführt",
-	],
-	"vs/editor/contrib/anchorSelect/browser/anchorSelect": [
+	"vs/editor/contrib/anchorSelect/anchorSelect": [
 		"Auswahlanker",
 		"Anker festgelegt bei \"{0}:{1}\"",
 		"Auswahlanker festlegen",
@@ -594,20 +597,20 @@ define("vs/editor/editor.main.nls.de", {
 		"Auswahl von Anker zu Cursor",
 		"Auswahlanker abbrechen",
 	],
-	"vs/editor/contrib/bracketMatching/browser/bracketMatching": [
+	"vs/editor/contrib/bracketMatching/bracketMatching": [
 		"Übersichtslineal-Markierungsfarbe für zusammengehörige Klammern.",
 		"Gehe zu Klammer",
 		"Auswählen bis Klammer",
 		"Gehe zu &&Klammer",
 	],
-	"vs/editor/contrib/caretOperations/browser/caretOperations": [
+	"vs/editor/contrib/caretOperations/caretOperations": [
 		"Ausgewählten Text nach links verschieben",
 		"Ausgewählten Text nach rechts verschieben",
 	],
-	"vs/editor/contrib/caretOperations/browser/transpose": [
+	"vs/editor/contrib/caretOperations/transpose": [
 		"Buchstaben austauschen",
 	],
-	"vs/editor/contrib/clipboard/browser/clipboard": [
+	"vs/editor/contrib/clipboard/clipboard": [
 		"&&Ausschneiden",
 		"Ausschneiden",
 		"Ausschneiden",
@@ -624,7 +627,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Einfügen",
 		"Mit Syntaxhervorhebung kopieren",
 	],
-	"vs/editor/contrib/codeAction/browser/codeActionCommands": [
+	"vs/editor/contrib/codeAction/codeActionCommands": [
 		"Art der auszuführenden Codeaktion",
 		"Legt fest, wann die zurückgegebenen Aktionen angewendet werden",
 		"Die erste zurückgegebene Codeaktion immer anwenden",
@@ -655,18 +658,18 @@ define("vs/editor/editor.main.nls.de", {
 		"Automatisch korrigieren...",
 		"Keine automatischen Korrekturen verfügbar",
 	],
-	"vs/editor/contrib/codeAction/browser/lightBulbWidget": [
+	"vs/editor/contrib/codeAction/lightBulbWidget": [
 		"Zeigt Codeaktionen an. Bevorzugte Schnellkorrektur verfügbar ({0})",
 		"Codeaktionen anzeigen ({0})",
 		"Codeaktionen anzeigen",
 	],
-	"vs/editor/contrib/codelens/browser/codelensController": [
+	"vs/editor/contrib/codelens/codelensController": [
 		"CodeLens-Befehle für aktuelle Zeile anzeigen",
 	],
-	"vs/editor/contrib/colorPicker/browser/colorPickerWidget": [
+	"vs/editor/contrib/colorPicker/colorPickerWidget": [
 		"Zum Umschalten zwischen Farboptionen (rgb/hsl/hex) klicken",
 	],
-	"vs/editor/contrib/comment/browser/comment": [
+	"vs/editor/contrib/comment/comment": [
 		"Zeilenkommentar umschalten",
 		"Zeilenkommen&&tar umschalten",
 		"Zeilenkommentar hinzufügen",
@@ -674,17 +677,14 @@ define("vs/editor/editor.main.nls.de", {
 		"Blockkommentar umschalten",
 		"&&Blockkommentar umschalten",
 	],
-	"vs/editor/contrib/contextmenu/browser/contextmenu": [
+	"vs/editor/contrib/contextmenu/contextmenu": [
 		"Editor-Kontextmenü anzeigen",
 	],
-	"vs/editor/contrib/cursorUndo/browser/cursorUndo": [
+	"vs/editor/contrib/cursorUndo/cursorUndo": [
 		"Mit Cursor rückgängig machen",
 		"Wiederholen mit Cursor",
 	],
-	"vs/editor/contrib/editorState/browser/keybindingCancellation": [
-		"Gibt an, ob der Editor einen abbrechbaren Vorgang ausführt, z. B. \"Verweisvorschau\".",
-	],
-	"vs/editor/contrib/find/browser/findController": [
+	"vs/editor/contrib/find/findController": [
 		"Suchen",
 		"&&Suchen",
 		"Überschreibt das Flag „Use Regular Expression“.\r\nDas Flag wird für die Zukunft nicht gespeichert.\r\n0: Nichts unternehmen\r\n1: TRUE\r\n2: FALSE",
@@ -700,7 +700,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Ersetzen",
 		"&&Ersetzen",
 	],
-	"vs/editor/contrib/find/browser/findWidget": [
+	"vs/editor/contrib/find/findWidget": [
 		"Symbol für \"In Auswahl suchen\" im Editor-Such-Widget.",
 		"Symbol für die Anzeige, dass das Editor-Such-Widget zugeklappt wurde.",
 		"Symbol für die Anzeige, dass das Editor-Such-Widget aufgeklappt wurde.",
@@ -728,8 +728,7 @@ define("vs/editor/editor.main.nls.de", {
 		"{0} für \"{1}\" gefunden",
 		"STRG+EINGABE fügt jetzt einen Zeilenumbruch ein, statt alles zu ersetzen. Sie können die Tastenzuordnung für \"editor.action.replaceAll\" ändern, um dieses Verhalten außer Kraft zu setzen.",
 	],
-	"vs/editor/contrib/folding/browser/folding": [
-		"Die Anzahl der faltbaren Regionen ist auf maximal {0} beschränkt. Erhöhen Sie die Konfigurationsoption [“Maximale faltbare Regionen“](command:workbench.action.openSettings?[“editor.foldingMaximumRegions“]) um weitere zu ermöglichen.",
+	"vs/editor/contrib/folding/folding": [
 		"Auffalten",
 		"Faltung rekursiv aufheben",
 		"Falten",
@@ -749,26 +748,26 @@ define("vs/editor/editor.main.nls.de", {
 		"Hintergrundfarbe hinter gefalteten Bereichen. Die Farbe darf nicht deckend sein, sodass zugrunde liegende Dekorationen nicht ausgeblendet werden.",
 		"Farbe des Faltsteuerelements im Editor-Bundsteg.",
 	],
-	"vs/editor/contrib/folding/browser/foldingDecorations": [
+	"vs/editor/contrib/folding/foldingDecorations": [
 		"Symbol für aufgeklappte Bereiche im Editor-Glyphenrand.",
 		"Symbol für zugeklappte Bereiche im Editor-Glyphenrand.",
 	],
-	"vs/editor/contrib/fontZoom/browser/fontZoom": [
+	"vs/editor/contrib/fontZoom/fontZoom": [
 		"Editorschriftart vergrößern",
 		"Editorschriftart verkleinern",
 		"Editor Schriftart Vergrößerung zurücksetzen",
 	],
-	"vs/editor/contrib/format/browser/format": [
+	"vs/editor/contrib/format/format": [
 		"1 Formatierung in Zeile {0} vorgenommen",
 		"{0} Formatierungen in Zeile {1} vorgenommen",
 		"1 Formatierung zwischen Zeilen {0} und {1} vorgenommen",
 		"{0} Formatierungen zwischen Zeilen {1} und {2} vorgenommen",
 	],
-	"vs/editor/contrib/format/browser/formatActions": [
+	"vs/editor/contrib/format/formatActions": [
 		"Dokument formatieren",
 		"Auswahl formatieren",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoError": [
+	"vs/editor/contrib/gotoError/gotoError": [
 		"Gehe zu nächstem Problem (Fehler, Warnung, Information)",
 		"Symbol für den Marker zum Wechseln zum nächsten Element.",
 		"Gehe zu vorigem Problem (Fehler, Warnung, Information)",
@@ -778,7 +777,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Gehe zu dem vorherigen Problem in den Dateien (Fehler, Warnung, Info)",
 		"Vorheriges &&Problem",
 	],
-	"vs/editor/contrib/gotoError/browser/gotoErrorWidget": [
+	"vs/editor/contrib/gotoError/gotoErrorWidget": [
 		"Fehler",
 		"Warnung",
 		"Info",
@@ -794,7 +793,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Hintergrund der Informationsüberschrift des Markernavigationswidgets im Editor.",
 		"Editormarkierung: Hintergrund des Navigationswidgets.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/goToCommands": [
+	"vs/editor/contrib/gotoSymbol/goToCommands": [
 		"Vorschau",
 		"Definitionen",
 		"Keine Definition gefunden für \"{0}\".",
@@ -835,25 +834,25 @@ define("vs/editor/editor.main.nls.de", {
 		"Gehe zu &&Implementierungen",
 		"Gehe zu &&Verweisen",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/link/goToDefinitionAtPosition": [
+	"vs/editor/contrib/gotoSymbol/link/goToDefinitionAtPosition": [
 		"Klicken Sie, um {0} Definitionen anzuzeigen.",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesController": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesController": [
 		"Gibt an, ob die Verweisvorschau sichtbar ist, z. B. \"Verweisvorschau\" oder \"Definition einsehen\".",
 		"Wird geladen...",
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesTree": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesTree": [
 		"{0} Verweise",
 		"{0} Verweis",
 		"Verweise",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/peek/referencesWidget": [
+	"vs/editor/contrib/gotoSymbol/peek/referencesWidget": [
 		"Keine Vorschau verfügbar.",
 		"Keine Ergebnisse",
 		"Verweise",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/referencesModel": [
+	"vs/editor/contrib/gotoSymbol/referencesModel": [
 		"Symbol in {0} in Zeile {1}, Spalte {2}",
 		"Symbol in \"{0}\" in Zeile {1}, Spalte {2}, {3}",
 		"1 Symbol in {0}, vollständiger Pfad {1}",
@@ -863,31 +862,31 @@ define("vs/editor/editor.main.nls.de", {
 		"{0} Symbole in {1} gefunden",
 		"{0} Symbole in {1} Dateien gefunden",
 	],
-	"vs/editor/contrib/gotoSymbol/browser/symbolNavigation": [
+	"vs/editor/contrib/gotoSymbol/symbolNavigation": [
 		"Gibt an, ob Symbolpositionen vorliegen, bei denen die Navigation nur über die Tastatur möglich ist.",
 		"Symbol {0} von {1}, {2} für nächstes",
 		"Symbol {0} von {1}",
 	],
-	"vs/editor/contrib/hover/browser/hover": [
+	"vs/editor/contrib/hover/hover": [
 		"Hovern anzeigen",
 		"Definitionsvorschauhover anzeigen",
 	],
-	"vs/editor/contrib/hover/browser/markdownHoverParticipant": [
+	"vs/editor/contrib/hover/markdownHoverParticipant": [
 		"Wird geladen...",
 		"Die Tokenisierung wird bei langen Zeilen aus Leistungsgründen übersprungen. Dies kann über „editor.maxTokenizationLineLength“ konfiguriert werden.",
 	],
-	"vs/editor/contrib/hover/browser/markerHoverParticipant": [
+	"vs/editor/contrib/hover/markerHoverParticipant": [
 		"Problem anzeigen",
 		"Keine Schnellkorrekturen verfügbar",
 		"Es wird nach Schnellkorrekturen gesucht...",
 		"Keine Schnellkorrekturen verfügbar",
 		"Schnelle Problembehebung ...",
 	],
-	"vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace": [
+	"vs/editor/contrib/inPlaceReplace/inPlaceReplace": [
 		"Durch vorherigen Wert ersetzen",
 		"Durch nächsten Wert ersetzen",
 	],
-	"vs/editor/contrib/indentation/browser/indentation": [
+	"vs/editor/contrib/indentation/indentation": [
 		"Einzug in Leerzeichen konvertieren",
 		"Einzug in Tabstopps konvertieren",
 		"Konfigurierte Tabulatorgröße",
@@ -898,7 +897,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Neuen Einzug für Zeilen festlegen",
 		"Gewählte Zeilen zurückziehen",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/ghostTextController": [
+	"vs/editor/contrib/inlineCompletions/ghostTextController": [
 		"Gibt an, ob ein Inline-Vorschlag sichtbar ist.",
 		"Gibt an, ob der Inline-Vorschlag mit Leerzeichen beginnt.",
 		"Ob der Inline-Vorschlag mit Leerzeichen beginnt, das kleiner ist als das, was durch die Tabulatortaste eingefügt werden würde",
@@ -906,16 +905,16 @@ define("vs/editor/editor.main.nls.de", {
 		"Vorherigen Inline-Vorschlag anzeigen",
 		"Inline-Vorschlag auslösen",
 	],
-	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionsHoverParticipant": [
+	"vs/editor/contrib/inlineCompletions/inlineCompletionsHoverParticipant": [
 		"Weiter",
 		"Zurück",
 		"Annehmen",
 		"Vorschlag:",
 	],
-	"vs/editor/contrib/lineSelection/browser/lineSelection": [
+	"vs/editor/contrib/lineSelection/lineSelection": [
 		"Zeilenauswahl erweitern",
 	],
-	"vs/editor/contrib/linesOperations/browser/linesOperations": [
+	"vs/editor/contrib/linesOperations/linesOperations": [
 		"Zeile nach oben kopieren",
 		"Zeile nach oben &&kopieren",
 		"Zeile nach unten kopieren",
@@ -944,11 +943,11 @@ define("vs/editor/editor.main.nls.de", {
 		"In große Anfangsbuchstaben umwandeln",
 		"In Snake Case umwandeln",
 	],
-	"vs/editor/contrib/linkedEditing/browser/linkedEditing": [
+	"vs/editor/contrib/linkedEditing/linkedEditing": [
 		"Verknüpfte Bearbeitung starten",
 		"Hintergrundfarbe, wenn der Editor automatisch nach Typ umbenennt.",
 	],
-	"vs/editor/contrib/links/browser/links": [
+	"vs/editor/contrib/links/links": [
 		"Befehl ausführen",
 		"Link folgen",
 		"BEFEHL + Klicken",
@@ -960,11 +959,11 @@ define("vs/editor/editor.main.nls.de", {
 		"Fehler beim Öffnen dieses Links, weil das Ziel fehlt.",
 		"Link öffnen",
 	],
-	"vs/editor/contrib/message/browser/messageController": [
+	"vs/editor/contrib/message/messageController": [
 		"Gibt an, ob der Editor zurzeit eine Inlinenachricht anzeigt.",
 		"Ein Bearbeiten ist im schreibgeschützten Editor nicht möglich",
 	],
-	"vs/editor/contrib/multicursor/browser/multicursor": [
+	"vs/editor/contrib/multicursor/multicursor": [
 		"Hinzugefügter Cursor: {0}",
 		"Hinzugefügte Cursor: {0}",
 		"Cursor oberhalb hinzufügen",
@@ -985,16 +984,16 @@ define("vs/editor/editor.main.nls.de", {
 		"Alle V&&orkommen auswählen",
 		"Alle Vorkommen ändern",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHints": [
+	"vs/editor/contrib/parameterHints/parameterHints": [
 		"Parameterhinweise auslösen",
 	],
-	"vs/editor/contrib/parameterHints/browser/parameterHintsWidget": [
+	"vs/editor/contrib/parameterHints/parameterHintsWidget": [
 		"Symbol für die Anzeige des nächsten Parameterhinweises.",
 		"Symbol für die Anzeige des vorherigen Parameterhinweises.",
 		"{0}, Hinweis",
 		"Vordergrundfarbe des aktiven Elements im Parameterhinweis.",
 	],
-	"vs/editor/contrib/peekView/browser/peekView": [
+	"vs/editor/contrib/peekView/peekView": [
 		"Gibt an, ob der aktuelle Code-Editor in der Vorschau eingebettet ist.",
 		"Schließen",
 		"Hintergrundfarbe des Titelbereichs der Peek-Ansicht.",
@@ -1012,14 +1011,14 @@ define("vs/editor/editor.main.nls.de", {
 		"Farbe für Übereinstimmungsmarkierungen im Peek-Editor.",
 		"Rahmen für Übereinstimmungsmarkierungen im Peek-Editor.",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoLineQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoLineQuickAccess": [
 		"Öffnen Sie zuerst einen Text-Editor, um zu einer Zeile zu wechseln.",
 		"Wechseln Sie zu Zeile {0} und Zeichen {1}.",
 		"Zu Zeile {0} wechseln.",
 		"Aktuelle Zeile: {0}, Zeichen: {1}. Geben Sie eine Zeilennummer zwischen 1 und {2} ein, zu der Sie navigieren möchten.",
 		"Aktuelle Zeile: {0}, Zeichen: {1}. Geben Sie eine Zeilennummer ein, zu der Sie navigieren möchten.",
 	],
-	"vs/editor/contrib/quickAccess/browser/gotoSymbolQuickAccess": [
+	"vs/editor/contrib/quickAccess/gotoSymbolQuickAccess": [
 		"Öffnen Sie zunächst einen Text-Editor mit Symbolinformationen, um zu einem Symbol zu navigieren.",
 		"Der aktive Text-Editor stellt keine Symbolinformationen bereit.",
 		"Keine übereinstimmenden Editorsymbole.",
@@ -1054,7 +1053,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Felder ({0})",
 		"Konstanten ({0})",
 	],
-	"vs/editor/contrib/rename/browser/rename": [
+	"vs/editor/contrib/rename/rename": [
 		"Kein Ergebnis.",
 		"Ein unbekannter Fehler ist beim Auflösen der Umbenennung eines Ortes aufgetreten.",
 		"\"{0}\" wird umbenannt.",
@@ -1065,23 +1064,23 @@ define("vs/editor/editor.main.nls.de", {
 		"Symbol umbenennen",
 		"Möglichkeit aktivieren/deaktivieren, Änderungen vor dem Umbenennen als Vorschau anzeigen zu lassen",
 	],
-	"vs/editor/contrib/rename/browser/renameInputField": [
+	"vs/editor/contrib/rename/renameInputField": [
 		"Gibt an, ob das Widget zum Umbenennen der Eingabe sichtbar ist.",
 		"Benennen Sie die Eingabe um. Geben Sie einen neuen Namen ein, und drücken Sie die EINGABETASTE, um den Commit auszuführen.",
 		"{0} zur Umbenennung, {1} zur Vorschau",
 	],
-	"vs/editor/contrib/smartSelect/browser/smartSelect": [
+	"vs/editor/contrib/smartSelect/smartSelect": [
 		"Auswahl aufklappen",
 		"Auswahl &&erweitern",
 		"Markierung verkleinern",
 		"Au&&swahl verkleinern",
 	],
-	"vs/editor/contrib/snippet/browser/snippetController2": [
-		"Gibt an, ob der Editor sich zurzeit im Schnipselmodus befindet.",
-		"Gibt an, ob ein nächster Tabstopp im Schnipselmodus vorhanden ist.",
-		"Gibt an, ob ein vorheriger Tabstopp im Schnipselmodus vorhanden ist.",
+	"vs/editor/contrib/snippet/snippetController2": [
+		"Gibt an, ob der Editor sich zurzeit im Ausschnittmodus befindet.",
+		"Gibt an, ob ein nächster Tabstopp im Ausschnittmodus vorhanden ist.",
+		"Gibt an, ob ein vorheriger Tabstopp im Ausschnittmodus vorhanden ist.",
 	],
-	"vs/editor/contrib/snippet/browser/snippetVariables": [
+	"vs/editor/contrib/snippet/snippetVariables": [
 		"Sonntag",
 		"Montag",
 		"Dienstag",
@@ -1121,7 +1120,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Nov",
 		"Dez",
 	],
-	"vs/editor/contrib/suggest/browser/suggest": [
+	"vs/editor/contrib/suggest/suggest": [
 		"Gibt an, ob Vorschläge sichtbar sind.",
 		"Gibt an, ob Vorschlagsdetails sichtbar sind.",
 		"Gibt an, ob mehrere Vorschläge zur Auswahl stehen.",
@@ -1131,7 +1130,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Gibt an, ob Einfügen oder Ersetzen als Standardverhalten verwendet wird.",
 		"Gibt an, ob der aktuelle Vorschlag die Auflösung weiterer Details unterstützt.",
 	],
-	"vs/editor/contrib/suggest/browser/suggestController": [
+	"vs/editor/contrib/suggest/suggestController": [
 		"Das Akzeptieren von \"{0}\" ergab {1} zusätzliche Bearbeitungen.",
 		"Vorschlag auslösen",
 		"Einfügen",
@@ -1143,7 +1142,7 @@ define("vs/editor/editor.main.nls.de", {
 		"mehr anzeigen",
 		"Größe des Vorschlagswidgets zurücksetzen",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidget": [
+	"vs/editor/contrib/suggest/suggestWidget": [
 		"Hintergrundfarbe des Vorschlagswidgets.",
 		"Rahmenfarbe des Vorschlagswidgets.",
 		"Vordergrundfarbe des Vorschlagswidgets.",
@@ -1155,24 +1154,21 @@ define("vs/editor/editor.main.nls.de", {
 		"Vordergrundfarbe des Status des Vorschlagswidgets.",
 		"Wird geladen...",
 		"Keine Vorschläge.",
-		"Vorschlagen",
-		"{0}{1}, {2}",
-		"{0}{1}",
-		"{0}, {1}",
 		"{0}, Dokumente: {1}",
+		"Vorschlagen",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetDetails": [
+	"vs/editor/contrib/suggest/suggestWidgetDetails": [
 		"Schließen",
 		"Wird geladen...",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetRenderer": [
+	"vs/editor/contrib/suggest/suggestWidgetRenderer": [
 		"Symbol für weitere Informationen im Vorschlags-Widget.",
 		"Weitere Informationen",
 	],
-	"vs/editor/contrib/suggest/browser/suggestWidgetStatus": [
+	"vs/editor/contrib/suggest/suggestWidgetStatus": [
 		"{0} ({1})",
 	],
-	"vs/editor/contrib/symbolIcons/browser/symbolIcons": [
+	"vs/editor/contrib/symbolIcons/symbolIcons": [
 		"Die Vordergrundfarbe für Arraysymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für boolesche Symbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für Klassensymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
@@ -1199,7 +1195,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Die Vordergrundfarbe für Paketsymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für Eigenschaftensymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für Referenzsymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
-		"Die Vordergrundfarbe für Codeschnipselsymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
+		"Die Vordergrundfarbe für Codeausschnittsymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für Zeichenfolgensymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für Struktursymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für Textsymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
@@ -1207,15 +1203,15 @@ define("vs/editor/editor.main.nls.de", {
 		"Die Vordergrundfarbe für Einheitensymbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 		"Die Vordergrundfarbe für variable Symbole. Diese Symbole werden in den Widgets für Gliederung, Breadcrumbs und Vorschläge angezeigt.",
 	],
-	"vs/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode": [
+	"vs/editor/contrib/toggleTabFocusMode/toggleTabFocusMode": [
 		"TAB-Umschalttaste verschiebt Fokus",
 		"Beim Drücken auf Tab wird der Fokus jetzt auf das nächste fokussierbare Element verschoben",
 		"Beim Drücken von Tab wird jetzt das Tabulator-Zeichen eingefügt",
 	],
-	"vs/editor/contrib/tokenization/browser/tokenization": [
+	"vs/editor/contrib/tokenization/tokenization": [
 		"Entwickler: Force Retokenize",
 	],
-	"vs/editor/contrib/unicodeHighlighter/browser/unicodeHighlighter": [
+	"vs/editor/contrib/unicodeHighlighter/unicodeHighlighter": [
 		"Symbol, das mit einer Warnmeldung im Erweiterungs-Editor angezeigt wird.",
 		"Dieses Dokument enthält viele nicht einfache ASCII-Unicode-Zeichen.",
 		"Dieses Dokument enthält viele mehrdeutige Unicode-Zeichen.",
@@ -1224,10 +1220,6 @@ define("vs/editor/editor.main.nls.de", {
 		"Das Zeichen {0} ist nicht sichtbar.",
 		"Das Zeichen {0} ist kein einfaches ASCII-Zeichen.",
 		"Einstellungen anpassen",
-		"Hervorhebung in Kommentaren deaktivieren",
-		"Deaktivieren der Hervorhebung von Zeichen in Kommentaren",
-		"Hervorhebung in Zeichenfolgen deaktivieren",
-		"Deaktivieren der Hervorhebung von Zeichen in Zeichenfolgen",
 		"Mehrdeutige Hervorhebung deaktivieren",
 		"Deaktivieren der Hervorhebung von mehrdeutigen Zeichen",
 		"Unsichtbare Hervorhebung deaktivieren",
@@ -1237,17 +1229,16 @@ define("vs/editor/editor.main.nls.de", {
 		"Ausschlussoptionen anzeigen",
 		"{0} (unsichtbares Zeichen) von der Hervorhebung ausschließen",
 		"{0} nicht hervorheben",
-		"Unicodezeichen zulassen, die in der Sprache „{0}“ häufiger vorkommen.",
 		"Konfigurieren der Optionen für die Unicode-Hervorhebung",
 	],
-	"vs/editor/contrib/unusualLineTerminators/browser/unusualLineTerminators": [
+	"vs/editor/contrib/unusualLineTerminators/unusualLineTerminators": [
 		"Ungewöhnliche Zeilentrennzeichen",
 		"Ungewöhnliche Zeilentrennzeichen erkannt",
 		"Die Datei \"{0}\" enthält mindestens ein ungewöhnliches Zeilenabschlusszeichen, z. B. Zeilentrennzeichen (LS) oder Absatztrennzeichen (PS).\r\n\r\nEs wird empfohlen, sie aus der Datei zu entfernen. Dies kann über \"editor.unusualLineTerminators\" konfiguriert werden.",
 		"Entfernen ungewöhnlicher Zeilenabschlusszeichen",
 		"Ignorieren",
 	],
-	"vs/editor/contrib/wordHighlighter/browser/wordHighlighter": [
+	"vs/editor/contrib/wordHighlighter/wordHighlighter": [
 		"Hintergrundfarbe eines Symbols beim Lesezugriff, z.B. beim Lesen einer Variablen. Die Farbe darf nicht deckend sein, damit sie nicht die zugrunde liegenden Dekorationen verdeckt.",
 		"Hintergrundfarbe eines Symbols bei Schreibzugriff, z.B. beim Schreiben in eine Variable. Die Farbe darf nicht deckend sein, weil sie sonst die zugrunde liegenden Dekorationen verdeckt.",
 		"Randfarbe eines Symbols beim Lesezugriff, wie etwa beim Lesen einer Variablen.",
@@ -1258,7 +1249,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Gehe zur vorherigen Symbolhervorhebungen",
 		"Symbol-Hervorhebung ein-/ausschalten",
 	],
-	"vs/editor/contrib/wordOperations/browser/wordOperations": [
+	"vs/editor/contrib/wordOperations/wordOperations": [
 		"Wort löschen",
 	],
 	"vs/platform/actions/browser/menuEntryActionViewItem": [
@@ -1484,10 +1475,10 @@ define("vs/editor/editor.main.nls.de", {
 		"Symbolleistenhintergrund beim Bewegen der Maus über Aktionen",
 		"Symbolleistengliederung beim Bewegen der Maus über Aktionen",
 		"Symbolleistenhintergrund beim Halten der Maus über Aktionen",
-		"Hervorhebungs-Hintergrundfarbe eines Codeschnipsel-Tabstopps.",
-		"Hervorhebungs-Rahmenfarbe eines Codeschnipsel-Tabstopps.",
-		"Hervorhebungs-Hintergrundfarbe des letzten Tabstopps eines Codeschnipsels.",
-		"Rahmenfarbe zur Hervorhebung des letzten Tabstopps eines Codeschnipsels.",
+		"Hervorhebungs-Hintergrundfarbe eines Codeausschnitt-Tabstopps.",
+		"Hervorhebungs-Rahmenfarbe eines Codeausschnitt-Tabstopps.",
+		"Hervorhebungs-Hintergrundfarbe des letzten Tabstopps eines Codeausschnitts.",
+		"Rahmenfarbe zur Hervorhebung des letzten Tabstopps eines Codeausschnitts.",
 		"Farbe der Breadcrumb-Elemente, die den Fokus haben.",
 		"Hintergrundfarbe der Breadcrumb-Elemente.",
 		"Farbe der Breadcrumb-Elemente, die den Fokus haben.",
@@ -1505,6 +1496,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Hintergrund des Übersichtslineals des gemeinsamen übergeordneten Elements bei Inlinezusammenführungskonflikten.",
 		"Übersichtslinealmarkerfarbe für das Suchen von Übereinstimmungen. Die Farbe darf nicht deckend sein, weil sie sonst die zugrunde liegenden Dekorationen verdeckt.",
 		"Übersichtslinealmarkerfarbe für das Hervorheben der Auswahl. Die Farbe darf nicht deckend sein, weil sie sonst die zugrunde liegenden Dekorationen verdeckt.",
+		"Markerfarbe des Übersichtslineals für hervorgehobene Unicode-Zeichen. Die Farbe darf nicht deckend sein, weil sie sonst die zugrunde liegenden Dekorationen verdeckt.",
 		"Minimap-Markerfarbe für gefundene Übereinstimmungen.",
 		"Minimap-Markerfarbe für wiederholte Editorauswahlen.",
 		"Minimap-Markerfarbe für die Editorauswahl.",
@@ -1512,6 +1504,7 @@ define("vs/editor/editor.main.nls.de", {
 		"Minimapmarkerfarbe für Warnungen",
 		"Hintergrundfarbe der Minimap.",
 		"Deckkraft von Vordergrundelementen, die in der Minimap gerendert werden. Beispiel: „#000000c0“ wird die Elemente mit einer Deckkraft von 75 % rendern.",
+		"Minimap-Markerfarbe für hervorgehobene Unicode-Zeichen.",
 		"Hintergrundfarbe des Minimap-Schiebereglers.",
 		"Hintergrundfarbe des Minimap-Schiebereglers beim Daraufzeigen.",
 		"Hintergrundfarbe des Minimap-Schiebereglers, wenn darauf geklickt wird.",
@@ -1549,7 +1542,7 @@ define("vs/editor/editor.main.nls.de", {
 		"\"{0}\" konnte nicht rückgängig gemacht werden, weil bereits ein Vorgang zum Rückgängigmachen oder Wiederholen durchgeführt wird.",
 		"Möchten Sie \"{0}\" rückgängig machen?",
 		"Ja",
-		"Nein",
+		"Abbrechen",
 		"\"{0}\" konnte nicht in allen Dateien wiederholt werden. {1}",
 		"\"{0}\" konnte nicht in allen Dateien wiederholt werden. {1}",
 		"\"{0}\" konnte nicht in allen Dateien wiederholt werden, da Änderungen an {1} vorgenommen wurden.",

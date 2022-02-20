@@ -2,9 +2,9 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { LineTokens } from '../tokens/lineTokens.js';
+import { LineTokens } from '../core/lineTokens.js';
 import { Position } from '../core/position.js';
-import { LineInjectedText } from '../textModelEvents.js';
+import { LineInjectedText } from '../model/textModelEvents.js';
 import { SingleLineInlineDecoration, ViewLineData } from './viewModel.js';
 export function createModelLineProjection(lineBreakData, isVisible) {
     if (lineBreakData === null) {
@@ -25,7 +25,7 @@ export function createModelLineProjection(lineBreakData, isVisible) {
  */
 class ModelLineProjection {
     constructor(lineBreakData, isVisible) {
-        this._projectionData = lineBreakData;
+        this._lineBreakData = lineBreakData;
         this._isVisible = isVisible;
     }
     isVisible() {
@@ -35,165 +35,153 @@ class ModelLineProjection {
         this._isVisible = isVisible;
         return this;
     }
-    getProjectionData() {
-        return this._projectionData;
+    getLineBreakData() {
+        return this._lineBreakData;
     }
     getViewLineCount() {
         if (!this._isVisible) {
             return 0;
         }
-        return this._projectionData.getOutputLineCount();
+        return this._lineBreakData.getOutputLineCount();
+    }
+    getInputStartOffsetOfOutputLineIndex(outputLineIndex) {
+        return this._lineBreakData.translateToInputOffset(outputLineIndex, 0);
+    }
+    getInputEndOffsetOfOutputLineIndex(outputLineIndex) {
+        return this._lineBreakData.translateToInputOffset(outputLineIndex, this._lineBreakData.getMaxOutputOffset(outputLineIndex));
     }
     getViewLineContent(model, modelLineNumber, outputLineIndex) {
-        this._assertVisible();
-        const startOffsetInInputWithInjections = outputLineIndex > 0 ? this._projectionData.breakOffsets[outputLineIndex - 1] : 0;
-        const endOffsetInInputWithInjections = this._projectionData.breakOffsets[outputLineIndex];
+        this.assertVisible();
+        // These offsets refer to model text with injected text.
+        const startOffset = outputLineIndex > 0 ? this._lineBreakData.breakOffsets[outputLineIndex - 1] : 0;
+        const endOffset = outputLineIndex < this._lineBreakData.breakOffsets.length
+            ? this._lineBreakData.breakOffsets[outputLineIndex]
+            // This case might not be possible anyway, but we clamp the value to be on the safe side.
+            : this._lineBreakData.breakOffsets[this._lineBreakData.breakOffsets.length - 1];
         let r;
-        if (this._projectionData.injectionOffsets !== null) {
-            const injectedTexts = this._projectionData.injectionOffsets.map((offset, idx) => new LineInjectedText(0, 0, offset + 1, this._projectionData.injectionOptions[idx], 0));
-            const lineWithInjections = LineInjectedText.applyInjectedText(model.getLineContent(modelLineNumber), injectedTexts);
-            r = lineWithInjections.substring(startOffsetInInputWithInjections, endOffsetInInputWithInjections);
+        if (this._lineBreakData.injectionOffsets !== null) {
+            const injectedTexts = this._lineBreakData.injectionOffsets.map((offset, idx) => new LineInjectedText(0, 0, offset + 1, this._lineBreakData.injectionOptions[idx], 0));
+            r = LineInjectedText.applyInjectedText(model.getLineContent(modelLineNumber), injectedTexts).substring(startOffset, endOffset);
         }
         else {
             r = model.getValueInRange({
                 startLineNumber: modelLineNumber,
-                startColumn: startOffsetInInputWithInjections + 1,
+                startColumn: startOffset + 1,
                 endLineNumber: modelLineNumber,
-                endColumn: endOffsetInInputWithInjections + 1
+                endColumn: endOffset + 1
             });
         }
         if (outputLineIndex > 0) {
-            r = spaces(this._projectionData.wrappedTextIndentLength) + r;
+            r = spaces(this._lineBreakData.wrappedTextIndentLength) + r;
         }
         return r;
     }
     getViewLineLength(model, modelLineNumber, outputLineIndex) {
-        this._assertVisible();
-        return this._projectionData.getLineLength(outputLineIndex);
+        this.assertVisible();
+        return this._lineBreakData.getLineLength(outputLineIndex);
     }
     getViewLineMinColumn(_model, _modelLineNumber, outputLineIndex) {
-        this._assertVisible();
-        return this._projectionData.getMinOutputOffset(outputLineIndex) + 1;
+        this.assertVisible();
+        return this._lineBreakData.getMinOutputOffset(outputLineIndex) + 1;
     }
     getViewLineMaxColumn(model, modelLineNumber, outputLineIndex) {
-        this._assertVisible();
-        return this._projectionData.getMaxOutputOffset(outputLineIndex) + 1;
+        this.assertVisible();
+        return this._lineBreakData.getMaxOutputOffset(outputLineIndex) + 1;
     }
-    /**
-     * Try using {@link getViewLinesData} instead.
-    */
     getViewLineData(model, modelLineNumber, outputLineIndex) {
-        const arr = new Array();
-        this.getViewLinesData(model, modelLineNumber, outputLineIndex, 1, 0, [true], arr);
-        return arr[0];
-    }
-    getViewLinesData(model, modelLineNumber, outputLineIdx, lineCount, globalStartIndex, needed, result) {
-        this._assertVisible();
-        const lineBreakData = this._projectionData;
+        this.assertVisible();
+        const lineBreakData = this._lineBreakData;
+        const deltaStartIndex = (outputLineIndex > 0 ? lineBreakData.wrappedTextIndentLength : 0);
         const injectionOffsets = lineBreakData.injectionOffsets;
         const injectionOptions = lineBreakData.injectionOptions;
-        let inlineDecorationsPerOutputLine = null;
+        let tokens;
+        let inlineDecorations;
         if (injectionOffsets) {
-            inlineDecorationsPerOutputLine = [];
-            let totalInjectedTextLengthBefore = 0;
-            let currentInjectedOffset = 0;
-            for (let outputLineIndex = 0; outputLineIndex < lineBreakData.getOutputLineCount(); outputLineIndex++) {
-                const inlineDecorations = new Array();
-                inlineDecorationsPerOutputLine[outputLineIndex] = inlineDecorations;
-                const lineStartOffsetInInputWithInjections = outputLineIndex > 0 ? lineBreakData.breakOffsets[outputLineIndex - 1] : 0;
-                const lineEndOffsetInInputWithInjections = lineBreakData.breakOffsets[outputLineIndex];
-                while (currentInjectedOffset < injectionOffsets.length) {
-                    const length = injectionOptions[currentInjectedOffset].content.length;
-                    const injectedTextStartOffsetInInputWithInjections = injectionOffsets[currentInjectedOffset] + totalInjectedTextLengthBefore;
-                    const injectedTextEndOffsetInInputWithInjections = injectedTextStartOffsetInInputWithInjections + length;
-                    if (injectedTextStartOffsetInInputWithInjections > lineEndOffsetInInputWithInjections) {
-                        // Injected text only starts in later wrapped lines.
-                        break;
-                    }
-                    if (lineStartOffsetInInputWithInjections < injectedTextEndOffsetInInputWithInjections) {
-                        // Injected text ends after or in this line (but also starts in or before this line).
-                        const options = injectionOptions[currentInjectedOffset];
-                        if (options.inlineClassName) {
-                            const offset = (outputLineIndex > 0 ? lineBreakData.wrappedTextIndentLength : 0);
-                            const start = offset + Math.max(injectedTextStartOffsetInInputWithInjections - lineStartOffsetInInputWithInjections, 0);
-                            const end = offset + Math.min(injectedTextEndOffsetInInputWithInjections - lineStartOffsetInInputWithInjections, lineEndOffsetInInputWithInjections);
-                            if (start !== end) {
-                                inlineDecorations.push(new SingleLineInlineDecoration(start, end, options.inlineClassName, options.inlineClassNameAffectsLetterSpacing));
-                            }
-                        }
-                    }
-                    if (injectedTextEndOffsetInInputWithInjections <= lineEndOffsetInInputWithInjections) {
-                        totalInjectedTextLengthBefore += length;
-                        currentInjectedOffset++;
-                    }
-                    else {
-                        // injected text breaks into next line, process it again
-                        break;
-                    }
-                }
-            }
-        }
-        let lineWithInjections;
-        if (injectionOffsets) {
-            lineWithInjections = model.getLineTokens(modelLineNumber).withInserted(injectionOffsets.map((offset, idx) => ({
+            const lineTokens = model.getLineTokens(modelLineNumber).withInserted(injectionOffsets.map((offset, idx) => ({
                 offset,
                 text: injectionOptions[idx].content,
                 tokenMetadata: LineTokens.defaultTokenMetadata
             })));
+            const lineStartOffsetInInputWithInjections = outputLineIndex > 0 ? lineBreakData.breakOffsets[outputLineIndex - 1] : 0;
+            const lineEndOffsetInInputWithInjections = lineBreakData.breakOffsets[outputLineIndex];
+            tokens = lineTokens.sliceAndInflate(lineStartOffsetInInputWithInjections, lineEndOffsetInInputWithInjections, deltaStartIndex);
+            inlineDecorations = new Array();
+            let totalInjectedTextLengthBefore = 0;
+            for (let i = 0; i < injectionOffsets.length; i++) {
+                const length = injectionOptions[i].content.length;
+                const injectedTextStartOffsetInInputWithInjections = injectionOffsets[i] + totalInjectedTextLengthBefore;
+                const injectedTextEndOffsetInInputWithInjections = injectionOffsets[i] + totalInjectedTextLengthBefore + length;
+                if (injectedTextStartOffsetInInputWithInjections > lineEndOffsetInInputWithInjections) {
+                    // Injected text only starts in later wrapped lines.
+                    break;
+                }
+                if (lineStartOffsetInInputWithInjections < injectedTextEndOffsetInInputWithInjections) {
+                    // Injected text ends after or in this line (but also starts in or before this line).
+                    const options = injectionOptions[i];
+                    if (options.inlineClassName) {
+                        const offset = (outputLineIndex > 0 ? lineBreakData.wrappedTextIndentLength : 0);
+                        const start = offset + Math.max(injectedTextStartOffsetInInputWithInjections - lineStartOffsetInInputWithInjections, 0);
+                        const end = offset + Math.min(injectedTextEndOffsetInInputWithInjections - lineStartOffsetInInputWithInjections, lineEndOffsetInInputWithInjections);
+                        if (start !== end) {
+                            inlineDecorations.push(new SingleLineInlineDecoration(start, end, options.inlineClassName, options.inlineClassNameAffectsLetterSpacing));
+                        }
+                    }
+                }
+                totalInjectedTextLengthBefore += length;
+            }
         }
         else {
-            lineWithInjections = model.getLineTokens(modelLineNumber);
+            const startOffset = this.getInputStartOffsetOfOutputLineIndex(outputLineIndex);
+            const endOffset = this.getInputEndOffsetOfOutputLineIndex(outputLineIndex);
+            const lineTokens = model.getLineTokens(modelLineNumber);
+            tokens = lineTokens.sliceAndInflate(startOffset, endOffset, deltaStartIndex);
+            inlineDecorations = null;
         }
-        for (let outputLineIndex = outputLineIdx; outputLineIndex < outputLineIdx + lineCount; outputLineIndex++) {
-            const globalIndex = globalStartIndex + outputLineIndex - outputLineIdx;
-            if (!needed[globalIndex]) {
-                result[globalIndex] = null;
-                continue;
-            }
-            result[globalIndex] = this._getViewLineData(lineWithInjections, inlineDecorationsPerOutputLine ? inlineDecorationsPerOutputLine[outputLineIndex] : null, outputLineIndex);
-        }
-    }
-    _getViewLineData(lineWithInjections, inlineDecorations, outputLineIndex) {
-        this._assertVisible();
-        const lineBreakData = this._projectionData;
-        const deltaStartIndex = (outputLineIndex > 0 ? lineBreakData.wrappedTextIndentLength : 0);
-        const lineStartOffsetInInputWithInjections = outputLineIndex > 0 ? lineBreakData.breakOffsets[outputLineIndex - 1] : 0;
-        const lineEndOffsetInInputWithInjections = lineBreakData.breakOffsets[outputLineIndex];
-        const tokens = lineWithInjections.sliceAndInflate(lineStartOffsetInInputWithInjections, lineEndOffsetInInputWithInjections, deltaStartIndex);
         let lineContent = tokens.getLineContent();
         if (outputLineIndex > 0) {
             lineContent = spaces(lineBreakData.wrappedTextIndentLength) + lineContent;
         }
-        const minColumn = this._projectionData.getMinOutputOffset(outputLineIndex) + 1;
+        const minColumn = this._lineBreakData.getMinOutputOffset(outputLineIndex) + 1;
         const maxColumn = lineContent.length + 1;
         const continuesWithWrappedLine = (outputLineIndex + 1 < this.getViewLineCount());
         const startVisibleColumn = (outputLineIndex === 0 ? 0 : lineBreakData.breakOffsetsVisibleColumn[outputLineIndex - 1]);
         return new ViewLineData(lineContent, continuesWithWrappedLine, minColumn, maxColumn, startVisibleColumn, tokens, inlineDecorations);
     }
+    getViewLinesData(model, modelLineNumber, fromOutputLineIndex, toOutputLineIndex, globalStartIndex, needed, result) {
+        this.assertVisible();
+        for (let outputLineIndex = fromOutputLineIndex; outputLineIndex < toOutputLineIndex; outputLineIndex++) {
+            let globalIndex = globalStartIndex + outputLineIndex - fromOutputLineIndex;
+            if (!needed[globalIndex]) {
+                result[globalIndex] = null;
+                continue;
+            }
+            result[globalIndex] = this.getViewLineData(model, modelLineNumber, outputLineIndex);
+        }
+    }
     getModelColumnOfViewPosition(outputLineIndex, outputColumn) {
-        this._assertVisible();
-        return this._projectionData.translateToInputOffset(outputLineIndex, outputColumn - 1) + 1;
+        this.assertVisible();
+        return this._lineBreakData.translateToInputOffset(outputLineIndex, outputColumn - 1) + 1;
     }
     getViewPositionOfModelPosition(deltaLineNumber, inputColumn, affinity = 2 /* None */) {
-        this._assertVisible();
-        const r = this._projectionData.translateToOutputPosition(inputColumn - 1, affinity);
+        this.assertVisible();
+        let r = this._lineBreakData.translateToOutputPosition(inputColumn - 1, affinity);
         return r.toPosition(deltaLineNumber);
     }
     getViewLineNumberOfModelPosition(deltaLineNumber, inputColumn) {
-        this._assertVisible();
-        const r = this._projectionData.translateToOutputPosition(inputColumn - 1);
+        this.assertVisible();
+        const r = this._lineBreakData.translateToOutputPosition(inputColumn - 1);
         return deltaLineNumber + r.outputLineIndex;
     }
     normalizePosition(outputLineIndex, outputPosition, affinity) {
         const baseViewLineNumber = outputPosition.lineNumber - outputLineIndex;
-        const normalizedOutputPosition = this._projectionData.normalizeOutputPosition(outputLineIndex, outputPosition.column - 1, affinity);
+        const normalizedOutputPosition = this._lineBreakData.normalizeOutputPosition(outputLineIndex, outputPosition.column - 1, affinity);
         const result = normalizedOutputPosition.toPosition(baseViewLineNumber);
         return result;
     }
     getInjectedTextAt(outputLineIndex, outputColumn) {
-        return this._projectionData.getInjectedText(outputLineIndex, outputColumn - 1);
+        return this._lineBreakData.getInjectedText(outputLineIndex, outputColumn - 1);
     }
-    _assertVisible() {
+    assertVisible() {
         if (!this._isVisible) {
             throw new Error('Not supported');
         }
@@ -213,7 +201,7 @@ class IdentityModelLineProjection {
         }
         return HiddenModelLineProjection.INSTANCE;
     }
-    getProjectionData() {
+    getLineBreakData() {
         return null;
     }
     getViewLineCount() {
@@ -232,8 +220,8 @@ class IdentityModelLineProjection {
         return model.getLineMaxColumn(modelLineNumber);
     }
     getViewLineData(model, modelLineNumber, _outputLineIndex) {
-        const lineTokens = model.getLineTokens(modelLineNumber);
-        const lineContent = lineTokens.getLineContent();
+        let lineTokens = model.getLineTokens(modelLineNumber);
+        let lineContent = lineTokens.getLineContent();
         return new ViewLineData(lineContent, false, 1, lineContent.length + 1, 0, lineTokens.inflate(), null);
     }
     getViewLinesData(model, modelLineNumber, _fromOuputLineIndex, _toOutputLineIndex, globalStartIndex, needed, result) {
@@ -274,7 +262,7 @@ class HiddenModelLineProjection {
         }
         return IdentityModelLineProjection.INSTANCE;
     }
-    getProjectionData() {
+    getLineBreakData() {
         return null;
     }
     getViewLineCount() {

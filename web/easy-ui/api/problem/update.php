@@ -36,7 +36,7 @@
         "spj"=>$json["spj"],
         "data"=>$json["data"]
     );
-    $fp=fopen("../../../problem/$id/config.json","w");
+    $fp=fopen("../../../../problem/$id/config.json","w");
     fwrite($fp,json_encode($arr,JSON_UNESCAPED_UNICODE));
     echo "Update Successfully! pid: $id";
 ?>

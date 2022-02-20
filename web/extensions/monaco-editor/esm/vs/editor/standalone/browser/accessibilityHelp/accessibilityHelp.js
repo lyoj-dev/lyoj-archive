@@ -23,7 +23,7 @@ import * as strings from '../../../../base/common/strings.js';
 import { URI } from '../../../../base/common/uri.js';
 import { EditorAction, EditorCommand, registerEditorAction, registerEditorCommand, registerEditorContribution } from '../../../browser/editorExtensions.js';
 import { EditorContextKeys } from '../../../common/editorContextKeys.js';
-import { ToggleTabFocusModeAction } from '../../../contrib/toggleTabFocusMode/browser/toggleTabFocusMode.js';
+import { ToggleTabFocusModeAction } from '../../../contrib/toggleTabFocusMode/toggleTabFocusMode.js';
 import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
@@ -153,7 +153,7 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
         this._contentDomNode.domNode.focus();
     }
     _descriptionForCommand(commandId, msg, noKbMsg) {
-        const kb = this._keybindingService.lookupKeybinding(commandId);
+        let kb = this._keybindingService.lookupKeybinding(commandId);
         if (kb) {
             return strings.format(msg, kb.getAriaLabel());
         }
@@ -172,8 +172,8 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
             }
         }
         let text = getSelectionLabel(selections, charactersSelected);
-        if (options.get(54 /* inDiffEditor */)) {
-            if (options.get(81 /* readOnly */)) {
+        if (options.get(53 /* inDiffEditor */)) {
+            if (options.get(80 /* readOnly */)) {
                 text += AccessibilityHelpNLS.readonlyDiffEditor;
             }
             else {
@@ -181,7 +181,7 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
             }
         }
         else {
-            if (options.get(81 /* readOnly */)) {
+            if (options.get(80 /* readOnly */)) {
                 text += AccessibilityHelpNLS.readonlyEditor;
             }
             else {
@@ -203,7 +203,7 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
                 text += ' ' + turnOnMessage;
                 break;
         }
-        if (options.get(130 /* tabFocusMode */)) {
+        if (options.get(129 /* tabFocusMode */)) {
             text += '\n\n - ' + this._descriptionForCommand(ToggleTabFocusModeAction.ID, AccessibilityHelpNLS.tabFocusModeOnMsg, AccessibilityHelpNLS.tabFocusModeOnMsgNoKb);
         }
         else {
@@ -231,14 +231,14 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
         this._editor.focus();
     }
     _layout() {
-        const editorLayout = this._editor.getLayoutInfo();
-        const w = Math.max(5, Math.min(AccessibilityHelpWidget.WIDTH, editorLayout.width - 40));
-        const h = Math.max(5, Math.min(AccessibilityHelpWidget.HEIGHT, editorLayout.height - 40));
+        let editorLayout = this._editor.getLayoutInfo();
+        let w = Math.max(5, Math.min(AccessibilityHelpWidget.WIDTH, editorLayout.width - 40));
+        let h = Math.max(5, Math.min(AccessibilityHelpWidget.HEIGHT, editorLayout.height - 40));
         this._domNode.setWidth(w);
         this._domNode.setHeight(h);
-        const top = Math.round((editorLayout.height - h) / 2);
+        let top = Math.round((editorLayout.height - h) / 2);
         this._domNode.setTop(top);
-        const left = Math.round((editorLayout.width - w) / 2);
+        let left = Math.round((editorLayout.width - w) / 2);
         this._domNode.setLeft(left);
     }
 };
@@ -268,7 +268,7 @@ class ShowAccessibilityHelpAction extends EditorAction {
         });
     }
     run(accessor, editor) {
-        const controller = AccessibilityHelpController.get(editor);
+        let controller = AccessibilityHelpController.get(editor);
         if (controller) {
             controller.show();
         }

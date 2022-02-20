@@ -724,7 +724,8 @@ class Trait {
         return this._nodeSet;
     }
     set(nodes, browserEvent) {
-        if (!(browserEvent === null || browserEvent === void 0 ? void 0 : browserEvent.__forceEvent) && equals(this.nodes, nodes)) {
+        var _a;
+        if (!((_a = browserEvent) === null || _a === void 0 ? void 0 : _a.__forceEvent) && equals(this.nodes, nodes)) {
             return;
         }
         this._set(nodes, false, browserEvent);
@@ -914,8 +915,7 @@ class TreeNodeList extends List {
     }
 }
 export class AbstractTree {
-    constructor(_user, container, delegate, renderers, _options = {}) {
-        this._user = _user;
+    constructor(user, container, delegate, renderers, _options = {}) {
         this._options = _options;
         this.eventBufferer = new EventBufferer();
         this.disposables = new DisposableStore();
@@ -939,8 +939,8 @@ export class AbstractTree {
         this.focus = new Trait(() => this.view.getFocusedElements()[0], _options.identityProvider);
         this.selection = new Trait(() => this.view.getSelectedElements()[0], _options.identityProvider);
         this.anchor = new Trait(() => this.view.getAnchorElement(), _options.identityProvider);
-        this.view = new TreeNodeList(_user, container, treeDelegate, this.renderers, this.focus, this.selection, this.anchor, Object.assign(Object.assign({}, asListOptions(() => this.model, _options)), { tree: this }));
-        this.model = this.createModel(_user, this.view, _options);
+        this.view = new TreeNodeList(user, container, treeDelegate, this.renderers, this.focus, this.selection, this.anchor, Object.assign(Object.assign({}, asListOptions(() => this.model, _options)), { tree: this }));
+        this.model = this.createModel(user, this.view, _options);
         onDidChangeCollapseStateRelay.input = this.model.onDidChangeCollapseState;
         const onDidModelSplice = Event.forEach(this.model.onDidSplice, e => {
             this.eventBufferer.bufferEvents(() => {

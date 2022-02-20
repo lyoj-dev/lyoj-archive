@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -9,7 +9,7 @@
 import { registerLanguage } from "../_.contribution.js";
 registerLanguage({
   id: "javascript",
-  extensions: [".js", ".es6", ".jsx", ".mjs", ".cjs"],
+  extensions: [".js", ".es6", ".jsx", ".mjs"],
   firstLine: "^#!.*\\bnode",
   filenames: ["jakefile"],
   aliases: ["JavaScript", "javascript", "js"],

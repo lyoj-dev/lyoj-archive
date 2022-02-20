@@ -5,7 +5,7 @@
 import * as extpath from './extpath.js';
 import { Schemas } from './network.js';
 import * as paths from './path.js';
-import { isLinux, isWindows } from './platform.js';
+import { isWindows } from './platform.js';
 import { compare as strCompare, equalsIgnoreCase } from './strings.js';
 import { URI, uriToFsPath } from './uri.js';
 export function originalFSPath(uri) {
@@ -179,34 +179,6 @@ export class ExtUri {
  * ```
  */
 export const extUri = new ExtUri(() => false);
-/**
- * BIASED utility that _mostly_ ignored the case of urs paths. ONLY use this util if you
- * understand what you are doing.
- *
- * This utility is INCOMPATIBLE with `uri.toString()`-usages and both CANNOT be used interchanged.
- *
- * When dealing with uris from files or documents, `extUri` (the unbiased friend)is sufficient
- * because those uris come from a "trustworthy source". When creating unknown uris it's always
- * better to use `IUriIdentityService` which exposes an `IExtUri`-instance which knows when path
- * casing matters.
- */
-export const extUriBiasedIgnorePathCase = new ExtUri(uri => {
-    // A file scheme resource is in the same platform as code, so ignore case for non linux platforms
-    // Resource can be from another platform. Lowering the case as an hack. Should come from File system provider
-    return uri.scheme === Schemas.file ? !isLinux : true;
-});
-/**
- * BIASED utility that always ignores the casing of uris paths. ONLY use this util if you
- * understand what you are doing.
- *
- * This utility is INCOMPATIBLE with `uri.toString()`-usages and both CANNOT be used interchanged.
- *
- * When dealing with uris from files or documents, `extUri` (the unbiased friend)is sufficient
- * because those uris come from a "trustworthy source". When creating unknown uris it's always
- * better to use `IUriIdentityService` which exposes an `IExtUri`-instance which knows when path
- * casing matters.
- */
-export const extUriIgnorePathCase = new ExtUri(_ => true);
 export const isEqual = extUri.isEqual.bind(extUri);
 export const isEqualOrParent = extUri.isEqualOrParent.bind(extUri);
 export const getComparisonKey = extUri.getComparisonKey.bind(extUri);

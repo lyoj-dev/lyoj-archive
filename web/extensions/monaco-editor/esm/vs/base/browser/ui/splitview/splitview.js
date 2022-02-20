@@ -175,11 +175,7 @@ export class SplitView extends Disposable {
         container.appendChild(this.el);
         this.sashContainer = append(this.el, $('.sash-container'));
         this.viewContainer = $('.split-view-container');
-        this.scrollable = new Scrollable({
-            forceIntegerValues: true,
-            smoothScrollDuration: 125,
-            scheduleAtNextAnimationFrame
-        });
+        this.scrollable = new Scrollable(125, scheduleAtNextAnimationFrame);
         this.scrollableElement = this._register(new SmoothScrollableElement(this.viewContainer, {
             vertical: this.orientation === 0 /* VERTICAL */ ? ((_d = options.scrollbarVisibility) !== null && _d !== void 0 ? _d : 1 /* Auto */) : 2 /* Hidden */,
             horizontal: this.orientation === 1 /* HORIZONTAL */ ? ((_e = options.scrollbarVisibility) !== null && _e !== void 0 ? _e : 1 /* Auto */) : 2 /* Hidden */

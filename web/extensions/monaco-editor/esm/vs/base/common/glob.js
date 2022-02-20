@@ -3,13 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { isThenable } from './async.js';
-import { isEqualOrParent } from './extpath.js';
+import * as extpath from './extpath.js';
 import { LRUCache } from './map.js';
-import { basename, extname, posix, sep } from './path.js';
-import { isLinux } from './platform.js';
-import { escapeRegExpCharacters } from './strings.js';
-export const GLOBSTAR = '**';
-export const GLOB_SPLIT = '/';
+import * as paths from './path.js';
+import * as strings from './strings.js';
+const GLOBSTAR = '**';
+const GLOB_SPLIT = '/';
 const PATH_REGEX = '[/\\\\]'; // any slash or backslash
 const NO_PATH_REGEX = '[^/\\\\]'; // any non-slash and non-backslash
 const ALL_FORWARD_SLASHES = /\//g;
@@ -117,7 +116,7 @@ function parseRegExp(pattern) {
                     }
                     // anything else gets escaped
                     else {
-                        res = escapeRegExpCharacters(char);
+                        res = strings.escapeRegExpCharacters(char);
                     }
                     bracketVal += res;
                     continue;
@@ -129,7 +128,7 @@ function parseRegExp(pattern) {
                     case '[':
                         inBrackets = true;
                         continue;
-                    case '}': {
+                    case '}':
                         const choices = splitGlobAware(braceVal, ',');
                         // Converts {foo,bar} => [foo|bar]
                         const braceRegExp = `(?:${choices.map(c => parseRegExp(c)).join('|')})`;
@@ -137,7 +136,6 @@ function parseRegExp(pattern) {
                         inBraces = false;
                         braceVal = '';
                         break;
-                    }
                     case ']':
                         regEx += ('[' + bracketVal + ']');
                         inBrackets = false;
@@ -150,7 +148,7 @@ function parseRegExp(pattern) {
                         regEx += starsToRegExp(1);
                         continue;
                     default:
-                        regEx += escapeRegExpCharacters(char);
+                        regEx += strings.escapeRegExpCharacters(char);
                 }
             }
             // Tail: Add the slash we had split on if there is more to come and the remaining pattern is not a globstar
@@ -234,14 +232,10 @@ function wrapRelativePattern(parsedPattern, arg2) {
         return parsedPattern;
     }
     return function (path, basename) {
-        if (!isEqualOrParent(path, arg2.base, !isLinux)) {
-            // skip glob matching if `base` is not a parent of `path`
+        if (!extpath.isEqualOrParent(path, arg2.base)) {
             return null;
         }
-        // Given we have checked `base` being a parent of `path`,
-        // we can now remove the `base` portion of the `path`
-        // and only match on the remaining path components
-        return parsedPattern(path.substr(arg2.base.length + 1), basename);
+        return parsedPattern(paths.relative(arg2.base, path), basename);
     };
 }
 function trimForExclusions(pattern, options) {
@@ -298,10 +292,10 @@ function trivia3(pattern, options) {
 }
 // common patterns: **/something/else just need endsWith check, something/else just needs and equals check
 function trivia4and5(targetPath, pattern, matchPathEnds) {
-    const usingPosixSep = sep === posix.sep;
-    const nativePath = usingPosixSep ? targetPath : targetPath.replace(ALL_FORWARD_SLASHES, sep);
-    const nativePathEnd = sep + nativePath;
-    const targetPathEnd = posix.sep + targetPath;
+    const usingPosixSep = paths.sep === paths.posix.sep;
+    const nativePath = usingPosixSep ? targetPath : targetPath.replace(ALL_FORWARD_SLASHES, paths.sep);
+    const nativePathEnd = paths.sep + nativePath;
+    const targetPathEnd = paths.posix.sep + targetPath;
     const parsedPattern = matchPathEnds ? function (testPath, basename) {
         return typeof testPath === 'string' &&
             ((testPath === nativePath || testPath.endsWith(nativePathEnd))
@@ -360,10 +354,7 @@ export function parse(arg1, options = {}) {
 }
 export function isRelativePattern(obj) {
     const rp = obj;
-    if (!rp) {
-        return false;
-    }
-    return typeof rp.base === 'string' && typeof rp.pattern === 'string';
+    return rp && typeof rp.base === 'string' && typeof rp.pattern === 'string';
 }
 function parsedExpression(expression, options) {
     const parsedPatterns = aggregateBasenameMatches(Object.getOwnPropertyNames(expression)
@@ -397,20 +388,20 @@ function parsedExpression(expression, options) {
         }
         return resultExpression;
     }
-    const resultExpression = function (path, base, hasSibling) {
+    const resultExpression = function (path, basename, hasSibling) {
         let name = undefined;
         for (let i = 0, n = parsedPatterns.length; i < n; i++) {
             // Pattern matches path
             const parsedPattern = parsedPatterns[i];
             if (parsedPattern.requiresSiblings && hasSibling) {
-                if (!base) {
-                    base = basename(path);
+                if (!basename) {
+                    basename = paths.basename(path);
                 }
                 if (!name) {
-                    name = base.substr(0, base.length - extname(path).length);
+                    name = basename.substr(0, basename.length - paths.extname(path).length);
                 }
             }
-            const result = parsedPattern(path, base, name, hasSibling);
+            const result = parsedPattern(path, basename, name, hasSibling);
             if (result) {
                 return result;
             }

@@ -52,6 +52,17 @@ string getpath(const char* path) {
 	else return "/";
 }
 
+// System Function Advanced Mode
+int system2(const char* cmd,string& res) {
+    FILE *stream,*wstream;
+    char buf[1024*1024]; 
+    memset(buf,'\0',sizeof(buf));
+    stream=popen(("sudo "+string(cmd)+" 2>&1").c_str(),"r");
+    int k=fread(buf,sizeof(char),sizeof(buf),stream);
+	res=string(buf);
+    return pclose(stream);
+}
+
 
 
 
@@ -148,6 +159,7 @@ int memory_limit,bool special_judge=false) {
 	char* argv[1010]={NULL};char* command=const_cast<char*>(cmd);
 	int idnow=-1;argv[++idnow]=strtok(command," ");
 	while (argv[idnow]!=NULL) argv[++idnow]=strtok(NULL," ");
+	cout<<string(argv[0])<<" "<<string(argv[1])<<endl;
 	times=memory=0;signal(SIGCHLD,handler);
 	pid_t executive=fork();
     if(executive<0) {
@@ -155,7 +167,7 @@ int memory_limit,bool special_judge=false) {
         return 1;
     }
     else if (executive==0) {
-        execv(("./"+(string)argv[0]).c_str(),argv);
+        execv(string(argv[0]).c_str(),argv);
 		exit(0);
 	}
     else{ 
@@ -326,8 +338,8 @@ int main() {
 			// Gain Data from Queried Result
 			int pid=StringToInt(row["pid"]),uid=StringToInt(row["uid"]),id=StringToInt(row["id"]),lang=StringToInt(row["lang"]);
 			string code=row["code"],ideinfo=row["ideinfo"];
-			
-			
+			int retc=system("rm ./tmp/* -r");
+			retc=chdir("./tmp/");			
 			
 			
 			// ****************************************************
@@ -361,36 +373,32 @@ int main() {
 			mysqli_query(conn,("UPDATE waited_judge SET status='Compiling...' WHERE id="+to_string(id)).c_str());
 			
 			// Compiling Code
-			return_info(("Compiling code from status id #"+IntToString(id)).c_str());
-			time_t st=clock();int retcode;
-			retcode=system((judge["lang"][lang]["command"].asString()+" > .judge.log 2>&1").c_str());
-			
-			// Gain Compile Information
-			ifstream tmpfin(".judge.log");
-			string info_string="";
-			while (!tmpfin.eof()) {
-				string input;getline(tmpfin,input);
-				info_string+=input+"\n";
-			}tmpfin.close();
-			// info_string=str_replace("<","\\<",info_string.c_str());
-			
-			// The Situation of Compile Error
-			if (retcode) {
-				Json::Value res;
-				return_info("Error compile code!");
-				res["result"]="Compile Error";
-				res["output"]="Compile Error";
-				res["compile_info"]=res["info"]=info_string;return_info("",true);
+			time_t st=clock();int retcode; string info_string="";
+			if (judge["lang"][lang]["type"].asInt()!=1) {
+				return_info(("Compiling code from status id #"+IntToString(id)).c_str());
+				retcode=system2(judge["lang"][lang]["command"].asString().c_str(),info_string);
 				
-				// Insert Data to the Database
-				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-				"',"+to_string(clock())+")").c_str());
-				mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
-				continue;
+				// The Situation of Compile Error
+				if (retcode) {
+					Json::Value res;
+					return_info("Error compile code!");
+					return_info(("Compiler return error code "+to_string(retcode)).c_str());
+					res["result"]="Compile Error";
+					res["output"]="Compile Error";
+					res["compile_info"]=res["info"]=info_string;return_info("",true);
+					
+					// Insert Data to the Database
+					mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
+					("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
+					IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
+					"',"+to_string(clock())+")").c_str());
+					mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
+					retc=chdir("../");
+					continue;
+				}
+				return_info(("Compile finished, use "+to_string((clock()-st))+"ms").c_str());
 			}
-			return_info(("Compile finished, use "+to_string((clock()-st))+"ms").c_str());
+			retc=chdir("../");
 					
 					
 					
@@ -453,14 +461,8 @@ int main() {
 			if (!pid) ;
 			// New Special Judger
 			else if (val["spj"]["type"].asInt()==0) {
-				int res=chdir(("./problem/"+to_string(pid)).c_str());
-				retcode=system((val["spj"]["compile_cmd"].asString()+" > .judge.log 2>&1").c_str());
-				ifstream tmpfin(".judge.log");
-				string info_string2="";
-				while (!tmpfin.eof()) {
-					string input;getline(tmpfin,input);
-					info_string2+=input+"\n";
-				}tmpfin.close();// info_string2=str_replace("<","\\<",info_string2.c_str());
+				int res=chdir(("./problem/"+to_string(pid)).c_str()); string info_string2="";
+				retcode=system2((val["spj"]["compile_cmd"].asString()).c_str(),info_string2);
 				if (retcode) {
 					Json::Value res;
 					return_info("Error compile special judge!");
@@ -509,15 +511,15 @@ int main() {
 			
 			// Solve the Remote IDE Function
 			if (pid==0) {
-				mysqli_query(conn,("UPDATE waited_judge SET status='Running...' WHERE id="+to_string(id)).c_str());
+			    mysqli_query(conn,("UPDATE waited_judge SET status='Running...' WHERE id="+to_string(id)).c_str());
 				ofstream fout("./tmp/test.in");
 				Json::Value ide;int t,m;
 				reader.parse(ideinfo,ide);
 				fout<<ide["input"].asString();fout.close();
 				int ret=chdir("./tmp");
-				ret=run_code(("./"+judge["lang"][lang]["exec_name"].asString()).c_str(),
+				ret=run_code(judge["lang"][lang]["exec_command"].asString().c_str(),
 				t,m,ide["t"].asInt(),ide["m"].asInt());
-				ret=chdir("../");
+				int retc=chdir("../");
 				if (ret) switch (ret) {
 					case 2: res["result"]="Time Limited Exceeded",res["info"]="Time Limited Exceeded";break;
 					case 3: res["result"]="Memory Limited Exceeded",res["info"]="Memory Limited Exceeded";break;
@@ -560,7 +562,7 @@ int main() {
 				
 				// Copy Test Data
 				if (system(("cp './problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()+"' '"+
-				judge["lang"][lang]["exec_path"].asString()+"/"+val["input"].asString()+"'").c_str())) {
+				"./tmp/"+val["input"].asString()+"'").c_str())) {
 					return_error(("Failed to copy input file in problem #"+IntToString(pid)).c_str(),false);
 					return_error(("Error file name: "+val["data"][i]["input"].asString()+"/"+
 					val["data"][i]["output"].asString()).c_str(),false);
@@ -568,12 +570,13 @@ int main() {
 				}
 				
 				// Remove Exist Output File
-				int res=system(("rm "+val["output"].asString()+" >> err.log 2>&1").c_str());
+				int res=system(("rm ./tmp/"+val["output"].asString()).c_str());
+				res=system(("touch ./tmp/"+val["output"].asString()).c_str());
 				
 				// Update Working Directory
-				res=chdir(judge["lang"][lang]["exec_path"].asString().c_str());
-				int t=0,m=0,ret;vector<string> empty;
-				ret=run_code(("./"+judge["lang"][lang]["exec_name"].asString()).c_str()
+				res=chdir("./tmp/");
+				int t=0,m=0,ret;
+				ret=run_code(judge["lang"][lang]["exec_command"].asString().c_str()
 				,t,m,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt());
 				
 				// Update Working Directory
@@ -612,7 +615,7 @@ int main() {
 				
 				// Gain the Absolute Path for some File
 				string inputpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()).c_str());
-				string outputpath=getpath((judge["lang"][lang]["exec_path"].asString()+"/"+val["output"].asString()).c_str());
+				string outputpath=getpath(("./tmp/"+val["output"].asString()).c_str());
 				string answerpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["output"].asString()).c_str());
 				string resultpath=getpath("./tmp")+"/score.txt",infopath=getpath("./tmp")+"/info.txt";int spjt,spjm;
 				

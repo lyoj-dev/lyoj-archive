@@ -16,13 +16,13 @@ export class HoverWidget extends Disposable {
         this.containerDomNode.setAttribute('role', 'tooltip');
         this.contentsDomNode = document.createElement('div');
         this.contentsDomNode.className = 'monaco-hover-content';
-        this.scrollbar = this._register(new DomScrollableElement(this.contentsDomNode, {
+        this._scrollbar = this._register(new DomScrollableElement(this.contentsDomNode, {
             consumeMouseWheelIfScrollbarIsNeeded: true
         }));
-        this.containerDomNode.appendChild(this.scrollbar.getDomNode());
+        this.containerDomNode.appendChild(this._scrollbar.getDomNode());
     }
     onContentsChanged() {
-        this.scrollbar.scanDomNode();
+        this._scrollbar.scanDomNode();
     }
 }
 export class HoverAction extends Disposable {

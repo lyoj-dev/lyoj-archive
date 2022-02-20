@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -9,10 +9,11 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
+var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+var __reExport = (target, module, desc) => {
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
         __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
   }
   return target;
@@ -20,18 +21,13 @@ var __reExport = (target, module, copyDefault, desc) => {
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
+__markAsModule(monaco_editor_core_exports);
 __reExport(monaco_editor_core_exports, monaco_editor_core_star);
 import * as monaco_editor_core_star from "../../editor/editor.api.js";
 
-// src/language/css/workerManager.ts
+// src/css/workerManager.ts
 var STOP_WHEN_IDLE_FOR = 2 * 60 * 1e3;
 var WorkerManager = class {
-  _defaults;
-  _idleCheckInterval;
-  _lastUsedTime;
-  _configChangeListener;
-  _worker;
-  _client;
   constructor(defaults) {
     this._defaults = defaults;
     this._worker = null;
@@ -89,6 +85,7 @@ var WorkerManager = class {
 };
 
 // node_modules/vscode-languageserver-types/lib/esm/main.js
+"use strict";
 var integer;
 (function(integer2) {
   integer2.MIN_VALUE = -2147483648;
@@ -556,7 +553,7 @@ var TextEditChangeImpl = function() {
 }();
 var ChangeAnnotations = function() {
   function ChangeAnnotations2(annotations) {
-    this._annotations = annotations === void 0 ? /* @__PURE__ */ Object.create(null) : annotations;
+    this._annotations = annotations === void 0 ? Object.create(null) : annotations;
     this._counter = 0;
     this._size = 0;
   }
@@ -597,7 +594,7 @@ var ChangeAnnotations = function() {
 var WorkspaceChange = function() {
   function WorkspaceChange2(workspaceEdit) {
     var _this = this;
-    this._textEditChanges = /* @__PURE__ */ Object.create(null);
+    this._textEditChanges = Object.create(null);
     if (workspaceEdit !== void 0) {
       this._workspaceEdit = workspaceEdit;
       if (workspaceEdit.documentChanges) {
@@ -677,7 +674,7 @@ var WorkspaceChange = function() {
   };
   WorkspaceChange2.prototype.initChanges = function() {
     if (this._workspaceEdit.documentChanges === void 0 && this._workspaceEdit.changes === void 0) {
-      this._workspaceEdit.changes = /* @__PURE__ */ Object.create(null);
+      this._workspaceEdit.changes = Object.create(null);
     }
   };
   WorkspaceChange2.prototype.createFile = function(uri, optionsOrAnnotation, options) {
@@ -1345,11 +1342,13 @@ var Is;
   Is2.typedArray = typedArray;
 })(Is || (Is = {}));
 
-// src/language/common/lspLanguageFeatures.ts
+// src/common/lspLanguageFeatures.ts
 var DiagnosticsAdapter = class {
   constructor(_languageId, _worker, configChangeEvent) {
     this._languageId = _languageId;
     this._worker = _worker;
+    this._disposables = [];
+    this._listener = Object.create(null);
     const onModelAdd = (model) => {
       let modeId = model.getLanguageId();
       if (modeId !== this._languageId) {
@@ -1395,8 +1394,6 @@ var DiagnosticsAdapter = class {
     });
     monaco_editor_core_exports.editor.getModels().forEach(onModelAdd);
   }
-  _disposables = [];
-  _listener = /* @__PURE__ */ Object.create(null);
   dispose() {
     this._disposables.forEach((d) => d && d.dispose());
     this._disposables.length = 0;
@@ -1794,63 +1791,6 @@ function toSymbolKind(kind) {
   }
   return mKind.Function;
 }
-var DocumentLinkAdapter = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideLinks(model, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => worker.findDocumentLinks(resource.toString())).then((items) => {
-      if (!items) {
-        return;
-      }
-      return {
-        links: items.map((item) => ({
-          range: toRange(item.range),
-          url: item.target
-        }))
-      };
-    });
-  }
-};
-var DocumentFormattingEditProvider = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideDocumentFormattingEdits(model, options, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => {
-      return worker.format(resource.toString(), null, fromFormattingOptions(options)).then((edits) => {
-        if (!edits || edits.length === 0) {
-          return;
-        }
-        return edits.map(toTextEdit);
-      });
-    });
-  }
-};
-var DocumentRangeFormattingEditProvider = class {
-  constructor(_worker) {
-    this._worker = _worker;
-  }
-  provideDocumentRangeFormattingEdits(model, range, options, token) {
-    const resource = model.uri;
-    return this._worker(resource).then((worker) => {
-      return worker.format(resource.toString(), fromRange(range), fromFormattingOptions(options)).then((edits) => {
-        if (!edits || edits.length === 0) {
-          return;
-        }
-        return edits.map(toTextEdit);
-      });
-    });
-  }
-};
-function fromFormattingOptions(options) {
-  return {
-    tabSize: options.tabSize,
-    insertSpaces: options.insertSpaces
-  };
-}
 var DocumentColorAdapter = class {
   constructor(_worker) {
     this._worker = _worker;
@@ -1944,7 +1884,7 @@ var SelectionRangeAdapter = class {
   }
 };
 
-// src/language/css/cssMode.ts
+// src/css/cssMode.ts
 function setupMode(defaults) {
   const disposables = [];
   const providers = [];
@@ -2003,24 +1943,5 @@ function disposeAll(disposables) {
   }
 }
 export {
-  CompletionAdapter,
-  DefinitionAdapter,
-  DiagnosticsAdapter,
-  DocumentColorAdapter,
-  DocumentFormattingEditProvider,
-  DocumentHighlightAdapter,
-  DocumentLinkAdapter,
-  DocumentRangeFormattingEditProvider,
-  DocumentSymbolAdapter,
-  FoldingRangeAdapter,
-  HoverAdapter,
-  ReferenceAdapter,
-  RenameAdapter,
-  SelectionRangeAdapter,
-  WorkerManager,
-  fromPosition,
-  fromRange,
-  setupMode,
-  toRange,
-  toTextEdit
+  setupMode
 };

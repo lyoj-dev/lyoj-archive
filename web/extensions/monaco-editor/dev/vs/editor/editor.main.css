@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.31.1(5a1b4999493d49c857497ad481d73a737439f305)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
@@ -184,21 +184,6 @@
 	font-style: italic;
 }
 
-.monaco-description-button .monaco-button-label,
-.monaco-description-button .monaco-button-description
-{
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.monaco-description-button .monaco-button-label > .codicon,
-.monaco-description-button .monaco-button-description > .codicon
-{
-	margin: 0 0.2em;
-	color: inherit !important;
-}
-
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -270,7 +255,6 @@
 	text-decoration: none;
 	text-rendering: auto;
 	text-align: center;
-	text-transform: none;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	user-select: none;
@@ -278,7 +262,7 @@
 	-ms-user-select: none;
 }
 
-/* icon rules are dynamically created by the platform theme service (see iconsStyleSheet.ts) */
+/* icon rules are dynamically created in codiconStyles */
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
@@ -490,10 +474,6 @@
 
 .monaco-hover.hidden {
 	display: none;
-}
-
-.monaco-hover a:hover {
-	cursor: pointer;
 }
 
 .monaco-hover .hover-contents:not(.html-hover-contents) {
@@ -1055,6 +1035,12 @@
 	cursor: text;
 }
 
+/* The following selector looks a bit funny, but that is needed to cover all the workbench and the editor!! */
+.vs-dark .mac .monaco-mouse-cursor-text, .hc-black .mac .monaco-mouse-cursor-text,
+.vs-dark.mac .monaco-mouse-cursor-text, .hc-black.mac .monaco-mouse-cursor-text {
+	cursor: -webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAL0lEQVQoz2NgCD3x//9/BhBYBWdhgFVAiVW4JBFKGIa4AqD0//9D3pt4I4tAdAMAHTQ/j5Zom30AAAAASUVORK5CYII=) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAz0lEQVRIx2NgYGBY/R8I/vx5eelX3n82IJ9FxGf6tksvf/8FiTMQAcAGQMDvSwu09abffY8QYSAScNk45G198eX//yev73/4///701eh//kZSARckrNBRvz//+8+6ZohwCzjGNjdgQxkAg7B9WADeBjIBqtJCbhRA0YNoIkBSNmaPEMoNmA0FkYNoFKhapJ6FGyAH3nauaSmPfwI0v/3OukVi0CIZ+F25KrtYcx/CTIy0e+rC7R1Z4KMICVTQQ14feVXIbR695u14+Ir4gwAAD49E54wc1kWAAAAAElFTkSuQmCC) 2x) 5 8, text;
+}
+
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -1091,18 +1077,8 @@
 	animation-name: progress;
 	animation-duration: 4s;
 	animation-iteration-count: infinite;
-	transform: translate3d(0px, 0px, 0px);
 	animation-timing-function: linear;
-}
-
-.monaco-progress-container.infinite.infinite-long-running .progress-bit {
-	/*
-	   The more smooth `linear` timing function can cause
-	   higher GPU consumption as indicated in
-	   https://github.com/microsoft/vscode/issues/97900 &
-	   https://github.com/microsoft/vscode/issues/138396
-	*/
-	animation-timing-function: steps(100);
+	transform: translate3d(0px, 0px, 0px);
 }
 
 /**
@@ -1238,10 +1214,6 @@
 .monaco-sash.horizontal:before {
 	height: var(--sash-hover-size);
 	top: calc(50% - (var(--sash-hover-size) / 2));
-}
-
-.pointer-events-disabled {
-	pointer-events: none !important;
 }
 
 /** Debug **/
@@ -1646,7 +1618,7 @@
 
 .quick-input-message {
 	margin-top: -1px;
-	padding: 5px;
+	padding: 5px 5px 2px 5px;
 	overflow-wrap: break-word;
 }
 
@@ -2423,11 +2395,11 @@
 
 .monaco-editor .codelens-decoration > a:hover {
 	cursor: pointer;
-	color: var(--vscode-editorLink-activeForeground) !important;
+	color: var(--vscoce-editorLink-activeForeground) !important;
 }
 
 .monaco-editor .codelens-decoration > a:hover .codicon {
-	color: var(--vscode-editorLink-activeForeground) !important;
+	color: var(--vscoce-editorLink-activeForeground) !important;
 }
 
 .monaco-editor .codelens-decoration .codicon {
@@ -2461,6 +2433,10 @@
 	-ms-user-select: none;
 }
 
+.monaco-editor .colorpicker-hover:focus {
+	outline: none;
+}
+
 /* Decoration */
 
 .colorpicker-color-decoration {
@@ -2471,7 +2447,6 @@
 	height: 0.8em;
 	line-height: 0.8em;
 	display: inline-block;
-	cursor: pointer;
 }
 
 .hc-black .colorpicker-color-decoration,
@@ -3175,8 +3150,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 .monaco-editor .parameter-hints-widget {
-	/* Must be higher than the sash's z-index and terminal canvases but lower than the suggest widget */
-	z-index: 39;
+	z-index: 10;
 	display: flex;
 	flex-direction: column;
 	line-height: 1.5em;
@@ -3289,8 +3263,6 @@
 .monaco-editor .peekview-widget .head {
 	box-sizing: border-box;
 	display: flex;
-	justify-content: space-between;
-	flex-wrap: nowrap;
 }
 
 .monaco-editor .peekview-widget .head .peekview-title {
@@ -3299,8 +3271,6 @@
 	font-size: 13px;
 	margin-left: 20px;
 	min-width: 0;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
 
 .monaco-editor .peekview-widget .head .peekview-title.clickable {
@@ -3310,14 +3280,10 @@
 .monaco-editor .peekview-widget .head .peekview-title .dirname:not(:empty) {
 	font-size: 0.9em;
 	margin-left: 0.5em;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
 
 .monaco-editor .peekview-widget .head .peekview-title .meta {
 	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .monaco-editor .peekview-widget .head .peekview-title .dirname {
@@ -3550,10 +3516,6 @@
 	display: flex;
 }
 
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row:not(.focused) .monaco-icon-label {
-	color: var(--vscode-editorSuggestWidget-foreground);
-}
-
 .monaco-editor .suggest-widget:not(.frozen) .monaco-highlighted-label .highlight {
 	font-weight: bold;
 }
@@ -3642,7 +3604,7 @@
 
 /** Ellipsis on hover **/
 
-.monaco-editor .suggest-widget:not(.docs-side) .monaco-list .monaco-list-row.focused:hover>.contents>.main>.right.can-expand-details>.details-label {
+.monaco-editor .suggest-widget:not(.docs-side) .monaco-list .monaco-list-row:hover>.contents>.main>.right.can-expand-details>.details-label {
 	width: calc(100% - 26px);
 }
 
@@ -3697,7 +3659,7 @@
 	display: inline-block;
 }
 
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused:hover>.contents>.main>.right>.readMore {
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row:hover>.contents>.main>.right>.readMore {
 	visibility: visible;
 }
 
@@ -3814,7 +3776,6 @@
 
 .monaco-editor .suggest-details.no-type>.monaco-scrollable-element>.body>.docs {
 	margin-right: 24px;
-	overflow: hidden;
 }
 
 .monaco-editor .suggest-details>.monaco-scrollable-element>.body>.docs.markdown-docs {

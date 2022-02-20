@@ -60,7 +60,7 @@ export var ToggleHighContrastNLS;
 (function (ToggleHighContrastNLS) {
     ToggleHighContrastNLS.toggleHighContrast = nls.localize('toggleHighContrast', "Toggle High Contrast Theme");
 })(ToggleHighContrastNLS || (ToggleHighContrastNLS = {}));
-export var StandaloneServicesNLS;
-(function (StandaloneServicesNLS) {
-    StandaloneServicesNLS.bulkEditServiceSummary = nls.localize('bulkEditServiceSummary', "Made {0} edits in {1} files");
-})(StandaloneServicesNLS || (StandaloneServicesNLS = {}));
+export var SimpleServicesNLS;
+(function (SimpleServicesNLS) {
+    SimpleServicesNLS.bulkEditServiceSummary = nls.localize('bulkEditServiceSummary', "Made {0} edits in {1} files");
+})(SimpleServicesNLS || (SimpleServicesNLS = {}));

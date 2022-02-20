@@ -2,9 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { assertNever } from '../../../base/common/types.js';
 import { Position } from '../core/position.js';
-import { InjectedTextCursorStops } from '../model.js';
 /**
  * *input*:
  * ```
@@ -185,30 +183,16 @@ export class ModelLineProjectionData {
             return offsetInInputWithInjections;
         }
         if (affinity === 2 /* None */) {
-            if (offsetInInputWithInjections === injectedText.offsetInInputWithInjections + injectedText.length
-                && hasRightCursorStop(this.injectionOptions[injectedText.injectedTextIndex].cursorStops)) {
+            if (offsetInInputWithInjections === injectedText.offsetInInputWithInjections + injectedText.length) {
+                // go to the end of this injected text
                 return injectedText.offsetInInputWithInjections + injectedText.length;
             }
             else {
-                let result = injectedText.offsetInInputWithInjections;
-                if (hasLeftCursorStop(this.injectionOptions[injectedText.injectedTextIndex].cursorStops)) {
-                    return result;
-                }
-                let index = injectedText.injectedTextIndex - 1;
-                while (index >= 0 && this.injectionOffsets[index] === this.injectionOffsets[injectedText.injectedTextIndex]) {
-                    if (hasRightCursorStop(this.injectionOptions[index].cursorStops)) {
-                        break;
-                    }
-                    result -= this.injectionOptions[index].content.length;
-                    if (hasLeftCursorStop(this.injectionOptions[index].cursorStops)) {
-                        break;
-                    }
-                    index--;
-                }
-                return result;
+                // go to the start of this injected text
+                return injectedText.offsetInInputWithInjections;
             }
         }
-        else if (affinity === 1 /* Right */) {
+        if (affinity === 1 /* Right */) {
             let result = injectedText.offsetInInputWithInjections + injectedText.length;
             let index = injectedText.injectedTextIndex;
             // traverse all injected text that touch each other
@@ -218,18 +202,15 @@ export class ModelLineProjectionData {
             }
             return result;
         }
-        else if (affinity === 0 /* Left */) {
-            // affinity is left
-            let result = injectedText.offsetInInputWithInjections;
-            let index = injectedText.injectedTextIndex;
-            // traverse all injected text that touch each other
-            while (index - 1 >= 0 && this.injectionOffsets[index - 1] === this.injectionOffsets[index]) {
-                result -= this.injectionOptions[index - 1].content.length;
-                index--;
-            }
-            return result;
+        // affinity is left
+        let result = injectedText.offsetInInputWithInjections;
+        let index = injectedText.injectedTextIndex;
+        // traverse all injected text that touch each other
+        while (index - 1 >= 0 && this.injectionOffsets[index - 1] === this.injectionOffsets[index]) {
+            result -= this.injectionOptions[index - 1].content.length;
+            index++;
         }
-        assertNever(affinity);
+        return result;
     }
     getInjectedText(outputLineIndex, outputOffset) {
         const offset = this.outputPositionToOffsetInInputWithInjections(outputLineIndex, outputOffset);
@@ -267,18 +248,6 @@ export class ModelLineProjectionData {
         }
         return undefined;
     }
-}
-function hasRightCursorStop(cursorStop) {
-    if (cursorStop === null || cursorStop === undefined) {
-        return true;
-    }
-    return cursorStop === InjectedTextCursorStops.Right || cursorStop === InjectedTextCursorStops.Both;
-}
-function hasLeftCursorStop(cursorStop) {
-    if (cursorStop === null || cursorStop === undefined) {
-        return true;
-    }
-    return cursorStop === InjectedTextCursorStops.Left || cursorStop === InjectedTextCursorStops.Both;
 }
 export class InjectedText {
     constructor(options) {

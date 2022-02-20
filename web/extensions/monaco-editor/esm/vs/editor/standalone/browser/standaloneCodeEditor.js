@@ -17,14 +17,14 @@ import { ICodeEditorService } from '../../browser/services/codeEditorService.js'
 import { CodeEditorWidget } from '../../browser/widget/codeEditorWidget.js';
 import { DiffEditorWidget } from '../../browser/widget/diffEditorWidget.js';
 import { InternalEditorAction } from '../../common/editorAction.js';
-import { IEditorWorkerService } from '../../common/services/editorWorker.js';
-import { StandaloneKeybindingService, updateConfigurationService } from './standaloneServices.js';
-import { IStandaloneThemeService } from '../common/standaloneTheme.js';
+import { IEditorWorkerService } from '../../common/services/editorWorkerService.js';
+import { StandaloneKeybindingService, updateConfigurationService } from './simpleServices.js';
+import { IStandaloneThemeService } from '../common/standaloneThemeService.js';
 import { MenuId, MenuRegistry } from '../../../platform/actions/common/actions.js';
 import { CommandsRegistry, ICommandService } from '../../../platform/commands/common/commands.js';
 import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
 import { ContextKeyExpr, IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
-import { IContextMenuService } from '../../../platform/contextview/browser/contextView.js';
+import { IContextViewService, IContextMenuService } from '../../../platform/contextview/browser/contextView.js';
 import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../platform/keybinding/common/keybinding.js';
 import { INotificationService } from '../../../platform/notification/common/notification.js';
@@ -33,11 +33,10 @@ import { IAccessibilityService } from '../../../platform/accessibility/common/ac
 import { StandaloneCodeEditorNLS } from '../../common/standaloneStrings.js';
 import { IClipboardService } from '../../../platform/clipboard/common/clipboardService.js';
 import { IEditorProgressService } from '../../../platform/progress/common/progress.js';
-import { IModelService } from '../../common/services/model.js';
-import { ILanguageService } from '../../common/services/language.js';
-import { StandaloneCodeEditorService } from './standaloneCodeEditorService.js';
-import { PLAINTEXT_LANGUAGE_ID } from '../../common/languages/modesRegistry.js';
-import { ILanguageConfigurationService } from '../../common/languages/languageConfigurationRegistry.js';
+import { IModelService } from '../../common/services/modelService.js';
+import { IModeService } from '../../common/services/modeService.js';
+import { StandaloneCodeEditorServiceImpl } from './standaloneCodeServiceImpl.js';
+import { Mimes } from '../../../base/common/mime.js';
 let LAST_GENERATED_COMMAND_ID = 0;
 let ariaDomNodeCreated = false;
 /**
@@ -58,11 +57,11 @@ function createAriaDomNode(parent) {
  * A code editor to be used both by the standalone editor and the standalone diff editor.
  */
 let StandaloneCodeEditor = class StandaloneCodeEditor extends CodeEditorWidget {
-    constructor(domElement, _options, instantiationService, codeEditorService, commandService, contextKeyService, keybindingService, themeService, notificationService, accessibilityService, languageConfigurationService) {
+    constructor(domElement, _options, instantiationService, codeEditorService, commandService, contextKeyService, keybindingService, themeService, notificationService, accessibilityService) {
         const options = Object.assign({}, _options);
         options.ariaLabel = options.ariaLabel || StandaloneCodeEditorNLS.editorViewAccessibleLabel;
         options.ariaLabel = options.ariaLabel + ';' + (StandaloneCodeEditorNLS.accessibilityHelpMessage);
-        super(domElement, options, {}, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService);
+        super(domElement, options, {}, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService);
         if (keybindingService instanceof StandaloneKeybindingService) {
             this._standaloneKeybindingService = keybindingService;
         }
@@ -76,8 +75,8 @@ let StandaloneCodeEditor = class StandaloneCodeEditor extends CodeEditorWidget {
             console.warn('Cannot add command because the editor is configured with an unrecognized KeybindingService');
             return null;
         }
-        const commandId = 'DYNAMIC_' + (++LAST_GENERATED_COMMAND_ID);
-        const whenExpression = ContextKeyExpr.deserialize(context);
+        let commandId = 'DYNAMIC_' + (++LAST_GENERATED_COMMAND_ID);
+        let whenExpression = ContextKeyExpr.deserialize(context);
         this._standaloneKeybindingService.addDynamicKeybinding(commandId, keybinding, handler, whenExpression);
         return commandId;
     }
@@ -110,7 +109,7 @@ let StandaloneCodeEditor = class StandaloneCodeEditor extends CodeEditorWidget {
         toDispose.add(CommandsRegistry.registerCommand(uniqueId, run));
         // Register the context menu item
         if (contextMenuGroupId) {
-            const menuItem = {
+            let menuItem = {
                 command: {
                     id: uniqueId,
                     title: label
@@ -128,7 +127,7 @@ let StandaloneCodeEditor = class StandaloneCodeEditor extends CodeEditorWidget {
             }
         }
         // Finally, register an internal editor action
-        const internalAction = new InternalEditorAction(uniqueId, label, label, precondition, run, this._contextKeyService);
+        let internalAction = new InternalEditorAction(uniqueId, label, label, precondition, run, this._contextKeyService);
         // Store it under the original id, such that trigger with the original id will work
         this._actions[id] = internalAction;
         toDispose.add(toDisposable(() => {
@@ -137,7 +136,7 @@ let StandaloneCodeEditor = class StandaloneCodeEditor extends CodeEditorWidget {
         return toDispose;
     }
     _triggerCommand(handlerId, payload) {
-        if (this._codeEditorService instanceof StandaloneCodeEditorService) {
+        if (this._codeEditorService instanceof StandaloneCodeEditorServiceImpl) {
             // Help commands find this editor as the active editor
             try {
                 this._codeEditorService.setActiveCodeEditor(this);
@@ -160,12 +159,11 @@ StandaloneCodeEditor = __decorate([
     __param(6, IKeybindingService),
     __param(7, IThemeService),
     __param(8, INotificationService),
-    __param(9, IAccessibilityService),
-    __param(10, ILanguageConfigurationService)
+    __param(9, IAccessibilityService)
 ], StandaloneCodeEditor);
 export { StandaloneCodeEditor };
 let StandaloneEditor = class StandaloneEditor extends StandaloneCodeEditor {
-    constructor(domElement, _options, instantiationService, codeEditorService, commandService, contextKeyService, keybindingService, themeService, notificationService, configurationService, accessibilityService, modelService, languageService, languageConfigurationService) {
+    constructor(domElement, _options, toDispose, instantiationService, codeEditorService, commandService, contextKeyService, keybindingService, contextViewService, themeService, notificationService, configurationService, accessibilityService, modelService, modeService) {
         const options = Object.assign({}, _options);
         updateConfigurationService(configurationService, options, false);
         const themeDomRegistration = themeService.registerEditorContainer(domElement);
@@ -175,16 +173,17 @@ let StandaloneEditor = class StandaloneEditor extends StandaloneCodeEditor {
         if (typeof options.autoDetectHighContrast !== 'undefined') {
             themeService.setAutoDetectHighContrast(Boolean(options.autoDetectHighContrast));
         }
-        const _model = options.model;
+        let _model = options.model;
         delete options.model;
-        super(domElement, options, instantiationService, codeEditorService, commandService, contextKeyService, keybindingService, themeService, notificationService, accessibilityService, languageConfigurationService);
+        super(domElement, options, instantiationService, codeEditorService, commandService, contextKeyService, keybindingService, themeService, notificationService, accessibilityService);
+        this._contextViewService = contextViewService;
         this._configurationService = configurationService;
         this._standaloneThemeService = themeService;
+        this._register(toDispose);
         this._register(themeDomRegistration);
         let model;
         if (typeof _model === 'undefined') {
-            const languageId = languageService.getLanguageIdByMimeType(options.language) || options.language || PLAINTEXT_LANGUAGE_ID;
-            model = createTextModel(modelService, languageService, options.value || '', languageId, undefined);
+            model = createTextModel(modelService, modeService, options.value || '', options.language || Mimes.text, undefined);
             this._ownsModel = true;
         }
         else {
@@ -193,7 +192,7 @@ let StandaloneEditor = class StandaloneEditor extends StandaloneCodeEditor {
         }
         this._attachModel(model);
         if (model) {
-            const e = {
+            let e = {
                 oldModelUrl: null,
                 newModelUrl: model.uri
             };
@@ -213,6 +212,12 @@ let StandaloneEditor = class StandaloneEditor extends StandaloneCodeEditor {
         }
         super.updateOptions(newOptions);
     }
+    _attachModel(model) {
+        super._attachModel(model);
+        if (this._modelData) {
+            this._contextViewService.setContainer(this._modelData.view.domNode.domNode);
+        }
+    }
     _postDetachModelCleanup(detachedModel) {
         super._postDetachModelCleanup(detachedModel);
         if (detachedModel && this._ownsModel) {
@@ -222,22 +227,22 @@ let StandaloneEditor = class StandaloneEditor extends StandaloneCodeEditor {
     }
 };
 StandaloneEditor = __decorate([
-    __param(2, IInstantiationService),
-    __param(3, ICodeEditorService),
-    __param(4, ICommandService),
-    __param(5, IContextKeyService),
-    __param(6, IKeybindingService),
-    __param(7, IStandaloneThemeService),
-    __param(8, INotificationService),
-    __param(9, IConfigurationService),
-    __param(10, IAccessibilityService),
-    __param(11, IModelService),
-    __param(12, ILanguageService),
-    __param(13, ILanguageConfigurationService)
+    __param(3, IInstantiationService),
+    __param(4, ICodeEditorService),
+    __param(5, ICommandService),
+    __param(6, IContextKeyService),
+    __param(7, IKeybindingService),
+    __param(8, IContextViewService),
+    __param(9, IStandaloneThemeService),
+    __param(10, INotificationService),
+    __param(11, IConfigurationService),
+    __param(12, IAccessibilityService),
+    __param(13, IModelService),
+    __param(14, IModeService)
 ], StandaloneEditor);
 export { StandaloneEditor };
 let StandaloneDiffEditor = class StandaloneDiffEditor extends DiffEditorWidget {
-    constructor(domElement, _options, instantiationService, contextKeyService, editorWorkerService, codeEditorService, themeService, notificationService, configurationService, contextMenuService, editorProgressService, clipboardService) {
+    constructor(domElement, _options, toDispose, instantiationService, contextKeyService, keybindingService, contextViewService, editorWorkerService, codeEditorService, themeService, notificationService, configurationService, contextMenuService, editorProgressService, clipboardService) {
         const options = Object.assign({}, _options);
         updateConfigurationService(configurationService, options, true);
         const themeDomRegistration = themeService.registerEditorContainer(domElement);
@@ -248,9 +253,12 @@ let StandaloneDiffEditor = class StandaloneDiffEditor extends DiffEditorWidget {
             themeService.setAutoDetectHighContrast(Boolean(options.autoDetectHighContrast));
         }
         super(domElement, options, {}, clipboardService, editorWorkerService, contextKeyService, instantiationService, codeEditorService, themeService, notificationService, contextMenuService, editorProgressService);
+        this._contextViewService = contextViewService;
         this._configurationService = configurationService;
         this._standaloneThemeService = themeService;
+        this._register(toDispose);
         this._register(themeDomRegistration);
+        this._contextViewService.setContainer(this._containerDomElement);
     }
     dispose() {
         super.dispose();
@@ -285,32 +293,34 @@ let StandaloneDiffEditor = class StandaloneDiffEditor extends DiffEditorWidget {
     }
 };
 StandaloneDiffEditor = __decorate([
-    __param(2, IInstantiationService),
-    __param(3, IContextKeyService),
-    __param(4, IEditorWorkerService),
-    __param(5, ICodeEditorService),
-    __param(6, IStandaloneThemeService),
-    __param(7, INotificationService),
-    __param(8, IConfigurationService),
-    __param(9, IContextMenuService),
-    __param(10, IEditorProgressService),
-    __param(11, IClipboardService)
+    __param(3, IInstantiationService),
+    __param(4, IContextKeyService),
+    __param(5, IKeybindingService),
+    __param(6, IContextViewService),
+    __param(7, IEditorWorkerService),
+    __param(8, ICodeEditorService),
+    __param(9, IStandaloneThemeService),
+    __param(10, INotificationService),
+    __param(11, IConfigurationService),
+    __param(12, IContextMenuService),
+    __param(13, IEditorProgressService),
+    __param(14, IClipboardService)
 ], StandaloneDiffEditor);
 export { StandaloneDiffEditor };
 /**
  * @internal
  */
-export function createTextModel(modelService, languageService, value, languageId, uri) {
+export function createTextModel(modelService, modeService, value, language, uri) {
     value = value || '';
-    if (!languageId) {
+    if (!language) {
         const firstLF = value.indexOf('\n');
         let firstLine = value;
         if (firstLF !== -1) {
             firstLine = value.substring(0, firstLF);
         }
-        return doCreateModel(modelService, value, languageService.createByFilepathOrFirstLine(uri || null, firstLine), uri);
+        return doCreateModel(modelService, value, modeService.createByFilepathOrFirstLine(uri || null, firstLine), uri);
     }
-    return doCreateModel(modelService, value, languageService.createById(languageId), uri);
+    return doCreateModel(modelService, value, modeService.create(language), uri);
 }
 /**
  * @internal

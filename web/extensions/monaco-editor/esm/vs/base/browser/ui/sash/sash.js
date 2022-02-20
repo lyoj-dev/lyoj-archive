@@ -94,7 +94,6 @@ __decorate([
 __decorate([
     memoize
 ], OrthogonalPointerEventFactory.prototype, "onPointerUp", null);
-const PointerEventsDisabledCssClass = 'pointer-events-disabled';
 /**
  * The {@link Sash} is the UI component which allows the user to resize other
  * components. It's usually an invisible horizontal or vertical line which, when
@@ -289,7 +288,7 @@ export class Sash extends Disposable {
         }
         const iframes = getElementsByTagName('iframe');
         for (const iframe of iframes) {
-            iframe.classList.add(PointerEventsDisabledCssClass); // disable mouse events on iframes as long as we drag the sash
+            iframe.style.pointerEvents = 'none'; // disable mouse events on iframes as long as we drag the sash
         }
         const startX = event.pageX;
         const startY = event.pageY;
@@ -345,7 +344,7 @@ export class Sash extends Disposable {
             this._onDidEnd.fire();
             disposables.dispose();
             for (const iframe of iframes) {
-                iframe.classList.remove(PointerEventsDisabledCssClass);
+                iframe.style.pointerEvents = 'auto';
             }
         };
         pointerEventFactory.onPointerMove(onPointerMove, null, disposables);

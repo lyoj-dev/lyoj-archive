@@ -12,8 +12,8 @@
     session_start(); mysqli_query($conn, "SET NAMES UTF8");
     $sql = "SELECT * FROM problem WHERE id=$id";
     $result = mysqli_query($conn, $sql);
-    $myfile = fopen("../../../problem/$id/config.json", "r") or die("Unable to open file!");
-    $json = fread($myfile,filesize("../../../problem/$id/config.json"));
+    $myfile = fopen("../../../../problem/$id/config.json", "r") or die("Unable to open file!");
+    $json = fread($myfile,filesize("../../../../problem/$id/config.json"));
     $json = json_decode($json,true); 
     $row = mysqli_fetch_assoc($result);
     $json["title"] = $row["name"];

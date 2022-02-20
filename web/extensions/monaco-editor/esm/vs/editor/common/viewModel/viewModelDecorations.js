@@ -72,38 +72,37 @@ export class ViewModelDecorations {
         const modelDecorations = this._linesCollection.getDecorationsInRange(viewportRange, this.editorId, filterValidationDecorations(this.configuration.options));
         const startLineNumber = viewportRange.startLineNumber;
         const endLineNumber = viewportRange.endLineNumber;
-        const decorationsInViewport = [];
-        let decorationsInViewportLen = 0;
-        const inlineDecorations = [];
+        let decorationsInViewport = [], decorationsInViewportLen = 0;
+        let inlineDecorations = [];
         for (let j = startLineNumber; j <= endLineNumber; j++) {
             inlineDecorations[j - startLineNumber] = [];
         }
         for (let i = 0, len = modelDecorations.length; i < len; i++) {
-            const modelDecoration = modelDecorations[i];
-            const decorationOptions = modelDecoration.options;
+            let modelDecoration = modelDecorations[i];
+            let decorationOptions = modelDecoration.options;
             if (!isModelDecorationVisible(this.model, modelDecoration)) {
                 continue;
             }
-            const viewModelDecoration = this._getOrCreateViewModelDecoration(modelDecoration);
-            const viewRange = viewModelDecoration.range;
+            let viewModelDecoration = this._getOrCreateViewModelDecoration(modelDecoration);
+            let viewRange = viewModelDecoration.range;
             decorationsInViewport[decorationsInViewportLen++] = viewModelDecoration;
             if (decorationOptions.inlineClassName) {
-                const inlineDecoration = new InlineDecoration(viewRange, decorationOptions.inlineClassName, decorationOptions.inlineClassNameAffectsLetterSpacing ? 3 /* RegularAffectingLetterSpacing */ : 0 /* Regular */);
-                const intersectedStartLineNumber = Math.max(startLineNumber, viewRange.startLineNumber);
-                const intersectedEndLineNumber = Math.min(endLineNumber, viewRange.endLineNumber);
+                let inlineDecoration = new InlineDecoration(viewRange, decorationOptions.inlineClassName, decorationOptions.inlineClassNameAffectsLetterSpacing ? 3 /* RegularAffectingLetterSpacing */ : 0 /* Regular */);
+                let intersectedStartLineNumber = Math.max(startLineNumber, viewRange.startLineNumber);
+                let intersectedEndLineNumber = Math.min(endLineNumber, viewRange.endLineNumber);
                 for (let j = intersectedStartLineNumber; j <= intersectedEndLineNumber; j++) {
                     inlineDecorations[j - startLineNumber].push(inlineDecoration);
                 }
             }
             if (decorationOptions.beforeContentClassName) {
                 if (startLineNumber <= viewRange.startLineNumber && viewRange.startLineNumber <= endLineNumber) {
-                    const inlineDecoration = new InlineDecoration(new Range(viewRange.startLineNumber, viewRange.startColumn, viewRange.startLineNumber, viewRange.startColumn), decorationOptions.beforeContentClassName, 1 /* Before */);
+                    let inlineDecoration = new InlineDecoration(new Range(viewRange.startLineNumber, viewRange.startColumn, viewRange.startLineNumber, viewRange.startColumn), decorationOptions.beforeContentClassName, 1 /* Before */);
                     inlineDecorations[viewRange.startLineNumber - startLineNumber].push(inlineDecoration);
                 }
             }
             if (decorationOptions.afterContentClassName) {
                 if (startLineNumber <= viewRange.endLineNumber && viewRange.endLineNumber <= endLineNumber) {
-                    const inlineDecoration = new InlineDecoration(new Range(viewRange.endLineNumber, viewRange.endColumn, viewRange.endLineNumber, viewRange.endColumn), decorationOptions.afterContentClassName, 2 /* After */);
+                    let inlineDecoration = new InlineDecoration(new Range(viewRange.endLineNumber, viewRange.endColumn, viewRange.endLineNumber, viewRange.endColumn), decorationOptions.afterContentClassName, 2 /* After */);
                     inlineDecorations[viewRange.endLineNumber - startLineNumber].push(inlineDecoration);
                 }
             }
@@ -115,19 +114,13 @@ export class ViewModelDecorations {
     }
 }
 export function isModelDecorationVisible(model, decoration) {
-    if (decoration.options.hideInCommentTokens && isModelDecorationInComment(model, decoration)) {
-        return false;
-    }
-    if (decoration.options.hideInStringTokens && isModelDecorationInString(model, decoration)) {
-        return false;
+    if (decoration.options.hideInCommentTokens) {
+        const allTokensAreComments = testTokensInRange(model, decoration.range, (tokenType) => tokenType === 1 /* Comment */);
+        if (allTokensAreComments) {
+            return false;
+        }
     }
     return true;
-}
-export function isModelDecorationInComment(model, decoration) {
-    return testTokensInRange(model, decoration.range, (tokenType) => tokenType === 1 /* Comment */);
-}
-export function isModelDecorationInString(model, decoration) {
-    return testTokensInRange(model, decoration.range, (tokenType) => tokenType === 2 /* String */);
 }
 /**
  * Calls the callback for every token that intersects the range.

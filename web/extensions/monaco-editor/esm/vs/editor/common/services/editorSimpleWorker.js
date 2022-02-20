@@ -18,13 +18,13 @@ import { Position } from '../core/position.js';
 import { Range } from '../core/range.js';
 import { DiffComputer } from '../diff/diffComputer.js';
 import { MirrorTextModel as BaseMirrorModel } from '../model/mirrorTextModel.js';
-import { ensureValidWordDefinition, getWordAtText } from '../core/wordHelper.js';
-import { computeLinks } from '../languages/linkComputer.js';
-import { BasicInplaceReplace } from '../languages/supports/inplaceReplaceSupport.js';
-import { createMonacoBaseAPI } from './editorBaseApi.js';
+import { ensureValidWordDefinition, getWordAtText } from '../model/wordHelper.js';
+import { computeLinks } from '../modes/linkComputer.js';
+import { BasicInplaceReplace } from '../modes/supports/inplaceReplaceSupport.js';
+import { createMonacoBaseAPI } from '../standalone/standaloneBase.js';
 import * as types from '../../../base/common/types.js';
 import { StopWatch } from '../../../base/common/stopwatch.js';
-import { UnicodeTextModelHighlighter } from '../languages/unicodeTextModelHighlighter.js';
+import { UnicodeTextModelHighlighter } from '../modes/unicodeTextModelHighlighter.js';
 /**
  * @internal
  */
@@ -48,7 +48,7 @@ export class MirrorModel extends BaseMirrorModel {
         return this._lines[lineNumber - 1];
     }
     getWordAtPosition(position, wordDefinition) {
-        const wordAtText = getWordAtText(position.column, ensureValidWordDefinition(wordDefinition), this._lines[position.lineNumber - 1], 0);
+        let wordAtText = getWordAtText(position.column, ensureValidWordDefinition(wordDefinition), this._lines[position.lineNumber - 1], 0);
         if (wordAtText) {
             return new Range(position.lineNumber, wordAtText.startColumn, position.lineNumber, wordAtText.endColumn);
         }
@@ -85,9 +85,9 @@ export class MirrorModel extends BaseMirrorModel {
         };
     }
     getLineWords(lineNumber, wordDefinition) {
-        const content = this._lines[lineNumber - 1];
-        const ranges = this._wordenize(content, wordDefinition);
-        const words = [];
+        let content = this._lines[lineNumber - 1];
+        let ranges = this._wordenize(content, wordDefinition);
+        let words = [];
         for (const range of ranges) {
             words.push({
                 word: content.substring(range.start, range.end),
@@ -115,10 +115,10 @@ export class MirrorModel extends BaseMirrorModel {
         if (range.startLineNumber === range.endLineNumber) {
             return this._lines[range.startLineNumber - 1].substring(range.startColumn - 1, range.endColumn - 1);
         }
-        const lineEnding = this._eol;
-        const startLineIndex = range.startLineNumber - 1;
-        const endLineIndex = range.endLineNumber - 1;
-        const resultLines = [];
+        let lineEnding = this._eol;
+        let startLineIndex = range.startLineNumber - 1;
+        let endLineIndex = range.endLineNumber - 1;
+        let resultLines = [];
         resultLines.push(this._lines[startLineIndex].substring(range.startColumn - 1));
         for (let i = startLineIndex + 1; i < endLineIndex; i++) {
             resultLines.push(this._lines[i]);
@@ -135,8 +135,8 @@ export class MirrorModel extends BaseMirrorModel {
         offset = Math.floor(offset);
         offset = Math.max(0, offset);
         this._ensureLineStarts();
-        const out = this._lineStarts.getIndexOf(offset);
-        const lineLength = this._lines[out.index].length;
+        let out = this._lineStarts.getIndexOf(offset);
+        let lineLength = this._lines[out.index].length;
         // Ensure we return a valid position
         return {
             lineNumber: 1 + out.index,
@@ -176,7 +176,7 @@ export class MirrorModel extends BaseMirrorModel {
             hasChanged = true;
         }
         else {
-            const maxCharacter = this._lines[lineNumber - 1].length + 1;
+            let maxCharacter = this._lines[lineNumber - 1].length + 1;
             if (column < 1) {
                 column = 1;
                 hasChanged = true;
@@ -211,7 +211,7 @@ export class EditorSimpleWorker {
         return this._models[uri];
     }
     _getModels() {
-        const all = [];
+        let all = [];
         Object.keys(this._models).forEach((key) => all.push(this._models[key]));
         return all;
     }
@@ -222,7 +222,7 @@ export class EditorSimpleWorker {
         if (!this._models[strURL]) {
             return;
         }
-        const model = this._models[strURL];
+        let model = this._models[strURL];
         model.onEvents(e);
     }
     acceptRemovedModel(strURL) {
@@ -294,8 +294,8 @@ export class EditorSimpleWorker {
                     return Range.compareRangesUsingStarts(a.range, b.range);
                 }
                 // eol only changes should go to the end
-                const aRng = a.range ? 0 : 1;
-                const bRng = b.range ? 0 : 1;
+                let aRng = a.range ? 0 : 1;
+                let bRng = b.range ? 0 : 1;
                 return aRng - bRng;
             });
             for (let { range, text, eol } of edits) {
@@ -341,7 +341,7 @@ export class EditorSimpleWorker {
     // ---- END minimal edits ---------------------------------------------------------------
     computeLinks(modelUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const model = this._getModel(modelUrl);
+            let model = this._getModel(modelUrl);
             if (!model) {
                 return null;
             }
@@ -375,14 +375,14 @@ export class EditorSimpleWorker {
     //#region -- word ranges --
     computeWordRanges(modelUrl, range, wordDef, wordDefFlags) {
         return __awaiter(this, void 0, void 0, function* () {
-            const model = this._getModel(modelUrl);
+            let model = this._getModel(modelUrl);
             if (!model) {
                 return Object.create(null);
             }
             const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
             const result = Object.create(null);
             for (let line = range.startLineNumber; line < range.endLineNumber; line++) {
-                const words = model.getLineWords(line, wordDefRegExp);
+                let words = model.getLineWords(line, wordDefRegExp);
                 for (const word of words) {
                     if (!isNaN(Number(word.word))) {
                         continue;
@@ -406,11 +406,11 @@ export class EditorSimpleWorker {
     //#endregion
     navigateValueSet(modelUrl, range, up, wordDef, wordDefFlags) {
         return __awaiter(this, void 0, void 0, function* () {
-            const model = this._getModel(modelUrl);
+            let model = this._getModel(modelUrl);
             if (!model) {
                 return null;
             }
-            const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+            let wordDefRegExp = new RegExp(wordDef, wordDefFlags);
             if (range.startColumn === range.endColumn) {
                 range = {
                     startLineNumber: range.startLineNumber,
@@ -419,13 +419,13 @@ export class EditorSimpleWorker {
                     endColumn: range.endColumn + 1
                 };
             }
-            const selectionText = model.getValueInRange(range);
-            const wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
+            let selectionText = model.getValueInRange(range);
+            let wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
             if (!wordRange) {
                 return null;
             }
-            const word = model.getValueInRange(wordRange);
-            const result = BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
+            let word = model.getValueInRange(wordRange);
+            let result = BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
             return result;
         });
     }
@@ -435,7 +435,7 @@ export class EditorSimpleWorker {
             return this._host.fhr(method, args);
         };
         const foreignHost = types.createProxyObject(foreignHostMethods, proxyMethodRequest);
-        const ctx = {
+        let ctx = {
             host: foreignHost,
             getMirrorModels: () => {
                 return this._getModels();

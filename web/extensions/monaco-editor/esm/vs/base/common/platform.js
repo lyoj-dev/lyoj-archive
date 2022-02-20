@@ -91,6 +91,12 @@ export const userAgent = _userAgent;
  */
 export const language = _language;
 /**
+ * The OS locale or the locale specified by --locale. The format of
+ * the string is all lower case (e.g. zh-tw for Traditional
+ * Chinese). The UI is not necessarily shown in the provided locale.
+ */
+export const locale = _locale;
+/**
  * See https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#:~:text=than%204%2C%20then-,set%20timeout%20to%204,-.
  *
  * Works similarly to `setTimeout(0)` but doesn't suffer from the 4ms artificial delay
@@ -123,6 +129,19 @@ export const setTimeout0 = (() => {
     }
     return (callback) => setTimeout(callback);
 })();
+export const setImmediate = (function defineSetImmediate() {
+    if (globals.setImmediate) {
+        return globals.setImmediate.bind(globals);
+    }
+    if (typeof globals.postMessage === 'function' && !globals.importScripts) {
+        return setTimeout0;
+    }
+    if (typeof (nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.nextTick) === 'function') {
+        return nodeProcess.nextTick.bind(nodeProcess);
+    }
+    const _promise = Promise.resolve();
+    return (callback) => _promise.then(callback);
+})();
 export const OS = (_isMacintosh || _isIOS ? 2 /* Macintosh */ : (_isWindows ? 1 /* Windows */ : 3 /* Linux */));
 let _isLittleEndian = true;
 let _isLittleEndianComputed = false;
@@ -137,8 +156,3 @@ export function isLittleEndian() {
     }
     return _isLittleEndian;
 }
-export const isChrome = !!(userAgent && userAgent.indexOf('Chrome') >= 0);
-export const isFirefox = !!(userAgent && userAgent.indexOf('Firefox') >= 0);
-export const isSafari = !!(!isChrome && (userAgent && userAgent.indexOf('Safari') >= 0));
-export const isEdge = !!(userAgent && userAgent.indexOf('Edg/') >= 0);
-export const isAndroid = !!(userAgent && userAgent.indexOf('Android') >= 0);

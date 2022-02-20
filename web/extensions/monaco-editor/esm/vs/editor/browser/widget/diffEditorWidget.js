@@ -20,8 +20,8 @@ import { Sash } from '../../../base/browser/ui/sash/sash.js';
 import { RunOnceScheduler } from '../../../base/common/async.js';
 import { Emitter } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
-import { applyFontInfo } from '../config/domFontInfo.js';
-import { StableEditorScrollState } from '../stableEditorScroll.js';
+import { Configuration } from '../config/configuration.js';
+import { StableEditorScrollState } from '../core/editorState.js';
 import { ICodeEditorService } from '../services/codeEditorService.js';
 import { CodeEditorWidget } from './codeEditorWidget.js';
 import { DiffReview } from './diffReview.js';
@@ -30,8 +30,8 @@ import { Range } from '../../common/core/range.js';
 import { createStringBuilder } from '../../common/core/stringBuilder.js';
 import * as editorCommon from '../../common/editorCommon.js';
 import { ModelDecorationOptions } from '../../common/model/textModel.js';
-import { IEditorWorkerService } from '../../common/services/editorWorker.js';
-import { OverviewRulerZone } from '../../common/viewModel/overviewZoneManager.js';
+import { IEditorWorkerService } from '../../common/services/editorWorkerService.js';
+import { OverviewRulerZone } from '../../common/view/overviewZoneManager.js';
 import { LineDecoration } from '../../common/viewLayout/lineDecorations.js';
 import { RenderLineInput, renderViewLine } from '../../common/viewLayout/viewLineRenderer.js';
 import { InlineDecoration, ViewLineRenderingData } from '../../common/viewModel/viewModel.js';
@@ -200,8 +200,7 @@ let DiffEditorWidget = class DiffEditorWidget extends Disposable {
         this._modifiedEditorState = new VisualEditorState(contextMenuService, clipboardService);
         this._isVisible = true;
         this._isHandlingScrollEvent = false;
-        this._elementSizeObserver = this._register(new ElementSizeObserver(this._containerDomElement, options.dimension));
-        this._register(this._elementSizeObserver.onDidChange(() => this._onDidContainerSizeChanged()));
+        this._elementSizeObserver = this._register(new ElementSizeObserver(this._containerDomElement, options.dimension, () => this._onDidContainerSizeChanged()));
         if (options.automaticLayout) {
             this._elementSizeObserver.startObserving();
         }
@@ -310,10 +309,10 @@ let DiffEditorWidget = class DiffEditorWidget extends Disposable {
             if (!editor.getModel()) {
                 return;
             }
-            if (e.hasChanged(44 /* fontInfo */)) {
+            if (e.hasChanged(43 /* fontInfo */)) {
                 this._updateDecorationsRunner.schedule();
             }
-            if (e.hasChanged(132 /* wrappingInfo */)) {
+            if (e.hasChanged(131 /* wrappingInfo */)) {
                 this._updateDecorationsRunner.cancel();
                 this._updateDecorations();
             }
@@ -366,10 +365,10 @@ let DiffEditorWidget = class DiffEditorWidget extends Disposable {
             if (!editor.getModel()) {
                 return;
             }
-            if (e.hasChanged(44 /* fontInfo */)) {
+            if (e.hasChanged(43 /* fontInfo */)) {
                 this._updateDecorationsRunner.schedule();
             }
-            if (e.hasChanged(132 /* wrappingInfo */)) {
+            if (e.hasChanged(131 /* wrappingInfo */)) {
                 this._updateDecorationsRunner.cancel();
                 this._updateDecorations();
             }
@@ -527,7 +526,7 @@ let DiffEditorWidget = class DiffEditorWidget extends Disposable {
         }
         this._layoutOverviewViewport();
     }
-    getContainerDomNode() {
+    getDomNode() {
         return this._domElement;
     }
     getVisibleColumnFromPosition(position) {
@@ -1072,10 +1071,10 @@ class ViewZonesComputer {
         return (endLineNumber - startLineNumber + 1);
     }
     getViewZones() {
-        const originalLineHeight = this._originalEditor.getOption(59 /* lineHeight */);
-        const modifiedLineHeight = this._modifiedEditor.getOption(59 /* lineHeight */);
-        const originalHasWrapping = (this._originalEditor.getOption(132 /* wrappingInfo */).wrappingColumn !== -1);
-        const modifiedHasWrapping = (this._modifiedEditor.getOption(132 /* wrappingInfo */).wrappingColumn !== -1);
+        const originalLineHeight = this._originalEditor.getOption(58 /* lineHeight */);
+        const modifiedLineHeight = this._modifiedEditor.getOption(58 /* lineHeight */);
+        const originalHasWrapping = (this._originalEditor.getOption(131 /* wrappingInfo */).wrappingColumn !== -1);
+        const modifiedHasWrapping = (this._modifiedEditor.getOption(131 /* wrappingInfo */).wrappingColumn !== -1);
         const hasWrapping = (originalHasWrapping || modifiedHasWrapping);
         const originalModel = this._originalEditor.getModel();
         const originalCoordinatesConverter = this._originalEditor._getViewModel().coordinatesConverter;
@@ -1715,28 +1714,28 @@ class InlineViewZonesComputer extends ViewZonesComputer {
     _finalize(result) {
         const modifiedEditorOptions = this._modifiedEditor.getOptions();
         const tabSize = this._modifiedEditor.getModel().getOptions().tabSize;
-        const fontInfo = modifiedEditorOptions.get(44 /* fontInfo */);
+        const fontInfo = modifiedEditorOptions.get(43 /* fontInfo */);
         const disableMonospaceOptimizations = modifiedEditorOptions.get(29 /* disableMonospaceOptimizations */);
         const typicalHalfwidthCharacterWidth = fontInfo.typicalHalfwidthCharacterWidth;
-        const scrollBeyondLastColumn = modifiedEditorOptions.get(93 /* scrollBeyondLastColumn */);
+        const scrollBeyondLastColumn = modifiedEditorOptions.get(92 /* scrollBeyondLastColumn */);
         const mightContainNonBasicASCII = this._originalModel.mightContainNonBasicASCII();
         const mightContainRTL = this._originalModel.mightContainRTL();
-        const lineHeight = modifiedEditorOptions.get(59 /* lineHeight */);
-        const layoutInfo = modifiedEditorOptions.get(131 /* layoutInfo */);
+        const lineHeight = modifiedEditorOptions.get(58 /* lineHeight */);
+        const layoutInfo = modifiedEditorOptions.get(130 /* layoutInfo */);
         const lineDecorationsWidth = layoutInfo.decorationsWidth;
-        const stopRenderingLineAfter = modifiedEditorOptions.get(105 /* stopRenderingLineAfter */);
-        const renderWhitespace = modifiedEditorOptions.get(88 /* renderWhitespace */);
-        const renderControlCharacters = modifiedEditorOptions.get(83 /* renderControlCharacters */);
-        const fontLigatures = modifiedEditorOptions.get(45 /* fontLigatures */);
+        const stopRenderingLineAfter = modifiedEditorOptions.get(104 /* stopRenderingLineAfter */);
+        const renderWhitespace = modifiedEditorOptions.get(87 /* renderWhitespace */);
+        const renderControlCharacters = modifiedEditorOptions.get(82 /* renderControlCharacters */);
+        const fontLigatures = modifiedEditorOptions.get(44 /* fontLigatures */);
         const lineBreaks = this._lineBreaksComputer.finalize();
         let lineBreakIndex = 0;
         for (let i = 0; i < this._pendingLineChange.length; i++) {
             const lineChange = this._pendingLineChange[i];
             const viewZone = this._pendingViewZones[i];
             const domNode = viewZone.domNode;
-            applyFontInfo(domNode, fontInfo);
+            Configuration.applyFontInfoSlow(domNode, fontInfo);
             const marginDomNode = viewZone.marginDomNode;
-            applyFontInfo(marginDomNode, fontInfo);
+            Configuration.applyFontInfoSlow(marginDomNode, fontInfo);
             const decorations = [];
             if (lineChange.charChanges) {
                 for (const charChange of lineChange.charChanges) {

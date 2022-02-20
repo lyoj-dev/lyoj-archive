@@ -1,12 +1,12 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.31.1(5a1b4999493d49c857497ad481d73a737439f305)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
 
 (function() {
-var __m = ["require","exports","vs/base/common/strings","vs/base/common/platform","vs/base/common/event","vs/editor/common/core/position","vs/editor/common/core/range","vs/base/common/lifecycle","vs/base/common/path","vs/base/common/types","vs/base/common/errors","vs/base/common/uri","vs/base/common/stopwatch","vs/base/common/cancellation","vs/base/common/diff/diff","vs/base/common/uint","vs/editor/common/core/characterClassifier","vs/editor/common/model","vs/base/common/arrays","vs/base/common/cache","vs/base/common/codicons","vs/base/common/diff/diffChange","vs/base/common/functional","vs/base/common/iterator","vs/base/common/keyCodes","vs/base/common/lazy","vs/base/common/linkedList","vs/base/common/process","vs/base/common/async","vs/base/common/extpath","vs/base/common/hash","vs/base/common/map","vs/base/common/glob","vs/base/common/objects","vs/editor/common/core/selection","vs/editor/common/core/wordCharacterClassifier","vs/editor/common/core/wordHelper","vs/editor/common/diff/diffComputer","vs/editor/common/languageSelector","vs/editor/common/languages/linkComputer","vs/editor/common/languages/supports/inplaceReplaceSupport","vs/editor/common/languageFeatureRegistry","vs/editor/common/model/prefixSumComputer","vs/editor/common/model/mirrorTextModel","vs/editor/common/model/textModelSearch","vs/editor/common/languages/unicodeTextModelHighlighter","vs/editor/common/standalone/standaloneEnums","vs/editor/common/tokenizationRegistry","vs/editor/common/languages","vs/editor/common/services/editorBaseApi","vs/base/common/worker/simpleWorker","vs/editor/common/services/editorSimpleWorker"];
+var __m = ["require","exports","vs/base/common/platform","vs/base/common/strings","vs/editor/common/core/position","vs/editor/common/core/range","vs/base/common/types","vs/base/common/event","vs/base/common/errors","vs/base/common/lifecycle","vs/base/common/stopwatch","vs/base/common/diff/diff","vs/base/common/uint","vs/base/common/uri","vs/editor/common/core/characterClassifier","vs/base/common/arrays","vs/base/common/diff/diffChange","vs/base/common/functional","vs/base/common/iterator","vs/base/common/keyCodes","vs/base/common/linkedList","vs/base/common/process","vs/base/common/path","vs/base/common/cancellation","vs/base/common/hash","vs/base/common/objects","vs/editor/common/controller/wordCharacterClassifier","vs/editor/common/core/selection","vs/editor/common/core/token","vs/editor/common/diff/diffComputer","vs/editor/common/model","vs/editor/common/model/textModelSearch","vs/editor/common/model/wordHelper","vs/editor/common/modes/linkComputer","vs/editor/common/modes/supports/inplaceReplaceSupport","vs/editor/common/modes/unicodeTextModelHighlighter","vs/editor/common/standalone/standaloneEnums","vs/editor/common/standalone/standaloneBase","vs/editor/common/viewModel/prefixSumComputer","vs/editor/common/model/mirrorTextModel","vs/base/common/worker/simpleWorker","vs/editor/common/services/editorSimpleWorker"];
 var __M = function(deps) {
   var result = [];
   for (var i = 0, len = deps.length; i < len; i++) {
@@ -1966,10 +1966,10 @@ var AMDLoader;
     }
 })(AMDLoader || (AMDLoader = {}));
 
-define(__m[18/*vs/base/common/arrays*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[15/*vs/base/common/arrays*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.ArrayQueue = exports.findMinBy = exports.findLastMaxBy = exports.findMaxBy = exports.numberComparator = exports.compareBy = exports.splice = exports.insertInto = exports.asArray = exports.pushToEnd = exports.pushToStart = exports.arrayInsert = exports.range = exports.flatten = exports.firstOrDefault = exports.lastIndex = exports.findLast = exports.distinct = exports.isNonEmptyArray = exports.isFalsyOrEmpty = exports.coalesce = exports.groupBy = exports.quickSelect = exports.findFirstInSorted = exports.binarySearch = exports.equals = exports.tail2 = exports.tail = void 0;
+    exports.ArrayQueue = exports.splice = exports.insertInto = exports.asArray = exports.pushToEnd = exports.pushToStart = exports.arrayInsert = exports.range = exports.flatten = exports.firstOrDefault = exports.lastIndex = exports.findLast = exports.distinct = exports.isNonEmptyArray = exports.isFalsyOrEmpty = exports.coalesce = exports.groupBy = exports.quickSelect = exports.findFirstInSorted = exports.binarySearch = exports.equals = exports.tail2 = exports.tail = void 0;
     /**
      * Returns the last element of an array.
      * @param array The array.
@@ -2255,56 +2255,6 @@ define(__m[18/*vs/base/common/arrays*/], __M([0/*require*/,1/*exports*/]), funct
     function getActualStartIndex(array, start) {
         return start < 0 ? Math.max(start + array.length, 0) : Math.min(start, array.length);
     }
-    function compareBy(selector, comparator) {
-        return (a, b) => comparator(selector(a), selector(b));
-    }
-    exports.compareBy = compareBy;
-    /**
-     * The natural order on numbers.
-    */
-    const numberComparator = (a, b) => a - b;
-    exports.numberComparator = numberComparator;
-    /**
-     * Returns the first item that is equal to or greater than every other item.
-    */
-    function findMaxBy(items, comparator) {
-        if (items.length === 0) {
-            return undefined;
-        }
-        let max = items[0];
-        for (let i = 1; i < items.length; i++) {
-            const item = items[i];
-            if (comparator(item, max) > 0) {
-                max = item;
-            }
-        }
-        return max;
-    }
-    exports.findMaxBy = findMaxBy;
-    /**
-     * Returns the last item that is equal to or greater than every other item.
-    */
-    function findLastMaxBy(items, comparator) {
-        if (items.length === 0) {
-            return undefined;
-        }
-        let max = items[0];
-        for (let i = 1; i < items.length; i++) {
-            const item = items[i];
-            if (comparator(item, max) >= 0) {
-                max = item;
-            }
-        }
-        return max;
-    }
-    exports.findLastMaxBy = findLastMaxBy;
-    /**
-     * Returns the first item that is equal to or less than every other item.
-    */
-    function findMinBy(items, comparator) {
-        return findMaxBy(items, (a, b) => -comparator(a, b));
-    }
-    exports.findMinBy = findMinBy;
     class ArrayQueue {
         /**
          * Constructs a queue that is backed by the given array. Runtime is O(1).
@@ -2362,626 +2312,11 @@ define(__m[18/*vs/base/common/arrays*/], __M([0/*require*/,1/*exports*/]), funct
     exports.ArrayQueue = ArrayQueue;
 });
 
-define(__m[19/*vs/base/common/cache*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.LRUCachedComputed = void 0;
-    /**
-     * Uses a LRU cache to make a given parametrized function cached.
-     * Caches just the last value.
-     * The key must be JSON serializable.
-    */
-    class LRUCachedComputed {
-        constructor(computeFn) {
-            this.computeFn = computeFn;
-            this.lastCache = undefined;
-            this.lastArgKey = undefined;
-        }
-        get(arg) {
-            const key = JSON.stringify(arg);
-            if (this.lastArgKey !== key) {
-                this.lastArgKey = key;
-                this.lastCache = this.computeFn(arg);
-            }
-            return this.lastCache;
-        }
-    }
-    exports.LRUCachedComputed = LRUCachedComputed;
-});
-
-define(__m[20/*vs/base/common/codicons*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.CSSIcon = exports.Codicon = exports.getCodiconAriaLabel = void 0;
-    // Selects all codicon names encapsulated in the `$()` syntax and wraps the
-    // results with spaces so that screen readers can read the text better.
-    function getCodiconAriaLabel(text) {
-        if (!text) {
-            return '';
-        }
-        return text.replace(/\$\((.*?)\)/g, (_match, codiconName) => ` ${codiconName} `).trim();
-    }
-    exports.getCodiconAriaLabel = getCodiconAriaLabel;
-    /**
-     * The Codicon library is a set of default icons that are built-in in VS Code.
-     *
-     * In the product (outside of base) Codicons should only be used as defaults. In order to have all icons in VS Code
-     * themeable, component should define new, UI component specific icons using `iconRegistry.registerIcon`.
-     * In that call a Codicon can be named as default.
-     */
-    class Codicon {
-        constructor(id, definition, description) {
-            this.id = id;
-            this.definition = definition;
-            this.description = description;
-            Codicon._allCodicons.push(this);
-        }
-        get classNames() { return 'codicon codicon-' + this.id; }
-        // classNamesArray is useful for migrating to ES6 classlist
-        get classNamesArray() { return ['codicon', 'codicon-' + this.id]; }
-        get cssSelector() { return '.codicon.codicon-' + this.id; }
-        /**
-         * @returns Returns all default icons covered by the codicon font. Only to be used by the icon registry in platform.
-         */
-        static getAll() {
-            return Codicon._allCodicons;
-        }
-    }
-    exports.Codicon = Codicon;
-    // registry
-    Codicon._allCodicons = [];
-    // built-in icons, with image name
-    Codicon.add = new Codicon('add', { fontCharacter: '\\ea60' });
-    Codicon.plus = new Codicon('plus', Codicon.add.definition);
-    Codicon.gistNew = new Codicon('gist-new', Codicon.add.definition);
-    Codicon.repoCreate = new Codicon('repo-create', Codicon.add.definition);
-    Codicon.lightbulb = new Codicon('lightbulb', { fontCharacter: '\\ea61' });
-    Codicon.lightBulb = new Codicon('light-bulb', { fontCharacter: '\\ea61' });
-    Codicon.repo = new Codicon('repo', { fontCharacter: '\\ea62' });
-    Codicon.repoDelete = new Codicon('repo-delete', { fontCharacter: '\\ea62' });
-    Codicon.gistFork = new Codicon('gist-fork', { fontCharacter: '\\ea63' });
-    Codicon.repoForked = new Codicon('repo-forked', { fontCharacter: '\\ea63' });
-    Codicon.gitPullRequest = new Codicon('git-pull-request', { fontCharacter: '\\ea64' });
-    Codicon.gitPullRequestAbandoned = new Codicon('git-pull-request-abandoned', { fontCharacter: '\\ea64' });
-    Codicon.recordKeys = new Codicon('record-keys', { fontCharacter: '\\ea65' });
-    Codicon.keyboard = new Codicon('keyboard', { fontCharacter: '\\ea65' });
-    Codicon.tag = new Codicon('tag', { fontCharacter: '\\ea66' });
-    Codicon.tagAdd = new Codicon('tag-add', { fontCharacter: '\\ea66' });
-    Codicon.tagRemove = new Codicon('tag-remove', { fontCharacter: '\\ea66' });
-    Codicon.person = new Codicon('person', { fontCharacter: '\\ea67' });
-    Codicon.personFollow = new Codicon('person-follow', { fontCharacter: '\\ea67' });
-    Codicon.personOutline = new Codicon('person-outline', { fontCharacter: '\\ea67' });
-    Codicon.personFilled = new Codicon('person-filled', { fontCharacter: '\\ea67' });
-    Codicon.gitBranch = new Codicon('git-branch', { fontCharacter: '\\ea68' });
-    Codicon.gitBranchCreate = new Codicon('git-branch-create', { fontCharacter: '\\ea68' });
-    Codicon.gitBranchDelete = new Codicon('git-branch-delete', { fontCharacter: '\\ea68' });
-    Codicon.sourceControl = new Codicon('source-control', { fontCharacter: '\\ea68' });
-    Codicon.mirror = new Codicon('mirror', { fontCharacter: '\\ea69' });
-    Codicon.mirrorPublic = new Codicon('mirror-public', { fontCharacter: '\\ea69' });
-    Codicon.star = new Codicon('star', { fontCharacter: '\\ea6a' });
-    Codicon.starAdd = new Codicon('star-add', { fontCharacter: '\\ea6a' });
-    Codicon.starDelete = new Codicon('star-delete', { fontCharacter: '\\ea6a' });
-    Codicon.starEmpty = new Codicon('star-empty', { fontCharacter: '\\ea6a' });
-    Codicon.comment = new Codicon('comment', { fontCharacter: '\\ea6b' });
-    Codicon.commentAdd = new Codicon('comment-add', { fontCharacter: '\\ea6b' });
-    Codicon.alert = new Codicon('alert', { fontCharacter: '\\ea6c' });
-    Codicon.warning = new Codicon('warning', { fontCharacter: '\\ea6c' });
-    Codicon.search = new Codicon('search', { fontCharacter: '\\ea6d' });
-    Codicon.searchSave = new Codicon('search-save', { fontCharacter: '\\ea6d' });
-    Codicon.logOut = new Codicon('log-out', { fontCharacter: '\\ea6e' });
-    Codicon.signOut = new Codicon('sign-out', { fontCharacter: '\\ea6e' });
-    Codicon.logIn = new Codicon('log-in', { fontCharacter: '\\ea6f' });
-    Codicon.signIn = new Codicon('sign-in', { fontCharacter: '\\ea6f' });
-    Codicon.eye = new Codicon('eye', { fontCharacter: '\\ea70' });
-    Codicon.eyeUnwatch = new Codicon('eye-unwatch', { fontCharacter: '\\ea70' });
-    Codicon.eyeWatch = new Codicon('eye-watch', { fontCharacter: '\\ea70' });
-    Codicon.circleFilled = new Codicon('circle-filled', { fontCharacter: '\\ea71' });
-    Codicon.primitiveDot = new Codicon('primitive-dot', { fontCharacter: '\\ea71' });
-    Codicon.closeDirty = new Codicon('close-dirty', { fontCharacter: '\\ea71' });
-    Codicon.debugBreakpoint = new Codicon('debug-breakpoint', { fontCharacter: '\\ea71' });
-    Codicon.debugBreakpointDisabled = new Codicon('debug-breakpoint-disabled', { fontCharacter: '\\ea71' });
-    Codicon.debugHint = new Codicon('debug-hint', { fontCharacter: '\\ea71' });
-    Codicon.primitiveSquare = new Codicon('primitive-square', { fontCharacter: '\\ea72' });
-    Codicon.edit = new Codicon('edit', { fontCharacter: '\\ea73' });
-    Codicon.pencil = new Codicon('pencil', { fontCharacter: '\\ea73' });
-    Codicon.info = new Codicon('info', { fontCharacter: '\\ea74' });
-    Codicon.issueOpened = new Codicon('issue-opened', { fontCharacter: '\\ea74' });
-    Codicon.gistPrivate = new Codicon('gist-private', { fontCharacter: '\\ea75' });
-    Codicon.gitForkPrivate = new Codicon('git-fork-private', { fontCharacter: '\\ea75' });
-    Codicon.lock = new Codicon('lock', { fontCharacter: '\\ea75' });
-    Codicon.mirrorPrivate = new Codicon('mirror-private', { fontCharacter: '\\ea75' });
-    Codicon.close = new Codicon('close', { fontCharacter: '\\ea76' });
-    Codicon.removeClose = new Codicon('remove-close', { fontCharacter: '\\ea76' });
-    Codicon.x = new Codicon('x', { fontCharacter: '\\ea76' });
-    Codicon.repoSync = new Codicon('repo-sync', { fontCharacter: '\\ea77' });
-    Codicon.sync = new Codicon('sync', { fontCharacter: '\\ea77' });
-    Codicon.clone = new Codicon('clone', { fontCharacter: '\\ea78' });
-    Codicon.desktopDownload = new Codicon('desktop-download', { fontCharacter: '\\ea78' });
-    Codicon.beaker = new Codicon('beaker', { fontCharacter: '\\ea79' });
-    Codicon.microscope = new Codicon('microscope', { fontCharacter: '\\ea79' });
-    Codicon.vm = new Codicon('vm', { fontCharacter: '\\ea7a' });
-    Codicon.deviceDesktop = new Codicon('device-desktop', { fontCharacter: '\\ea7a' });
-    Codicon.file = new Codicon('file', { fontCharacter: '\\ea7b' });
-    Codicon.fileText = new Codicon('file-text', { fontCharacter: '\\ea7b' });
-    Codicon.more = new Codicon('more', { fontCharacter: '\\ea7c' });
-    Codicon.ellipsis = new Codicon('ellipsis', { fontCharacter: '\\ea7c' });
-    Codicon.kebabHorizontal = new Codicon('kebab-horizontal', { fontCharacter: '\\ea7c' });
-    Codicon.mailReply = new Codicon('mail-reply', { fontCharacter: '\\ea7d' });
-    Codicon.reply = new Codicon('reply', { fontCharacter: '\\ea7d' });
-    Codicon.organization = new Codicon('organization', { fontCharacter: '\\ea7e' });
-    Codicon.organizationFilled = new Codicon('organization-filled', { fontCharacter: '\\ea7e' });
-    Codicon.organizationOutline = new Codicon('organization-outline', { fontCharacter: '\\ea7e' });
-    Codicon.newFile = new Codicon('new-file', { fontCharacter: '\\ea7f' });
-    Codicon.fileAdd = new Codicon('file-add', { fontCharacter: '\\ea7f' });
-    Codicon.newFolder = new Codicon('new-folder', { fontCharacter: '\\ea80' });
-    Codicon.fileDirectoryCreate = new Codicon('file-directory-create', { fontCharacter: '\\ea80' });
-    Codicon.trash = new Codicon('trash', { fontCharacter: '\\ea81' });
-    Codicon.trashcan = new Codicon('trashcan', { fontCharacter: '\\ea81' });
-    Codicon.history = new Codicon('history', { fontCharacter: '\\ea82' });
-    Codicon.clock = new Codicon('clock', { fontCharacter: '\\ea82' });
-    Codicon.folder = new Codicon('folder', { fontCharacter: '\\ea83' });
-    Codicon.fileDirectory = new Codicon('file-directory', { fontCharacter: '\\ea83' });
-    Codicon.symbolFolder = new Codicon('symbol-folder', { fontCharacter: '\\ea83' });
-    Codicon.logoGithub = new Codicon('logo-github', { fontCharacter: '\\ea84' });
-    Codicon.markGithub = new Codicon('mark-github', { fontCharacter: '\\ea84' });
-    Codicon.github = new Codicon('github', { fontCharacter: '\\ea84' });
-    Codicon.terminal = new Codicon('terminal', { fontCharacter: '\\ea85' });
-    Codicon.console = new Codicon('console', { fontCharacter: '\\ea85' });
-    Codicon.repl = new Codicon('repl', { fontCharacter: '\\ea85' });
-    Codicon.zap = new Codicon('zap', { fontCharacter: '\\ea86' });
-    Codicon.symbolEvent = new Codicon('symbol-event', { fontCharacter: '\\ea86' });
-    Codicon.error = new Codicon('error', { fontCharacter: '\\ea87' });
-    Codicon.stop = new Codicon('stop', { fontCharacter: '\\ea87' });
-    Codicon.variable = new Codicon('variable', { fontCharacter: '\\ea88' });
-    Codicon.symbolVariable = new Codicon('symbol-variable', { fontCharacter: '\\ea88' });
-    Codicon.array = new Codicon('array', { fontCharacter: '\\ea8a' });
-    Codicon.symbolArray = new Codicon('symbol-array', { fontCharacter: '\\ea8a' });
-    Codicon.symbolModule = new Codicon('symbol-module', { fontCharacter: '\\ea8b' });
-    Codicon.symbolPackage = new Codicon('symbol-package', { fontCharacter: '\\ea8b' });
-    Codicon.symbolNamespace = new Codicon('symbol-namespace', { fontCharacter: '\\ea8b' });
-    Codicon.symbolObject = new Codicon('symbol-object', { fontCharacter: '\\ea8b' });
-    Codicon.symbolMethod = new Codicon('symbol-method', { fontCharacter: '\\ea8c' });
-    Codicon.symbolFunction = new Codicon('symbol-function', { fontCharacter: '\\ea8c' });
-    Codicon.symbolConstructor = new Codicon('symbol-constructor', { fontCharacter: '\\ea8c' });
-    Codicon.symbolBoolean = new Codicon('symbol-boolean', { fontCharacter: '\\ea8f' });
-    Codicon.symbolNull = new Codicon('symbol-null', { fontCharacter: '\\ea8f' });
-    Codicon.symbolNumeric = new Codicon('symbol-numeric', { fontCharacter: '\\ea90' });
-    Codicon.symbolNumber = new Codicon('symbol-number', { fontCharacter: '\\ea90' });
-    Codicon.symbolStructure = new Codicon('symbol-structure', { fontCharacter: '\\ea91' });
-    Codicon.symbolStruct = new Codicon('symbol-struct', { fontCharacter: '\\ea91' });
-    Codicon.symbolParameter = new Codicon('symbol-parameter', { fontCharacter: '\\ea92' });
-    Codicon.symbolTypeParameter = new Codicon('symbol-type-parameter', { fontCharacter: '\\ea92' });
-    Codicon.symbolKey = new Codicon('symbol-key', { fontCharacter: '\\ea93' });
-    Codicon.symbolText = new Codicon('symbol-text', { fontCharacter: '\\ea93' });
-    Codicon.symbolReference = new Codicon('symbol-reference', { fontCharacter: '\\ea94' });
-    Codicon.goToFile = new Codicon('go-to-file', { fontCharacter: '\\ea94' });
-    Codicon.symbolEnum = new Codicon('symbol-enum', { fontCharacter: '\\ea95' });
-    Codicon.symbolValue = new Codicon('symbol-value', { fontCharacter: '\\ea95' });
-    Codicon.symbolRuler = new Codicon('symbol-ruler', { fontCharacter: '\\ea96' });
-    Codicon.symbolUnit = new Codicon('symbol-unit', { fontCharacter: '\\ea96' });
-    Codicon.activateBreakpoints = new Codicon('activate-breakpoints', { fontCharacter: '\\ea97' });
-    Codicon.archive = new Codicon('archive', { fontCharacter: '\\ea98' });
-    Codicon.arrowBoth = new Codicon('arrow-both', { fontCharacter: '\\ea99' });
-    Codicon.arrowDown = new Codicon('arrow-down', { fontCharacter: '\\ea9a' });
-    Codicon.arrowLeft = new Codicon('arrow-left', { fontCharacter: '\\ea9b' });
-    Codicon.arrowRight = new Codicon('arrow-right', { fontCharacter: '\\ea9c' });
-    Codicon.arrowSmallDown = new Codicon('arrow-small-down', { fontCharacter: '\\ea9d' });
-    Codicon.arrowSmallLeft = new Codicon('arrow-small-left', { fontCharacter: '\\ea9e' });
-    Codicon.arrowSmallRight = new Codicon('arrow-small-right', { fontCharacter: '\\ea9f' });
-    Codicon.arrowSmallUp = new Codicon('arrow-small-up', { fontCharacter: '\\eaa0' });
-    Codicon.arrowUp = new Codicon('arrow-up', { fontCharacter: '\\eaa1' });
-    Codicon.bell = new Codicon('bell', { fontCharacter: '\\eaa2' });
-    Codicon.bold = new Codicon('bold', { fontCharacter: '\\eaa3' });
-    Codicon.book = new Codicon('book', { fontCharacter: '\\eaa4' });
-    Codicon.bookmark = new Codicon('bookmark', { fontCharacter: '\\eaa5' });
-    Codicon.debugBreakpointConditionalUnverified = new Codicon('debug-breakpoint-conditional-unverified', { fontCharacter: '\\eaa6' });
-    Codicon.debugBreakpointConditional = new Codicon('debug-breakpoint-conditional', { fontCharacter: '\\eaa7' });
-    Codicon.debugBreakpointConditionalDisabled = new Codicon('debug-breakpoint-conditional-disabled', { fontCharacter: '\\eaa7' });
-    Codicon.debugBreakpointDataUnverified = new Codicon('debug-breakpoint-data-unverified', { fontCharacter: '\\eaa8' });
-    Codicon.debugBreakpointData = new Codicon('debug-breakpoint-data', { fontCharacter: '\\eaa9' });
-    Codicon.debugBreakpointDataDisabled = new Codicon('debug-breakpoint-data-disabled', { fontCharacter: '\\eaa9' });
-    Codicon.debugBreakpointLogUnverified = new Codicon('debug-breakpoint-log-unverified', { fontCharacter: '\\eaaa' });
-    Codicon.debugBreakpointLog = new Codicon('debug-breakpoint-log', { fontCharacter: '\\eaab' });
-    Codicon.debugBreakpointLogDisabled = new Codicon('debug-breakpoint-log-disabled', { fontCharacter: '\\eaab' });
-    Codicon.briefcase = new Codicon('briefcase', { fontCharacter: '\\eaac' });
-    Codicon.broadcast = new Codicon('broadcast', { fontCharacter: '\\eaad' });
-    Codicon.browser = new Codicon('browser', { fontCharacter: '\\eaae' });
-    Codicon.bug = new Codicon('bug', { fontCharacter: '\\eaaf' });
-    Codicon.calendar = new Codicon('calendar', { fontCharacter: '\\eab0' });
-    Codicon.caseSensitive = new Codicon('case-sensitive', { fontCharacter: '\\eab1' });
-    Codicon.check = new Codicon('check', { fontCharacter: '\\eab2' });
-    Codicon.checklist = new Codicon('checklist', { fontCharacter: '\\eab3' });
-    Codicon.chevronDown = new Codicon('chevron-down', { fontCharacter: '\\eab4' });
-    Codicon.dropDownButton = new Codicon('drop-down-button', Codicon.chevronDown.definition);
-    Codicon.chevronLeft = new Codicon('chevron-left', { fontCharacter: '\\eab5' });
-    Codicon.chevronRight = new Codicon('chevron-right', { fontCharacter: '\\eab6' });
-    Codicon.chevronUp = new Codicon('chevron-up', { fontCharacter: '\\eab7' });
-    Codicon.chromeClose = new Codicon('chrome-close', { fontCharacter: '\\eab8' });
-    Codicon.chromeMaximize = new Codicon('chrome-maximize', { fontCharacter: '\\eab9' });
-    Codicon.chromeMinimize = new Codicon('chrome-minimize', { fontCharacter: '\\eaba' });
-    Codicon.chromeRestore = new Codicon('chrome-restore', { fontCharacter: '\\eabb' });
-    Codicon.circleOutline = new Codicon('circle-outline', { fontCharacter: '\\eabc' });
-    Codicon.debugBreakpointUnverified = new Codicon('debug-breakpoint-unverified', { fontCharacter: '\\eabc' });
-    Codicon.circleSlash = new Codicon('circle-slash', { fontCharacter: '\\eabd' });
-    Codicon.circuitBoard = new Codicon('circuit-board', { fontCharacter: '\\eabe' });
-    Codicon.clearAll = new Codicon('clear-all', { fontCharacter: '\\eabf' });
-    Codicon.clippy = new Codicon('clippy', { fontCharacter: '\\eac0' });
-    Codicon.closeAll = new Codicon('close-all', { fontCharacter: '\\eac1' });
-    Codicon.cloudDownload = new Codicon('cloud-download', { fontCharacter: '\\eac2' });
-    Codicon.cloudUpload = new Codicon('cloud-upload', { fontCharacter: '\\eac3' });
-    Codicon.code = new Codicon('code', { fontCharacter: '\\eac4' });
-    Codicon.collapseAll = new Codicon('collapse-all', { fontCharacter: '\\eac5' });
-    Codicon.colorMode = new Codicon('color-mode', { fontCharacter: '\\eac6' });
-    Codicon.commentDiscussion = new Codicon('comment-discussion', { fontCharacter: '\\eac7' });
-    Codicon.compareChanges = new Codicon('compare-changes', { fontCharacter: '\\eafd' });
-    Codicon.creditCard = new Codicon('credit-card', { fontCharacter: '\\eac9' });
-    Codicon.dash = new Codicon('dash', { fontCharacter: '\\eacc' });
-    Codicon.dashboard = new Codicon('dashboard', { fontCharacter: '\\eacd' });
-    Codicon.database = new Codicon('database', { fontCharacter: '\\eace' });
-    Codicon.debugContinue = new Codicon('debug-continue', { fontCharacter: '\\eacf' });
-    Codicon.debugDisconnect = new Codicon('debug-disconnect', { fontCharacter: '\\ead0' });
-    Codicon.debugPause = new Codicon('debug-pause', { fontCharacter: '\\ead1' });
-    Codicon.debugRestart = new Codicon('debug-restart', { fontCharacter: '\\ead2' });
-    Codicon.debugStart = new Codicon('debug-start', { fontCharacter: '\\ead3' });
-    Codicon.debugStepInto = new Codicon('debug-step-into', { fontCharacter: '\\ead4' });
-    Codicon.debugStepOut = new Codicon('debug-step-out', { fontCharacter: '\\ead5' });
-    Codicon.debugStepOver = new Codicon('debug-step-over', { fontCharacter: '\\ead6' });
-    Codicon.debugStop = new Codicon('debug-stop', { fontCharacter: '\\ead7' });
-    Codicon.debug = new Codicon('debug', { fontCharacter: '\\ead8' });
-    Codicon.deviceCameraVideo = new Codicon('device-camera-video', { fontCharacter: '\\ead9' });
-    Codicon.deviceCamera = new Codicon('device-camera', { fontCharacter: '\\eada' });
-    Codicon.deviceMobile = new Codicon('device-mobile', { fontCharacter: '\\eadb' });
-    Codicon.diffAdded = new Codicon('diff-added', { fontCharacter: '\\eadc' });
-    Codicon.diffIgnored = new Codicon('diff-ignored', { fontCharacter: '\\eadd' });
-    Codicon.diffModified = new Codicon('diff-modified', { fontCharacter: '\\eade' });
-    Codicon.diffRemoved = new Codicon('diff-removed', { fontCharacter: '\\eadf' });
-    Codicon.diffRenamed = new Codicon('diff-renamed', { fontCharacter: '\\eae0' });
-    Codicon.diff = new Codicon('diff', { fontCharacter: '\\eae1' });
-    Codicon.discard = new Codicon('discard', { fontCharacter: '\\eae2' });
-    Codicon.editorLayout = new Codicon('editor-layout', { fontCharacter: '\\eae3' });
-    Codicon.emptyWindow = new Codicon('empty-window', { fontCharacter: '\\eae4' });
-    Codicon.exclude = new Codicon('exclude', { fontCharacter: '\\eae5' });
-    Codicon.extensions = new Codicon('extensions', { fontCharacter: '\\eae6' });
-    Codicon.eyeClosed = new Codicon('eye-closed', { fontCharacter: '\\eae7' });
-    Codicon.fileBinary = new Codicon('file-binary', { fontCharacter: '\\eae8' });
-    Codicon.fileCode = new Codicon('file-code', { fontCharacter: '\\eae9' });
-    Codicon.fileMedia = new Codicon('file-media', { fontCharacter: '\\eaea' });
-    Codicon.filePdf = new Codicon('file-pdf', { fontCharacter: '\\eaeb' });
-    Codicon.fileSubmodule = new Codicon('file-submodule', { fontCharacter: '\\eaec' });
-    Codicon.fileSymlinkDirectory = new Codicon('file-symlink-directory', { fontCharacter: '\\eaed' });
-    Codicon.fileSymlinkFile = new Codicon('file-symlink-file', { fontCharacter: '\\eaee' });
-    Codicon.fileZip = new Codicon('file-zip', { fontCharacter: '\\eaef' });
-    Codicon.files = new Codicon('files', { fontCharacter: '\\eaf0' });
-    Codicon.filter = new Codicon('filter', { fontCharacter: '\\eaf1' });
-    Codicon.flame = new Codicon('flame', { fontCharacter: '\\eaf2' });
-    Codicon.foldDown = new Codicon('fold-down', { fontCharacter: '\\eaf3' });
-    Codicon.foldUp = new Codicon('fold-up', { fontCharacter: '\\eaf4' });
-    Codicon.fold = new Codicon('fold', { fontCharacter: '\\eaf5' });
-    Codicon.folderActive = new Codicon('folder-active', { fontCharacter: '\\eaf6' });
-    Codicon.folderOpened = new Codicon('folder-opened', { fontCharacter: '\\eaf7' });
-    Codicon.gear = new Codicon('gear', { fontCharacter: '\\eaf8' });
-    Codicon.gift = new Codicon('gift', { fontCharacter: '\\eaf9' });
-    Codicon.gistSecret = new Codicon('gist-secret', { fontCharacter: '\\eafa' });
-    Codicon.gist = new Codicon('gist', { fontCharacter: '\\eafb' });
-    Codicon.gitCommit = new Codicon('git-commit', { fontCharacter: '\\eafc' });
-    Codicon.gitCompare = new Codicon('git-compare', { fontCharacter: '\\eafd' });
-    Codicon.gitMerge = new Codicon('git-merge', { fontCharacter: '\\eafe' });
-    Codicon.githubAction = new Codicon('github-action', { fontCharacter: '\\eaff' });
-    Codicon.githubAlt = new Codicon('github-alt', { fontCharacter: '\\eb00' });
-    Codicon.globe = new Codicon('globe', { fontCharacter: '\\eb01' });
-    Codicon.grabber = new Codicon('grabber', { fontCharacter: '\\eb02' });
-    Codicon.graph = new Codicon('graph', { fontCharacter: '\\eb03' });
-    Codicon.gripper = new Codicon('gripper', { fontCharacter: '\\eb04' });
-    Codicon.heart = new Codicon('heart', { fontCharacter: '\\eb05' });
-    Codicon.home = new Codicon('home', { fontCharacter: '\\eb06' });
-    Codicon.horizontalRule = new Codicon('horizontal-rule', { fontCharacter: '\\eb07' });
-    Codicon.hubot = new Codicon('hubot', { fontCharacter: '\\eb08' });
-    Codicon.inbox = new Codicon('inbox', { fontCharacter: '\\eb09' });
-    Codicon.issueClosed = new Codicon('issue-closed', { fontCharacter: '\\eba4' });
-    Codicon.issueReopened = new Codicon('issue-reopened', { fontCharacter: '\\eb0b' });
-    Codicon.issues = new Codicon('issues', { fontCharacter: '\\eb0c' });
-    Codicon.italic = new Codicon('italic', { fontCharacter: '\\eb0d' });
-    Codicon.jersey = new Codicon('jersey', { fontCharacter: '\\eb0e' });
-    Codicon.json = new Codicon('json', { fontCharacter: '\\eb0f' });
-    Codicon.kebabVertical = new Codicon('kebab-vertical', { fontCharacter: '\\eb10' });
-    Codicon.key = new Codicon('key', { fontCharacter: '\\eb11' });
-    Codicon.law = new Codicon('law', { fontCharacter: '\\eb12' });
-    Codicon.lightbulbAutofix = new Codicon('lightbulb-autofix', { fontCharacter: '\\eb13' });
-    Codicon.linkExternal = new Codicon('link-external', { fontCharacter: '\\eb14' });
-    Codicon.link = new Codicon('link', { fontCharacter: '\\eb15' });
-    Codicon.listOrdered = new Codicon('list-ordered', { fontCharacter: '\\eb16' });
-    Codicon.listUnordered = new Codicon('list-unordered', { fontCharacter: '\\eb17' });
-    Codicon.liveShare = new Codicon('live-share', { fontCharacter: '\\eb18' });
-    Codicon.loading = new Codicon('loading', { fontCharacter: '\\eb19' });
-    Codicon.location = new Codicon('location', { fontCharacter: '\\eb1a' });
-    Codicon.mailRead = new Codicon('mail-read', { fontCharacter: '\\eb1b' });
-    Codicon.mail = new Codicon('mail', { fontCharacter: '\\eb1c' });
-    Codicon.markdown = new Codicon('markdown', { fontCharacter: '\\eb1d' });
-    Codicon.megaphone = new Codicon('megaphone', { fontCharacter: '\\eb1e' });
-    Codicon.mention = new Codicon('mention', { fontCharacter: '\\eb1f' });
-    Codicon.milestone = new Codicon('milestone', { fontCharacter: '\\eb20' });
-    Codicon.mortarBoard = new Codicon('mortar-board', { fontCharacter: '\\eb21' });
-    Codicon.move = new Codicon('move', { fontCharacter: '\\eb22' });
-    Codicon.multipleWindows = new Codicon('multiple-windows', { fontCharacter: '\\eb23' });
-    Codicon.mute = new Codicon('mute', { fontCharacter: '\\eb24' });
-    Codicon.noNewline = new Codicon('no-newline', { fontCharacter: '\\eb25' });
-    Codicon.note = new Codicon('note', { fontCharacter: '\\eb26' });
-    Codicon.octoface = new Codicon('octoface', { fontCharacter: '\\eb27' });
-    Codicon.openPreview = new Codicon('open-preview', { fontCharacter: '\\eb28' });
-    Codicon.package_ = new Codicon('package', { fontCharacter: '\\eb29' });
-    Codicon.paintcan = new Codicon('paintcan', { fontCharacter: '\\eb2a' });
-    Codicon.pin = new Codicon('pin', { fontCharacter: '\\eb2b' });
-    Codicon.play = new Codicon('play', { fontCharacter: '\\eb2c' });
-    Codicon.run = new Codicon('run', { fontCharacter: '\\eb2c' });
-    Codicon.plug = new Codicon('plug', { fontCharacter: '\\eb2d' });
-    Codicon.preserveCase = new Codicon('preserve-case', { fontCharacter: '\\eb2e' });
-    Codicon.preview = new Codicon('preview', { fontCharacter: '\\eb2f' });
-    Codicon.project = new Codicon('project', { fontCharacter: '\\eb30' });
-    Codicon.pulse = new Codicon('pulse', { fontCharacter: '\\eb31' });
-    Codicon.question = new Codicon('question', { fontCharacter: '\\eb32' });
-    Codicon.quote = new Codicon('quote', { fontCharacter: '\\eb33' });
-    Codicon.radioTower = new Codicon('radio-tower', { fontCharacter: '\\eb34' });
-    Codicon.reactions = new Codicon('reactions', { fontCharacter: '\\eb35' });
-    Codicon.references = new Codicon('references', { fontCharacter: '\\eb36' });
-    Codicon.refresh = new Codicon('refresh', { fontCharacter: '\\eb37' });
-    Codicon.regex = new Codicon('regex', { fontCharacter: '\\eb38' });
-    Codicon.remoteExplorer = new Codicon('remote-explorer', { fontCharacter: '\\eb39' });
-    Codicon.remote = new Codicon('remote', { fontCharacter: '\\eb3a' });
-    Codicon.remove = new Codicon('remove', { fontCharacter: '\\eb3b' });
-    Codicon.replaceAll = new Codicon('replace-all', { fontCharacter: '\\eb3c' });
-    Codicon.replace = new Codicon('replace', { fontCharacter: '\\eb3d' });
-    Codicon.repoClone = new Codicon('repo-clone', { fontCharacter: '\\eb3e' });
-    Codicon.repoForcePush = new Codicon('repo-force-push', { fontCharacter: '\\eb3f' });
-    Codicon.repoPull = new Codicon('repo-pull', { fontCharacter: '\\eb40' });
-    Codicon.repoPush = new Codicon('repo-push', { fontCharacter: '\\eb41' });
-    Codicon.report = new Codicon('report', { fontCharacter: '\\eb42' });
-    Codicon.requestChanges = new Codicon('request-changes', { fontCharacter: '\\eb43' });
-    Codicon.rocket = new Codicon('rocket', { fontCharacter: '\\eb44' });
-    Codicon.rootFolderOpened = new Codicon('root-folder-opened', { fontCharacter: '\\eb45' });
-    Codicon.rootFolder = new Codicon('root-folder', { fontCharacter: '\\eb46' });
-    Codicon.rss = new Codicon('rss', { fontCharacter: '\\eb47' });
-    Codicon.ruby = new Codicon('ruby', { fontCharacter: '\\eb48' });
-    Codicon.saveAll = new Codicon('save-all', { fontCharacter: '\\eb49' });
-    Codicon.saveAs = new Codicon('save-as', { fontCharacter: '\\eb4a' });
-    Codicon.save = new Codicon('save', { fontCharacter: '\\eb4b' });
-    Codicon.screenFull = new Codicon('screen-full', { fontCharacter: '\\eb4c' });
-    Codicon.screenNormal = new Codicon('screen-normal', { fontCharacter: '\\eb4d' });
-    Codicon.searchStop = new Codicon('search-stop', { fontCharacter: '\\eb4e' });
-    Codicon.server = new Codicon('server', { fontCharacter: '\\eb50' });
-    Codicon.settingsGear = new Codicon('settings-gear', { fontCharacter: '\\eb51' });
-    Codicon.settings = new Codicon('settings', { fontCharacter: '\\eb52' });
-    Codicon.shield = new Codicon('shield', { fontCharacter: '\\eb53' });
-    Codicon.smiley = new Codicon('smiley', { fontCharacter: '\\eb54' });
-    Codicon.sortPrecedence = new Codicon('sort-precedence', { fontCharacter: '\\eb55' });
-    Codicon.splitHorizontal = new Codicon('split-horizontal', { fontCharacter: '\\eb56' });
-    Codicon.splitVertical = new Codicon('split-vertical', { fontCharacter: '\\eb57' });
-    Codicon.squirrel = new Codicon('squirrel', { fontCharacter: '\\eb58' });
-    Codicon.starFull = new Codicon('star-full', { fontCharacter: '\\eb59' });
-    Codicon.starHalf = new Codicon('star-half', { fontCharacter: '\\eb5a' });
-    Codicon.symbolClass = new Codicon('symbol-class', { fontCharacter: '\\eb5b' });
-    Codicon.symbolColor = new Codicon('symbol-color', { fontCharacter: '\\eb5c' });
-    Codicon.symbolCustomColor = new Codicon('symbol-customcolor', { fontCharacter: '\\eb5c' });
-    Codicon.symbolConstant = new Codicon('symbol-constant', { fontCharacter: '\\eb5d' });
-    Codicon.symbolEnumMember = new Codicon('symbol-enum-member', { fontCharacter: '\\eb5e' });
-    Codicon.symbolField = new Codicon('symbol-field', { fontCharacter: '\\eb5f' });
-    Codicon.symbolFile = new Codicon('symbol-file', { fontCharacter: '\\eb60' });
-    Codicon.symbolInterface = new Codicon('symbol-interface', { fontCharacter: '\\eb61' });
-    Codicon.symbolKeyword = new Codicon('symbol-keyword', { fontCharacter: '\\eb62' });
-    Codicon.symbolMisc = new Codicon('symbol-misc', { fontCharacter: '\\eb63' });
-    Codicon.symbolOperator = new Codicon('symbol-operator', { fontCharacter: '\\eb64' });
-    Codicon.symbolProperty = new Codicon('symbol-property', { fontCharacter: '\\eb65' });
-    Codicon.wrench = new Codicon('wrench', { fontCharacter: '\\eb65' });
-    Codicon.wrenchSubaction = new Codicon('wrench-subaction', { fontCharacter: '\\eb65' });
-    Codicon.symbolSnippet = new Codicon('symbol-snippet', { fontCharacter: '\\eb66' });
-    Codicon.tasklist = new Codicon('tasklist', { fontCharacter: '\\eb67' });
-    Codicon.telescope = new Codicon('telescope', { fontCharacter: '\\eb68' });
-    Codicon.textSize = new Codicon('text-size', { fontCharacter: '\\eb69' });
-    Codicon.threeBars = new Codicon('three-bars', { fontCharacter: '\\eb6a' });
-    Codicon.thumbsdown = new Codicon('thumbsdown', { fontCharacter: '\\eb6b' });
-    Codicon.thumbsup = new Codicon('thumbsup', { fontCharacter: '\\eb6c' });
-    Codicon.tools = new Codicon('tools', { fontCharacter: '\\eb6d' });
-    Codicon.triangleDown = new Codicon('triangle-down', { fontCharacter: '\\eb6e' });
-    Codicon.triangleLeft = new Codicon('triangle-left', { fontCharacter: '\\eb6f' });
-    Codicon.triangleRight = new Codicon('triangle-right', { fontCharacter: '\\eb70' });
-    Codicon.triangleUp = new Codicon('triangle-up', { fontCharacter: '\\eb71' });
-    Codicon.twitter = new Codicon('twitter', { fontCharacter: '\\eb72' });
-    Codicon.unfold = new Codicon('unfold', { fontCharacter: '\\eb73' });
-    Codicon.unlock = new Codicon('unlock', { fontCharacter: '\\eb74' });
-    Codicon.unmute = new Codicon('unmute', { fontCharacter: '\\eb75' });
-    Codicon.unverified = new Codicon('unverified', { fontCharacter: '\\eb76' });
-    Codicon.verified = new Codicon('verified', { fontCharacter: '\\eb77' });
-    Codicon.versions = new Codicon('versions', { fontCharacter: '\\eb78' });
-    Codicon.vmActive = new Codicon('vm-active', { fontCharacter: '\\eb79' });
-    Codicon.vmOutline = new Codicon('vm-outline', { fontCharacter: '\\eb7a' });
-    Codicon.vmRunning = new Codicon('vm-running', { fontCharacter: '\\eb7b' });
-    Codicon.watch = new Codicon('watch', { fontCharacter: '\\eb7c' });
-    Codicon.whitespace = new Codicon('whitespace', { fontCharacter: '\\eb7d' });
-    Codicon.wholeWord = new Codicon('whole-word', { fontCharacter: '\\eb7e' });
-    Codicon.window = new Codicon('window', { fontCharacter: '\\eb7f' });
-    Codicon.wordWrap = new Codicon('word-wrap', { fontCharacter: '\\eb80' });
-    Codicon.zoomIn = new Codicon('zoom-in', { fontCharacter: '\\eb81' });
-    Codicon.zoomOut = new Codicon('zoom-out', { fontCharacter: '\\eb82' });
-    Codicon.listFilter = new Codicon('list-filter', { fontCharacter: '\\eb83' });
-    Codicon.listFlat = new Codicon('list-flat', { fontCharacter: '\\eb84' });
-    Codicon.listSelection = new Codicon('list-selection', { fontCharacter: '\\eb85' });
-    Codicon.selection = new Codicon('selection', { fontCharacter: '\\eb85' });
-    Codicon.listTree = new Codicon('list-tree', { fontCharacter: '\\eb86' });
-    Codicon.debugBreakpointFunctionUnverified = new Codicon('debug-breakpoint-function-unverified', { fontCharacter: '\\eb87' });
-    Codicon.debugBreakpointFunction = new Codicon('debug-breakpoint-function', { fontCharacter: '\\eb88' });
-    Codicon.debugBreakpointFunctionDisabled = new Codicon('debug-breakpoint-function-disabled', { fontCharacter: '\\eb88' });
-    Codicon.debugStackframeActive = new Codicon('debug-stackframe-active', { fontCharacter: '\\eb89' });
-    Codicon.debugStackframeDot = new Codicon('debug-stackframe-dot', { fontCharacter: '\\eb8a' });
-    Codicon.debugStackframe = new Codicon('debug-stackframe', { fontCharacter: '\\eb8b' });
-    Codicon.debugStackframeFocused = new Codicon('debug-stackframe-focused', { fontCharacter: '\\eb8b' });
-    Codicon.debugBreakpointUnsupported = new Codicon('debug-breakpoint-unsupported', { fontCharacter: '\\eb8c' });
-    Codicon.symbolString = new Codicon('symbol-string', { fontCharacter: '\\eb8d' });
-    Codicon.debugReverseContinue = new Codicon('debug-reverse-continue', { fontCharacter: '\\eb8e' });
-    Codicon.debugStepBack = new Codicon('debug-step-back', { fontCharacter: '\\eb8f' });
-    Codicon.debugRestartFrame = new Codicon('debug-restart-frame', { fontCharacter: '\\eb90' });
-    Codicon.callIncoming = new Codicon('call-incoming', { fontCharacter: '\\eb92' });
-    Codicon.callOutgoing = new Codicon('call-outgoing', { fontCharacter: '\\eb93' });
-    Codicon.menu = new Codicon('menu', { fontCharacter: '\\eb94' });
-    Codicon.expandAll = new Codicon('expand-all', { fontCharacter: '\\eb95' });
-    Codicon.feedback = new Codicon('feedback', { fontCharacter: '\\eb96' });
-    Codicon.groupByRefType = new Codicon('group-by-ref-type', { fontCharacter: '\\eb97' });
-    Codicon.ungroupByRefType = new Codicon('ungroup-by-ref-type', { fontCharacter: '\\eb98' });
-    Codicon.account = new Codicon('account', { fontCharacter: '\\eb99' });
-    Codicon.bellDot = new Codicon('bell-dot', { fontCharacter: '\\eb9a' });
-    Codicon.debugConsole = new Codicon('debug-console', { fontCharacter: '\\eb9b' });
-    Codicon.library = new Codicon('library', { fontCharacter: '\\eb9c' });
-    Codicon.output = new Codicon('output', { fontCharacter: '\\eb9d' });
-    Codicon.runAll = new Codicon('run-all', { fontCharacter: '\\eb9e' });
-    Codicon.syncIgnored = new Codicon('sync-ignored', { fontCharacter: '\\eb9f' });
-    Codicon.pinned = new Codicon('pinned', { fontCharacter: '\\eba0' });
-    Codicon.githubInverted = new Codicon('github-inverted', { fontCharacter: '\\eba1' });
-    Codicon.debugAlt = new Codicon('debug-alt', { fontCharacter: '\\eb91' });
-    Codicon.serverProcess = new Codicon('server-process', { fontCharacter: '\\eba2' });
-    Codicon.serverEnvironment = new Codicon('server-environment', { fontCharacter: '\\eba3' });
-    Codicon.pass = new Codicon('pass', { fontCharacter: '\\eba4' });
-    Codicon.stopCircle = new Codicon('stop-circle', { fontCharacter: '\\eba5' });
-    Codicon.playCircle = new Codicon('play-circle', { fontCharacter: '\\eba6' });
-    Codicon.record = new Codicon('record', { fontCharacter: '\\eba7' });
-    Codicon.debugAltSmall = new Codicon('debug-alt-small', { fontCharacter: '\\eba8' });
-    Codicon.vmConnect = new Codicon('vm-connect', { fontCharacter: '\\eba9' });
-    Codicon.cloud = new Codicon('cloud', { fontCharacter: '\\ebaa' });
-    Codicon.merge = new Codicon('merge', { fontCharacter: '\\ebab' });
-    Codicon.exportIcon = new Codicon('export', { fontCharacter: '\\ebac' });
-    Codicon.graphLeft = new Codicon('graph-left', { fontCharacter: '\\ebad' });
-    Codicon.magnet = new Codicon('magnet', { fontCharacter: '\\ebae' });
-    Codicon.notebook = new Codicon('notebook', { fontCharacter: '\\ebaf' });
-    Codicon.redo = new Codicon('redo', { fontCharacter: '\\ebb0' });
-    Codicon.checkAll = new Codicon('check-all', { fontCharacter: '\\ebb1' });
-    Codicon.pinnedDirty = new Codicon('pinned-dirty', { fontCharacter: '\\ebb2' });
-    Codicon.passFilled = new Codicon('pass-filled', { fontCharacter: '\\ebb3' });
-    Codicon.circleLargeFilled = new Codicon('circle-large-filled', { fontCharacter: '\\ebb4' });
-    Codicon.circleLargeOutline = new Codicon('circle-large-outline', { fontCharacter: '\\ebb5' });
-    Codicon.combine = new Codicon('combine', { fontCharacter: '\\ebb6' });
-    Codicon.gather = new Codicon('gather', { fontCharacter: '\\ebb6' });
-    Codicon.table = new Codicon('table', { fontCharacter: '\\ebb7' });
-    Codicon.variableGroup = new Codicon('variable-group', { fontCharacter: '\\ebb8' });
-    Codicon.typeHierarchy = new Codicon('type-hierarchy', { fontCharacter: '\\ebb9' });
-    Codicon.typeHierarchySub = new Codicon('type-hierarchy-sub', { fontCharacter: '\\ebba' });
-    Codicon.typeHierarchySuper = new Codicon('type-hierarchy-super', { fontCharacter: '\\ebbb' });
-    Codicon.gitPullRequestCreate = new Codicon('git-pull-request-create', { fontCharacter: '\\ebbc' });
-    Codicon.runAbove = new Codicon('run-above', { fontCharacter: '\\ebbd' });
-    Codicon.runBelow = new Codicon('run-below', { fontCharacter: '\\ebbe' });
-    Codicon.notebookTemplate = new Codicon('notebook-template', { fontCharacter: '\\ebbf' });
-    Codicon.debugRerun = new Codicon('debug-rerun', { fontCharacter: '\\ebc0' });
-    Codicon.workspaceTrusted = new Codicon('workspace-trusted', { fontCharacter: '\\ebc1' });
-    Codicon.workspaceUntrusted = new Codicon('workspace-untrusted', { fontCharacter: '\\ebc2' });
-    Codicon.workspaceUnspecified = new Codicon('workspace-unspecified', { fontCharacter: '\\ebc3' });
-    Codicon.terminalCmd = new Codicon('terminal-cmd', { fontCharacter: '\\ebc4' });
-    Codicon.terminalDebian = new Codicon('terminal-debian', { fontCharacter: '\\ebc5' });
-    Codicon.terminalLinux = new Codicon('terminal-linux', { fontCharacter: '\\ebc6' });
-    Codicon.terminalPowershell = new Codicon('terminal-powershell', { fontCharacter: '\\ebc7' });
-    Codicon.terminalTmux = new Codicon('terminal-tmux', { fontCharacter: '\\ebc8' });
-    Codicon.terminalUbuntu = new Codicon('terminal-ubuntu', { fontCharacter: '\\ebc9' });
-    Codicon.terminalBash = new Codicon('terminal-bash', { fontCharacter: '\\ebca' });
-    Codicon.arrowSwap = new Codicon('arrow-swap', { fontCharacter: '\\ebcb' });
-    Codicon.copy = new Codicon('copy', { fontCharacter: '\\ebcc' });
-    Codicon.personAdd = new Codicon('person-add', { fontCharacter: '\\ebcd' });
-    Codicon.filterFilled = new Codicon('filter-filled', { fontCharacter: '\\ebce' });
-    Codicon.wand = new Codicon('wand', { fontCharacter: '\\ebcf' });
-    Codicon.debugLineByLine = new Codicon('debug-line-by-line', { fontCharacter: '\\ebd0' });
-    Codicon.inspect = new Codicon('inspect', { fontCharacter: '\\ebd1' });
-    Codicon.layers = new Codicon('layers', { fontCharacter: '\\ebd2' });
-    Codicon.layersDot = new Codicon('layers-dot', { fontCharacter: '\\ebd3' });
-    Codicon.layersActive = new Codicon('layers-active', { fontCharacter: '\\ebd4' });
-    Codicon.compass = new Codicon('compass', { fontCharacter: '\\ebd5' });
-    Codicon.compassDot = new Codicon('compass-dot', { fontCharacter: '\\ebd6' });
-    Codicon.compassActive = new Codicon('compass-active', { fontCharacter: '\\ebd7' });
-    Codicon.azure = new Codicon('azure', { fontCharacter: '\\ebd8' });
-    Codicon.issueDraft = new Codicon('issue-draft', { fontCharacter: '\\ebd9' });
-    Codicon.gitPullRequestClosed = new Codicon('git-pull-request-closed', { fontCharacter: '\\ebda' });
-    Codicon.gitPullRequestDraft = new Codicon('git-pull-request-draft', { fontCharacter: '\\ebdb' });
-    Codicon.debugAll = new Codicon('debug-all', { fontCharacter: '\\ebdc' });
-    Codicon.debugCoverage = new Codicon('debug-coverage', { fontCharacter: '\\ebdd' });
-    Codicon.runErrors = new Codicon('run-errors', { fontCharacter: '\\ebde' });
-    Codicon.folderLibrary = new Codicon('folder-library', { fontCharacter: '\\ebdf' });
-    Codicon.debugContinueSmall = new Codicon('debug-continue-small', { fontCharacter: '\\ebe0' });
-    Codicon.beakerStop = new Codicon('beaker-stop', { fontCharacter: '\\ebe1' });
-    Codicon.graphLine = new Codicon('graph-line', { fontCharacter: '\\ebe2' });
-    Codicon.graphScatter = new Codicon('graph-scatter', { fontCharacter: '\\ebe3' });
-    Codicon.pieChart = new Codicon('pie-chart', { fontCharacter: '\\ebe4' });
-    Codicon.bracket = new Codicon('bracket', Codicon.json.definition);
-    Codicon.bracketDot = new Codicon('bracket-dot', { fontCharacter: '\\ebe5' });
-    Codicon.bracketError = new Codicon('bracket-error', { fontCharacter: '\\ebe6' });
-    Codicon.lockSmall = new Codicon('lock-small', { fontCharacter: '\\ebe7' });
-    Codicon.azureDevops = new Codicon('azure-devops', { fontCharacter: '\\ebe8' });
-    Codicon.verifiedFilled = new Codicon('verified-filled', { fontCharacter: '\\ebe9' });
-    Codicon.newLine = new Codicon('newline', { fontCharacter: '\\ebea' });
-    Codicon.layout = new Codicon('layout', { fontCharacter: '\\ebeb' });
-    Codicon.layoutActivitybarLeft = new Codicon('layout-activitybar-left', { fontCharacter: '\\ebec' });
-    Codicon.layoutActivitybarRight = new Codicon('layout-activitybar-right', { fontCharacter: '\\ebed' });
-    Codicon.layoutPanelLeft = new Codicon('layout-panel-left', { fontCharacter: '\\ebee' });
-    Codicon.layoutPanelCenter = new Codicon('layout-panel-center', { fontCharacter: '\\ebef' });
-    Codicon.layoutPanelJustify = new Codicon('layout-panel-justify', { fontCharacter: '\\ebf0' });
-    Codicon.layoutPanelRight = new Codicon('layout-panel-right', { fontCharacter: '\\ebf1' });
-    Codicon.layoutPanel = new Codicon('layout-panel', { fontCharacter: '\\ebf2' });
-    Codicon.layoutSidebarLeft = new Codicon('layout-sidebar-left', { fontCharacter: '\\ebf3' });
-    Codicon.layoutSidebarRight = new Codicon('layout-sidebar-right', { fontCharacter: '\\ebf4' });
-    Codicon.layoutStatusbar = new Codicon('layout-statusbar', { fontCharacter: '\\ebf5' });
-    Codicon.layoutMenubar = new Codicon('layout-menubar', { fontCharacter: '\\ebf6' });
-    Codicon.layoutCentered = new Codicon('layout-centered', { fontCharacter: '\\ebf7' });
-    Codicon.target = new Codicon('target', { fontCharacter: '\\ebf8' });
-    // derived icons, that could become separate icons
-    Codicon.dialogError = new Codicon('dialog-error', Codicon.error.definition);
-    Codicon.dialogWarning = new Codicon('dialog-warning', Codicon.warning.definition);
-    Codicon.dialogInfo = new Codicon('dialog-info', Codicon.info.definition);
-    Codicon.dialogClose = new Codicon('dialog-close', Codicon.close.definition);
-    Codicon.treeItemExpanded = new Codicon('tree-item-expanded', Codicon.chevronDown.definition); // collapsed is done with rotation
-    Codicon.treeFilterOnTypeOn = new Codicon('tree-filter-on-type-on', Codicon.listFilter.definition);
-    Codicon.treeFilterOnTypeOff = new Codicon('tree-filter-on-type-off', Codicon.listSelection.definition);
-    Codicon.treeFilterClear = new Codicon('tree-filter-clear', Codicon.close.definition);
-    Codicon.treeItemLoading = new Codicon('tree-item-loading', Codicon.loading.definition);
-    Codicon.menuSelection = new Codicon('menu-selection', Codicon.check.definition);
-    Codicon.menuSubmenu = new Codicon('menu-submenu', Codicon.chevronRight.definition);
-    Codicon.menuBarMore = new Codicon('menubar-more', Codicon.more.definition);
-    Codicon.scrollbarButtonLeft = new Codicon('scrollbar-button-left', Codicon.triangleLeft.definition);
-    Codicon.scrollbarButtonRight = new Codicon('scrollbar-button-right', Codicon.triangleRight.definition);
-    Codicon.scrollbarButtonUp = new Codicon('scrollbar-button-up', Codicon.triangleUp.definition);
-    Codicon.scrollbarButtonDown = new Codicon('scrollbar-button-down', Codicon.triangleDown.definition);
-    Codicon.toolBarMore = new Codicon('toolbar-more', Codicon.more.definition);
-    Codicon.quickInputBack = new Codicon('quick-input-back', Codicon.arrowLeft.definition);
-    var CSSIcon;
-    (function (CSSIcon) {
-        CSSIcon.iconNameSegment = '[A-Za-z0-9]+';
-        CSSIcon.iconNameExpression = '[A-Za-z0-9-]+';
-        CSSIcon.iconModifierExpression = '~[A-Za-z]+';
-        CSSIcon.iconNameCharacter = '[A-Za-z0-9~-]';
-        const cssIconIdRegex = new RegExp(`^(${CSSIcon.iconNameExpression})(${CSSIcon.iconModifierExpression})?$`);
-        function asClassNameArray(icon) {
-            if (icon instanceof Codicon) {
-                return ['codicon', 'codicon-' + icon.id];
-            }
-            const match = cssIconIdRegex.exec(icon.id);
-            if (!match) {
-                return asClassNameArray(Codicon.error);
-            }
-            let [, id, modifier] = match;
-            const classNames = ['codicon', 'codicon-' + id];
-            if (modifier) {
-                classNames.push('codicon-modifier-' + modifier.substr(1));
-            }
-            return classNames;
-        }
-        CSSIcon.asClassNameArray = asClassNameArray;
-        function asClassName(icon) {
-            return asClassNameArray(icon).join(' ');
-        }
-        CSSIcon.asClassName = asClassName;
-        function asCSSSelector(icon) {
-            return '.' + asClassNameArray(icon).join('.');
-        }
-        CSSIcon.asCSSSelector = asCSSSelector;
-    })(CSSIcon = exports.CSSIcon || (exports.CSSIcon = {}));
-});
-
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[21/*vs/base/common/diff/diffChange*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[16/*vs/base/common/diff/diffChange*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiffChange = void 0;
@@ -3016,10 +2351,10 @@ define(__m[21/*vs/base/common/diff/diffChange*/], __M([0/*require*/,1/*exports*/
     exports.DiffChange = DiffChange;
 });
 
-define(__m[10/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[8/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.NotSupportedError = exports.illegalState = exports.illegalArgument = exports.canceled = exports.CancellationError = exports.isCancellationError = exports.transformErrorForSerialization = exports.onUnexpectedExternalError = exports.onUnexpectedError = exports.errorHandler = exports.ErrorHandler = void 0;
+    exports.NotSupportedError = exports.illegalState = exports.illegalArgument = exports.canceled = exports.isPromiseCanceledError = exports.transformErrorForSerialization = exports.onUnexpectedExternalError = exports.onUnexpectedError = exports.errorHandler = exports.ErrorHandler = void 0;
     // Avoid circular dependency on EventEmitter by implementing a subset of the interface.
     class ErrorHandler {
         constructor() {
@@ -3051,7 +2386,7 @@ define(__m[10/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/]), funct
     exports.errorHandler = new ErrorHandler();
     function onUnexpectedError(e) {
         // ignore errors from cancelled promises
-        if (!isCancellationError(e)) {
+        if (!isPromiseCanceledError(e)) {
             exports.errorHandler.onUnexpectedError(e);
         }
         return undefined;
@@ -3059,7 +2394,7 @@ define(__m[10/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/]), funct
     exports.onUnexpectedError = onUnexpectedError;
     function onUnexpectedExternalError(e) {
         // ignore errors from cancelled promises
-        if (!isCancellationError(e)) {
+        if (!isPromiseCanceledError(e)) {
             exports.errorHandler.onUnexpectedExternalError(e);
         }
         return undefined;
@@ -3084,24 +2419,12 @@ define(__m[10/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/]), funct
     /**
      * Checks if the given error is a promise in canceled state
      */
-    function isCancellationError(error) {
-        if (error instanceof CancellationError) {
-            return true;
-        }
+    function isPromiseCanceledError(error) {
         return error instanceof Error && error.name === canceledName && error.message === canceledName;
     }
-    exports.isCancellationError = isCancellationError;
-    // !!!IMPORTANT!!!
-    // Do NOT change this class because it is also used as an API-type.
-    class CancellationError extends Error {
-        constructor() {
-            super(canceledName);
-            this.name = this.message;
-        }
-    }
-    exports.CancellationError = CancellationError;
+    exports.isPromiseCanceledError = isPromiseCanceledError;
     /**
-     * @deprecated uses {@link CancellationError}
+     * Returns an error that signals cancellation.
      */
     function canceled() {
         const error = new Error(canceledName);
@@ -3142,7 +2465,7 @@ define(__m[10/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/]), funct
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[22/*vs/base/common/functional*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[17/*vs/base/common/functional*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.once = void 0;
@@ -3166,7 +2489,7 @@ define(__m[22/*vs/base/common/functional*/], __M([0/*require*/,1/*exports*/]), f
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[23/*vs/base/common/iterator*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[18/*vs/base/common/iterator*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Iterable = void 0;
@@ -3321,7 +2644,7 @@ define(__m[23/*vs/base/common/iterator*/], __M([0/*require*/,1/*exports*/]), fun
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[24/*vs/base/common/keyCodes*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[19/*vs/base/common/keyCodes*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.KeyChord = exports.KeyCodeUtils = exports.IMMUTABLE_KEY_CODE_TO_CODE = exports.IMMUTABLE_CODE_TO_KEY_CODE = exports.NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE = exports.EVENT_KEY_CODE_MAP = void 0;
@@ -3701,51 +3024,7 @@ define(__m[24/*vs/base/common/keyCodes*/], __M([0/*require*/,1/*exports*/]), fun
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[25/*vs/base/common/lazy*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Lazy = void 0;
-    class Lazy {
-        constructor(executor) {
-            this.executor = executor;
-            this._didRun = false;
-        }
-        /**
-         * Get the wrapped value.
-         *
-         * This will force evaluation of the lazy value if it has not been resolved yet. Lazy values are only
-         * resolved once. `getValue` will re-throw exceptions that are hit while resolving the value
-         */
-        getValue() {
-            if (!this._didRun) {
-                try {
-                    this._value = this.executor();
-                }
-                catch (err) {
-                    this._error = err;
-                }
-                finally {
-                    this._didRun = true;
-                }
-            }
-            if (this._error) {
-                throw this._error;
-            }
-            return this._value;
-        }
-        /**
-         * Get the wrapped value without forcing evaluation.
-         */
-        get rawValue() { return this._value; }
-    }
-    exports.Lazy = Lazy;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[7/*vs/base/common/lifecycle*/], __M([0/*require*/,1/*exports*/,22/*vs/base/common/functional*/,23/*vs/base/common/iterator*/]), function (require, exports, functional_1, iterator_1) {
+define(__m[9/*vs/base/common/lifecycle*/], __M([0/*require*/,1/*exports*/,17/*vs/base/common/functional*/,18/*vs/base/common/iterator*/]), function (require, exports, functional_1, iterator_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ImmortalReference = exports.MutableDisposable = exports.Disposable = exports.DisposableStore = exports.toDisposable = exports.combinedDisposable = exports.dispose = exports.isDisposable = exports.MultiDisposeError = exports.markAsSingleton = exports.setDisposableTracker = void 0;
@@ -3896,12 +3175,6 @@ define(__m[7/*vs/base/common/lifecycle*/], __M([0/*require*/,1/*exports*/,22/*vs
             this.clear();
         }
         /**
-         * Returns `true` if this object has been disposed
-         */
-        get isDisposed() {
-            return this._isDisposed;
-        }
-        /**
          * Dispose of all registered disposables but do not mark this object as disposed.
          */
         clear() {
@@ -4014,7 +3287,7 @@ define(__m[7/*vs/base/common/lifecycle*/], __M([0/*require*/,1/*exports*/,22/*vs
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[26/*vs/base/common/linkedList*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[20/*vs/base/common/linkedList*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.LinkedList = void 0;
@@ -4145,11 +3418,11 @@ define(__m[26/*vs/base/common/linkedList*/], __M([0/*require*/,1/*exports*/]), f
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[3/*vs/base/common/platform*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[2/*vs/base/common/platform*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     var _a;
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.isAndroid = exports.isEdge = exports.isSafari = exports.isFirefox = exports.isChrome = exports.isLittleEndian = exports.OS = exports.setTimeout0 = exports.language = exports.userAgent = exports.isIOS = exports.isWeb = exports.isNative = exports.isLinux = exports.isMacintosh = exports.isWindows = exports.globals = void 0;
+    exports.isLittleEndian = exports.OS = exports.setImmediate = exports.setTimeout0 = exports.locale = exports.language = exports.userAgent = exports.isIOS = exports.isWeb = exports.isNative = exports.isLinux = exports.isMacintosh = exports.isWindows = exports.globals = void 0;
     const LANGUAGE_DEFAULT = 'en';
     let _isWindows = false;
     let _isMacintosh = false;
@@ -4238,6 +3511,12 @@ define(__m[3/*vs/base/common/platform*/], __M([0/*require*/,1/*exports*/]), func
      */
     exports.language = _language;
     /**
+     * The OS locale or the locale specified by --locale. The format of
+     * the string is all lower case (e.g. zh-tw for Traditional
+     * Chinese). The UI is not necessarily shown in the provided locale.
+     */
+    exports.locale = _locale;
+    /**
      * See https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#:~:text=than%204%2C%20then-,set%20timeout%20to%204,-.
      *
      * Works similarly to `setTimeout(0)` but doesn't suffer from the 4ms artificial delay
@@ -4270,6 +3549,19 @@ define(__m[3/*vs/base/common/platform*/], __M([0/*require*/,1/*exports*/]), func
         }
         return (callback) => setTimeout(callback);
     })();
+    exports.setImmediate = (function defineSetImmediate() {
+        if (exports.globals.setImmediate) {
+            return exports.globals.setImmediate.bind(exports.globals);
+        }
+        if (typeof exports.globals.postMessage === 'function' && !exports.globals.importScripts) {
+            return exports.setTimeout0;
+        }
+        if (typeof (nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.nextTick) === 'function') {
+            return nodeProcess.nextTick.bind(nodeProcess);
+        }
+        const _promise = Promise.resolve();
+        return (callback) => _promise.then(callback);
+    })();
     exports.OS = (_isMacintosh || _isIOS ? 2 /* Macintosh */ : (_isWindows ? 1 /* Windows */ : 3 /* Linux */));
     let _isLittleEndian = true;
     let _isLittleEndianComputed = false;
@@ -4285,18 +3577,13 @@ define(__m[3/*vs/base/common/platform*/], __M([0/*require*/,1/*exports*/]), func
         return _isLittleEndian;
     }
     exports.isLittleEndian = isLittleEndian;
-    exports.isChrome = !!(exports.userAgent && exports.userAgent.indexOf('Chrome') >= 0);
-    exports.isFirefox = !!(exports.userAgent && exports.userAgent.indexOf('Firefox') >= 0);
-    exports.isSafari = !!(!exports.isChrome && (exports.userAgent && exports.userAgent.indexOf('Safari') >= 0));
-    exports.isEdge = !!(exports.userAgent && exports.userAgent.indexOf('Edg/') >= 0);
-    exports.isAndroid = !!(exports.userAgent && exports.userAgent.indexOf('Android') >= 0);
 });
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[27/*vs/base/common/process*/], __M([0/*require*/,1/*exports*/,3/*vs/base/common/platform*/]), function (require, exports, platform_1) {
+define(__m[21/*vs/base/common/process*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/platform*/]), function (require, exports, platform_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.platform = exports.env = exports.cwd = void 0;
@@ -4356,7 +3643,7 @@ define(__m[27/*vs/base/common/process*/], __M([0/*require*/,1/*exports*/,3/*vs/b
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[8/*vs/base/common/path*/], __M([0/*require*/,1/*exports*/,27/*vs/base/common/process*/]), function (require, exports, process) {
+define(__m[22/*vs/base/common/path*/], __M([0/*require*/,1/*exports*/,21/*vs/base/common/process*/]), function (require, exports, process) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.sep = exports.extname = exports.basename = exports.dirname = exports.relative = exports.resolve = exports.normalize = exports.posix = exports.win32 = void 0;
@@ -5716,7 +5003,7 @@ define(__m[8/*vs/base/common/path*/], __M([0/*require*/,1/*exports*/,27/*vs/base
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[12/*vs/base/common/stopwatch*/], __M([0/*require*/,1/*exports*/,3/*vs/base/common/platform*/]), function (require, exports, platform_1) {
+define(__m[10/*vs/base/common/stopwatch*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/platform*/]), function (require, exports, platform_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.StopWatch = void 0;
@@ -5746,7 +5033,7 @@ define(__m[12/*vs/base/common/stopwatch*/], __M([0/*require*/,1/*exports*/,3/*vs
     exports.StopWatch = StopWatch;
 });
 
-define(__m[4/*vs/base/common/event*/], __M([0/*require*/,1/*exports*/,10/*vs/base/common/errors*/,7/*vs/base/common/lifecycle*/,26/*vs/base/common/linkedList*/,12/*vs/base/common/stopwatch*/]), function (require, exports, errors_1, lifecycle_1, linkedList_1, stopwatch_1) {
+define(__m[7/*vs/base/common/event*/], __M([0/*require*/,1/*exports*/,8/*vs/base/common/errors*/,9/*vs/base/common/lifecycle*/,20/*vs/base/common/linkedList*/,10/*vs/base/common/stopwatch*/]), function (require, exports, errors_1, lifecycle_1, linkedList_1, stopwatch_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Relay = exports.EventBufferer = exports.DebounceEmitter = exports.PauseableEmitter = exports.Emitter = exports.Event = void 0;
@@ -5835,32 +5122,8 @@ define(__m[4/*vs/base/common/event*/], __M([0/*require*/,1/*exports*/,10/*vs/bas
             });
             return emitter.event;
         }
-        function debouncedListener(event, listener, merge, delay = 100, leading = false) {
-            let output = undefined;
-            let handle = undefined;
-            let numDebouncedCalls = 0;
-            return event(cur => {
-                numDebouncedCalls++;
-                output = merge(output, cur);
-                if (leading && !handle) {
-                    listener(output);
-                    output = undefined;
-                }
-                clearTimeout(handle);
-                handle = setTimeout(() => {
-                    const _output = output;
-                    output = undefined;
-                    handle = undefined;
-                    if (!leading || numDebouncedCalls > 1) {
-                        listener(_output);
-                    }
-                    numDebouncedCalls = 0;
-                }, delay);
-            });
-        }
-        Event.debouncedListener = debouncedListener;
         /**
-         * @deprecated this leaks memory, {@link debouncedListener} or {@link DebounceEmitter} instead
+         * @deprecated DO NOT use, this leaks memory
          */
         function debounce(event, merge, delay = 100, leading = false, leakWarningThreshold) {
             let subscription;
@@ -6021,26 +5284,6 @@ define(__m[4/*vs/base/common/event*/], __M([0/*require*/,1/*exports*/,10/*vs/bas
             return new Promise(resolve => once(event)(resolve));
         }
         Event.toPromise = toPromise;
-        function runAndSubscribe(event, handler) {
-            handler(undefined);
-            return event(e => handler(e));
-        }
-        Event.runAndSubscribe = runAndSubscribe;
-        function runAndSubscribeWithStore(event, handler) {
-            let store = null;
-            function run(e) {
-                store === null || store === void 0 ? void 0 : store.dispose();
-                store = new lifecycle_1.DisposableStore();
-                handler(e, store);
-            }
-            run(undefined);
-            const disposable = event(e => run(e));
-            return (0, lifecycle_1.toDisposable)(() => {
-                disposable.dispose();
-                store === null || store === void 0 ? void 0 : store.dispose();
-            });
-        }
-        Event.runAndSubscribeWithStore = runAndSubscribeWithStore;
     })(Event = exports.Event || (exports.Event = {}));
     class EventProfiling {
         constructor(name) {
@@ -6385,7 +5628,7 @@ define(__m[4/*vs/base/common/event*/], __M([0/*require*/,1/*exports*/,10/*vs/bas
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[13/*vs/base/common/cancellation*/], __M([0/*require*/,1/*exports*/,4/*vs/base/common/event*/]), function (require, exports, event_1) {
+define(__m[23/*vs/base/common/cancellation*/], __M([0/*require*/,1/*exports*/,7/*vs/base/common/event*/]), function (require, exports, event_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CancellationTokenSource = exports.CancellationToken = void 0;
@@ -6501,862 +5744,10 @@ define(__m[13/*vs/base/common/cancellation*/], __M([0/*require*/,1/*exports*/,4/
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __asyncValues = (this && this.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-};
-define(__m[28/*vs/base/common/async*/], __M([0/*require*/,1/*exports*/,13/*vs/base/common/cancellation*/,10/*vs/base/common/errors*/,4/*vs/base/common/event*/,7/*vs/base/common/lifecycle*/,3/*vs/base/common/platform*/]), function (require, exports, cancellation_1, errors_1, event_1, lifecycle_1, platform_1) {
+define(__m[3/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/platform*/]), function (require, exports, platform) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.createCancelableAsyncIterable = exports.CancelableAsyncIterableObject = exports.AsyncIterableObject = exports.Promises = exports.DeferredPromise = exports.IdleValue = exports.runWhenIdle = exports.RunOnceScheduler = exports.IntervalTimer = exports.TimeoutTimer = exports.first = exports.disposableTimeout = exports.timeout = exports.ThrottledDelayer = exports.Delayer = exports.MicrotaskDelay = exports.Throttler = exports.raceCancellation = exports.createCancelablePromise = exports.isThenable = void 0;
-    function isThenable(obj) {
-        return !!obj && typeof obj.then === 'function';
-    }
-    exports.isThenable = isThenable;
-    function createCancelablePromise(callback) {
-        const source = new cancellation_1.CancellationTokenSource();
-        const thenable = callback(source.token);
-        const promise = new Promise((resolve, reject) => {
-            const subscription = source.token.onCancellationRequested(() => {
-                subscription.dispose();
-                source.dispose();
-                reject(new errors_1.CancellationError());
-            });
-            Promise.resolve(thenable).then(value => {
-                subscription.dispose();
-                source.dispose();
-                resolve(value);
-            }, err => {
-                subscription.dispose();
-                source.dispose();
-                reject(err);
-            });
-        });
-        return new class {
-            cancel() {
-                source.cancel();
-            }
-            then(resolve, reject) {
-                return promise.then(resolve, reject);
-            }
-            catch(reject) {
-                return this.then(undefined, reject);
-            }
-            finally(onfinally) {
-                return promise.finally(onfinally);
-            }
-        };
-    }
-    exports.createCancelablePromise = createCancelablePromise;
-    function raceCancellation(promise, token, defaultValue) {
-        return new Promise((resolve, reject) => {
-            const ref = token.onCancellationRequested(() => {
-                ref.dispose();
-                resolve(defaultValue);
-            });
-            promise.then(resolve, reject).finally(() => ref.dispose());
-        });
-    }
-    exports.raceCancellation = raceCancellation;
-    /**
-     * A helper to prevent accumulation of sequential async tasks.
-     *
-     * Imagine a mail man with the sole task of delivering letters. As soon as
-     * a letter submitted for delivery, he drives to the destination, delivers it
-     * and returns to his base. Imagine that during the trip, N more letters were submitted.
-     * When the mail man returns, he picks those N letters and delivers them all in a
-     * single trip. Even though N+1 submissions occurred, only 2 deliveries were made.
-     *
-     * The throttler implements this via the queue() method, by providing it a task
-     * factory. Following the example:
-     *
-     * 		const throttler = new Throttler();
-     * 		const letters = [];
-     *
-     * 		function deliver() {
-     * 			const lettersToDeliver = letters;
-     * 			letters = [];
-     * 			return makeTheTrip(lettersToDeliver);
-     * 		}
-     *
-     * 		function onLetterReceived(l) {
-     * 			letters.push(l);
-     * 			throttler.queue(deliver);
-     * 		}
-     */
-    class Throttler {
-        constructor() {
-            this.activePromise = null;
-            this.queuedPromise = null;
-            this.queuedPromiseFactory = null;
-        }
-        queue(promiseFactory) {
-            if (this.activePromise) {
-                this.queuedPromiseFactory = promiseFactory;
-                if (!this.queuedPromise) {
-                    const onComplete = () => {
-                        this.queuedPromise = null;
-                        const result = this.queue(this.queuedPromiseFactory);
-                        this.queuedPromiseFactory = null;
-                        return result;
-                    };
-                    this.queuedPromise = new Promise(resolve => {
-                        this.activePromise.then(onComplete, onComplete).then(resolve);
-                    });
-                }
-                return new Promise((resolve, reject) => {
-                    this.queuedPromise.then(resolve, reject);
-                });
-            }
-            this.activePromise = promiseFactory();
-            return new Promise((resolve, reject) => {
-                this.activePromise.then((result) => {
-                    this.activePromise = null;
-                    resolve(result);
-                }, (err) => {
-                    this.activePromise = null;
-                    reject(err);
-                });
-            });
-        }
-    }
-    exports.Throttler = Throttler;
-    const timeoutDeferred = (timeout, fn) => {
-        let scheduled = true;
-        const handle = setTimeout(() => {
-            scheduled = false;
-            fn();
-        }, timeout);
-        return {
-            isTriggered: () => scheduled,
-            dispose: () => {
-                clearTimeout(handle);
-                scheduled = false;
-            },
-        };
-    };
-    const microtaskDeferred = (fn) => {
-        let scheduled = true;
-        queueMicrotask(() => {
-            if (scheduled) {
-                scheduled = false;
-                fn();
-            }
-        });
-        return {
-            isTriggered: () => scheduled,
-            dispose: () => { scheduled = false; },
-        };
-    };
-    /** Can be passed into the Delayed to defer using a microtask */
-    exports.MicrotaskDelay = Symbol('MicrotaskDelay');
-    /**
-     * A helper to delay (debounce) execution of a task that is being requested often.
-     *
-     * Following the throttler, now imagine the mail man wants to optimize the number of
-     * trips proactively. The trip itself can be long, so he decides not to make the trip
-     * as soon as a letter is submitted. Instead he waits a while, in case more
-     * letters are submitted. After said waiting period, if no letters were submitted, he
-     * decides to make the trip. Imagine that N more letters were submitted after the first
-     * one, all within a short period of time between each other. Even though N+1
-     * submissions occurred, only 1 delivery was made.
-     *
-     * The delayer offers this behavior via the trigger() method, into which both the task
-     * to be executed and the waiting period (delay) must be passed in as arguments. Following
-     * the example:
-     *
-     * 		const delayer = new Delayer(WAITING_PERIOD);
-     * 		const letters = [];
-     *
-     * 		function letterReceived(l) {
-     * 			letters.push(l);
-     * 			delayer.trigger(() => { return makeTheTrip(); });
-     * 		}
-     */
-    class Delayer {
-        constructor(defaultDelay) {
-            this.defaultDelay = defaultDelay;
-            this.deferred = null;
-            this.completionPromise = null;
-            this.doResolve = null;
-            this.doReject = null;
-            this.task = null;
-        }
-        trigger(task, delay = this.defaultDelay) {
-            this.task = task;
-            this.cancelTimeout();
-            if (!this.completionPromise) {
-                this.completionPromise = new Promise((resolve, reject) => {
-                    this.doResolve = resolve;
-                    this.doReject = reject;
-                }).then(() => {
-                    this.completionPromise = null;
-                    this.doResolve = null;
-                    if (this.task) {
-                        const task = this.task;
-                        this.task = null;
-                        return task();
-                    }
-                    return undefined;
-                });
-            }
-            const fn = () => {
-                var _a;
-                this.deferred = null;
-                (_a = this.doResolve) === null || _a === void 0 ? void 0 : _a.call(this, null);
-            };
-            this.deferred = delay === exports.MicrotaskDelay ? microtaskDeferred(fn) : timeoutDeferred(delay, fn);
-            return this.completionPromise;
-        }
-        isTriggered() {
-            var _a;
-            return !!((_a = this.deferred) === null || _a === void 0 ? void 0 : _a.isTriggered());
-        }
-        cancel() {
-            this.cancelTimeout();
-            if (this.completionPromise) {
-                if (this.doReject) {
-                    this.doReject(new errors_1.CancellationError());
-                }
-                this.completionPromise = null;
-            }
-        }
-        cancelTimeout() {
-            var _a;
-            (_a = this.deferred) === null || _a === void 0 ? void 0 : _a.dispose();
-            this.deferred = null;
-        }
-        dispose() {
-            this.cancel();
-        }
-    }
-    exports.Delayer = Delayer;
-    /**
-     * A helper to delay execution of a task that is being requested often, while
-     * preventing accumulation of consecutive executions, while the task runs.
-     *
-     * The mail man is clever and waits for a certain amount of time, before going
-     * out to deliver letters. While the mail man is going out, more letters arrive
-     * and can only be delivered once he is back. Once he is back the mail man will
-     * do one more trip to deliver the letters that have accumulated while he was out.
-     */
-    class ThrottledDelayer {
-        constructor(defaultDelay) {
-            this.delayer = new Delayer(defaultDelay);
-            this.throttler = new Throttler();
-        }
-        trigger(promiseFactory, delay) {
-            return this.delayer.trigger(() => this.throttler.queue(promiseFactory), delay);
-        }
-        dispose() {
-            this.delayer.dispose();
-        }
-    }
-    exports.ThrottledDelayer = ThrottledDelayer;
-    function timeout(millis, token) {
-        if (!token) {
-            return createCancelablePromise(token => timeout(millis, token));
-        }
-        return new Promise((resolve, reject) => {
-            const handle = setTimeout(() => {
-                disposable.dispose();
-                resolve();
-            }, millis);
-            const disposable = token.onCancellationRequested(() => {
-                clearTimeout(handle);
-                disposable.dispose();
-                reject(new errors_1.CancellationError());
-            });
-        });
-    }
-    exports.timeout = timeout;
-    function disposableTimeout(handler, timeout = 0) {
-        const timer = setTimeout(handler, timeout);
-        return (0, lifecycle_1.toDisposable)(() => clearTimeout(timer));
-    }
-    exports.disposableTimeout = disposableTimeout;
-    function first(promiseFactories, shouldStop = t => !!t, defaultValue = null) {
-        let index = 0;
-        const len = promiseFactories.length;
-        const loop = () => {
-            if (index >= len) {
-                return Promise.resolve(defaultValue);
-            }
-            const factory = promiseFactories[index++];
-            const promise = Promise.resolve(factory());
-            return promise.then(result => {
-                if (shouldStop(result)) {
-                    return Promise.resolve(result);
-                }
-                return loop();
-            });
-        };
-        return loop();
-    }
-    exports.first = first;
-    class TimeoutTimer {
-        constructor(runner, timeout) {
-            this._token = -1;
-            if (typeof runner === 'function' && typeof timeout === 'number') {
-                this.setIfNotSet(runner, timeout);
-            }
-        }
-        dispose() {
-            this.cancel();
-        }
-        cancel() {
-            if (this._token !== -1) {
-                clearTimeout(this._token);
-                this._token = -1;
-            }
-        }
-        cancelAndSet(runner, timeout) {
-            this.cancel();
-            this._token = setTimeout(() => {
-                this._token = -1;
-                runner();
-            }, timeout);
-        }
-        setIfNotSet(runner, timeout) {
-            if (this._token !== -1) {
-                // timer is already set
-                return;
-            }
-            this._token = setTimeout(() => {
-                this._token = -1;
-                runner();
-            }, timeout);
-        }
-    }
-    exports.TimeoutTimer = TimeoutTimer;
-    class IntervalTimer {
-        constructor() {
-            this._token = -1;
-        }
-        dispose() {
-            this.cancel();
-        }
-        cancel() {
-            if (this._token !== -1) {
-                clearInterval(this._token);
-                this._token = -1;
-            }
-        }
-        cancelAndSet(runner, interval) {
-            this.cancel();
-            this._token = setInterval(() => {
-                runner();
-            }, interval);
-        }
-    }
-    exports.IntervalTimer = IntervalTimer;
-    class RunOnceScheduler {
-        constructor(runner, delay) {
-            this.timeoutToken = -1;
-            this.runner = runner;
-            this.timeout = delay;
-            this.timeoutHandler = this.onTimeout.bind(this);
-        }
-        /**
-         * Dispose RunOnceScheduler
-         */
-        dispose() {
-            this.cancel();
-            this.runner = null;
-        }
-        /**
-         * Cancel current scheduled runner (if any).
-         */
-        cancel() {
-            if (this.isScheduled()) {
-                clearTimeout(this.timeoutToken);
-                this.timeoutToken = -1;
-            }
-        }
-        /**
-         * Cancel previous runner (if any) & schedule a new runner.
-         */
-        schedule(delay = this.timeout) {
-            this.cancel();
-            this.timeoutToken = setTimeout(this.timeoutHandler, delay);
-        }
-        get delay() {
-            return this.timeout;
-        }
-        set delay(value) {
-            this.timeout = value;
-        }
-        /**
-         * Returns true if scheduled.
-         */
-        isScheduled() {
-            return this.timeoutToken !== -1;
-        }
-        onTimeout() {
-            this.timeoutToken = -1;
-            if (this.runner) {
-                this.doRun();
-            }
-        }
-        doRun() {
-            if (this.runner) {
-                this.runner();
-            }
-        }
-    }
-    exports.RunOnceScheduler = RunOnceScheduler;
-    (function () {
-        if (typeof requestIdleCallback !== 'function' || typeof cancelIdleCallback !== 'function') {
-            exports.runWhenIdle = (runner) => {
-                (0, platform_1.setTimeout0)(() => {
-                    if (disposed) {
-                        return;
-                    }
-                    const end = Date.now() + 15; // one frame at 64fps
-                    runner(Object.freeze({
-                        didTimeout: true,
-                        timeRemaining() {
-                            return Math.max(0, end - Date.now());
-                        }
-                    }));
-                });
-                let disposed = false;
-                return {
-                    dispose() {
-                        if (disposed) {
-                            return;
-                        }
-                        disposed = true;
-                    }
-                };
-            };
-        }
-        else {
-            exports.runWhenIdle = (runner, timeout) => {
-                const handle = requestIdleCallback(runner, typeof timeout === 'number' ? { timeout } : undefined);
-                let disposed = false;
-                return {
-                    dispose() {
-                        if (disposed) {
-                            return;
-                        }
-                        disposed = true;
-                        cancelIdleCallback(handle);
-                    }
-                };
-            };
-        }
-    })();
-    /**
-     * An implementation of the "idle-until-urgent"-strategy as introduced
-     * here: https://philipwalton.com/articles/idle-until-urgent/
-     */
-    class IdleValue {
-        constructor(executor) {
-            this._didRun = false;
-            this._executor = () => {
-                try {
-                    this._value = executor();
-                }
-                catch (err) {
-                    this._error = err;
-                }
-                finally {
-                    this._didRun = true;
-                }
-            };
-            this._handle = (0, exports.runWhenIdle)(() => this._executor());
-        }
-        dispose() {
-            this._handle.dispose();
-        }
-        get value() {
-            if (!this._didRun) {
-                this._handle.dispose();
-                this._executor();
-            }
-            if (this._error) {
-                throw this._error;
-            }
-            return this._value;
-        }
-        get isInitialized() {
-            return this._didRun;
-        }
-    }
-    exports.IdleValue = IdleValue;
-    /**
-     * Creates a promise whose resolution or rejection can be controlled imperatively.
-     */
-    class DeferredPromise {
-        constructor() {
-            this.rejected = false;
-            this.resolved = false;
-            this.p = new Promise((c, e) => {
-                this.completeCallback = c;
-                this.errorCallback = e;
-            });
-        }
-        get isRejected() {
-            return this.rejected;
-        }
-        get isSettled() {
-            return this.rejected || this.resolved;
-        }
-        complete(value) {
-            return new Promise(resolve => {
-                this.completeCallback(value);
-                this.resolved = true;
-                resolve();
-            });
-        }
-        cancel() {
-            new Promise(resolve => {
-                this.errorCallback(new errors_1.CancellationError());
-                this.rejected = true;
-                resolve();
-            });
-        }
-    }
-    exports.DeferredPromise = DeferredPromise;
-    //#endregion
-    //#region Promises
-    var Promises;
-    (function (Promises) {
-        /**
-         * A drop-in replacement for `Promise.all` with the only difference
-         * that the method awaits every promise to either fulfill or reject.
-         *
-         * Similar to `Promise.all`, only the first error will be returned
-         * if any.
-         */
-        function settled(promises) {
-            return __awaiter(this, void 0, void 0, function* () {
-                let firstError = undefined;
-                const result = yield Promise.all(promises.map(promise => promise.then(value => value, error => {
-                    if (!firstError) {
-                        firstError = error;
-                    }
-                    return undefined; // do not rethrow so that other promises can settle
-                })));
-                if (typeof firstError !== 'undefined') {
-                    throw firstError;
-                }
-                return result; // cast is needed and protected by the `throw` above
-            });
-        }
-        Promises.settled = settled;
-        /**
-         * A helper to create a new `Promise<T>` with a body that is a promise
-         * itself. By default, an error that raises from the async body will
-         * end up as a unhandled rejection, so this utility properly awaits the
-         * body and rejects the promise as a normal promise does without async
-         * body.
-         *
-         * This method should only be used in rare cases where otherwise `async`
-         * cannot be used (e.g. when callbacks are involved that require this).
-         */
-        function withAsyncBody(bodyFn) {
-            // eslint-disable-next-line no-async-promise-executor
-            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    yield bodyFn(resolve, reject);
-                }
-                catch (error) {
-                    reject(error);
-                }
-            }));
-        }
-        Promises.withAsyncBody = withAsyncBody;
-    })(Promises = exports.Promises || (exports.Promises = {}));
-    /**
-     * A rich implementation for an `AsyncIterable<T>`.
-     */
-    class AsyncIterableObject {
-        constructor(executor) {
-            this._state = 0 /* Initial */;
-            this._results = [];
-            this._error = null;
-            this._onStateChanged = new event_1.Emitter();
-            queueMicrotask(() => __awaiter(this, void 0, void 0, function* () {
-                const writer = {
-                    emitOne: (item) => this.emitOne(item),
-                    emitMany: (items) => this.emitMany(items),
-                    reject: (error) => this.reject(error)
-                };
-                try {
-                    yield Promise.resolve(executor(writer));
-                    this.resolve();
-                }
-                catch (err) {
-                    this.reject(err);
-                }
-                finally {
-                    writer.emitOne = undefined;
-                    writer.emitMany = undefined;
-                    writer.reject = undefined;
-                }
-            }));
-        }
-        static fromArray(items) {
-            return new AsyncIterableObject((writer) => {
-                writer.emitMany(items);
-            });
-        }
-        static fromPromise(promise) {
-            return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-                emitter.emitMany(yield promise);
-            }));
-        }
-        static fromPromises(promises) {
-            return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-                yield Promise.all(promises.map((p) => __awaiter(this, void 0, void 0, function* () { return emitter.emitOne(yield p); })));
-            }));
-        }
-        static merge(iterables) {
-            return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-                yield Promise.all(iterables.map((iterable) => { var iterable_1, iterable_1_1; return __awaiter(this, void 0, void 0, function* () {
-                    var e_1, _a;
-                    try {
-                        for (iterable_1 = __asyncValues(iterable); iterable_1_1 = yield iterable_1.next(), !iterable_1_1.done;) {
-                            const item = iterable_1_1.value;
-                            emitter.emitOne(item);
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (iterable_1_1 && !iterable_1_1.done && (_a = iterable_1.return)) yield _a.call(iterable_1);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
-                }); }));
-            }));
-        }
-        [Symbol.asyncIterator]() {
-            let i = 0;
-            return {
-                next: () => __awaiter(this, void 0, void 0, function* () {
-                    do {
-                        if (this._state === 2 /* DoneError */) {
-                            throw this._error;
-                        }
-                        if (i < this._results.length) {
-                            return { done: false, value: this._results[i++] };
-                        }
-                        if (this._state === 1 /* DoneOK */) {
-                            return { done: true, value: undefined };
-                        }
-                        yield event_1.Event.toPromise(this._onStateChanged.event);
-                    } while (true);
-                })
-            };
-        }
-        static map(iterable, mapFn) {
-            return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-                var e_2, _a;
-                try {
-                    for (var iterable_2 = __asyncValues(iterable), iterable_2_1; iterable_2_1 = yield iterable_2.next(), !iterable_2_1.done;) {
-                        const item = iterable_2_1.value;
-                        emitter.emitOne(mapFn(item));
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (iterable_2_1 && !iterable_2_1.done && (_a = iterable_2.return)) yield _a.call(iterable_2);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-            }));
-        }
-        map(mapFn) {
-            return AsyncIterableObject.map(this, mapFn);
-        }
-        static filter(iterable, filterFn) {
-            return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-                var e_3, _a;
-                try {
-                    for (var iterable_3 = __asyncValues(iterable), iterable_3_1; iterable_3_1 = yield iterable_3.next(), !iterable_3_1.done;) {
-                        const item = iterable_3_1.value;
-                        if (filterFn(item)) {
-                            emitter.emitOne(item);
-                        }
-                    }
-                }
-                catch (e_3_1) { e_3 = { error: e_3_1 }; }
-                finally {
-                    try {
-                        if (iterable_3_1 && !iterable_3_1.done && (_a = iterable_3.return)) yield _a.call(iterable_3);
-                    }
-                    finally { if (e_3) throw e_3.error; }
-                }
-            }));
-        }
-        filter(filterFn) {
-            return AsyncIterableObject.filter(this, filterFn);
-        }
-        static coalesce(iterable) {
-            return AsyncIterableObject.filter(iterable, item => !!item);
-        }
-        coalesce() {
-            return AsyncIterableObject.coalesce(this);
-        }
-        static toPromise(iterable) {
-            var iterable_4, iterable_4_1;
-            var e_4, _a;
-            return __awaiter(this, void 0, void 0, function* () {
-                const result = [];
-                try {
-                    for (iterable_4 = __asyncValues(iterable); iterable_4_1 = yield iterable_4.next(), !iterable_4_1.done;) {
-                        const item = iterable_4_1.value;
-                        result.push(item);
-                    }
-                }
-                catch (e_4_1) { e_4 = { error: e_4_1 }; }
-                finally {
-                    try {
-                        if (iterable_4_1 && !iterable_4_1.done && (_a = iterable_4.return)) yield _a.call(iterable_4);
-                    }
-                    finally { if (e_4) throw e_4.error; }
-                }
-                return result;
-            });
-        }
-        toPromise() {
-            return AsyncIterableObject.toPromise(this);
-        }
-        /**
-         * The value will be appended at the end.
-         *
-         * **NOTE** If `resolve()` or `reject()` have already been called, this method has no effect.
-         */
-        emitOne(value) {
-            if (this._state !== 0 /* Initial */) {
-                return;
-            }
-            // it is important to add new values at the end,
-            // as we may have iterators already running on the array
-            this._results.push(value);
-            this._onStateChanged.fire();
-        }
-        /**
-         * The values will be appended at the end.
-         *
-         * **NOTE** If `resolve()` or `reject()` have already been called, this method has no effect.
-         */
-        emitMany(values) {
-            if (this._state !== 0 /* Initial */) {
-                return;
-            }
-            // it is important to add new values at the end,
-            // as we may have iterators already running on the array
-            this._results = this._results.concat(values);
-            this._onStateChanged.fire();
-        }
-        /**
-         * Calling `resolve()` will mark the result array as complete.
-         *
-         * **NOTE** `resolve()` must be called, otherwise all consumers of this iterable will hang indefinitely, similar to a non-resolved promise.
-         * **NOTE** If `resolve()` or `reject()` have already been called, this method has no effect.
-         */
-        resolve() {
-            if (this._state !== 0 /* Initial */) {
-                return;
-            }
-            this._state = 1 /* DoneOK */;
-            this._onStateChanged.fire();
-        }
-        /**
-         * Writing an error will permanently invalidate this iterable.
-         * The current users will receive an error thrown, as will all future users.
-         *
-         * **NOTE** If `resolve()` or `reject()` have already been called, this method has no effect.
-         */
-        reject(error) {
-            if (this._state !== 0 /* Initial */) {
-                return;
-            }
-            this._state = 2 /* DoneError */;
-            this._error = error;
-            this._onStateChanged.fire();
-        }
-    }
-    exports.AsyncIterableObject = AsyncIterableObject;
-    AsyncIterableObject.EMPTY = AsyncIterableObject.fromArray([]);
-    class CancelableAsyncIterableObject extends AsyncIterableObject {
-        constructor(_source, executor) {
-            super(executor);
-            this._source = _source;
-        }
-        cancel() {
-            this._source.cancel();
-        }
-    }
-    exports.CancelableAsyncIterableObject = CancelableAsyncIterableObject;
-    function createCancelableAsyncIterable(callback) {
-        const source = new cancellation_1.CancellationTokenSource();
-        const innerIterable = callback(source.token);
-        return new CancelableAsyncIterableObject(source, (emitter) => __awaiter(this, void 0, void 0, function* () {
-            var e_5, _a;
-            const subscription = source.token.onCancellationRequested(() => {
-                subscription.dispose();
-                source.dispose();
-                emitter.reject(new errors_1.CancellationError());
-            });
-            try {
-                try {
-                    for (var innerIterable_1 = __asyncValues(innerIterable), innerIterable_1_1; innerIterable_1_1 = yield innerIterable_1.next(), !innerIterable_1_1.done;) {
-                        const item = innerIterable_1_1.value;
-                        if (source.token.isCancellationRequested) {
-                            // canceled in the meantime
-                            return;
-                        }
-                        emitter.emitOne(item);
-                    }
-                }
-                catch (e_5_1) { e_5 = { error: e_5_1 }; }
-                finally {
-                    try {
-                        if (innerIterable_1_1 && !innerIterable_1_1.done && (_a = innerIterable_1.return)) yield _a.call(innerIterable_1);
-                    }
-                    finally { if (e_5) throw e_5.error; }
-                }
-                subscription.dispose();
-                source.dispose();
-            }
-            catch (err) {
-                subscription.dispose();
-                source.dispose();
-                emitter.reject(err);
-            }
-        }));
-    }
-    exports.createCancelableAsyncIterable = createCancelableAsyncIterable;
-});
-//#endregion
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/base/common/cache*/,25/*vs/base/common/lazy*/]), function (require, exports, cache_1, lazy_1) {
-    "use strict";
-    var _a;
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.InvisibleCharacters = exports.AmbiguousCharacters = exports.noBreakWhitespace = exports.getLeftDeleteOffset = exports.singleLetterHash = exports.containsUppercaseCharacter = exports.startsWithUTF8BOM = exports.UTF8_BOM_CHARACTER = exports.isEmojiImprecise = exports.isFullWidthCharacter = exports.containsUnusualLineTerminators = exports.UNUSUAL_LINE_TERMINATORS = exports.isBasicASCII = exports.containsRTL = exports.getCharContainingOffset = exports.prevCharLength = exports.nextCharLength = exports.GraphemeIterator = exports.CodePointIterator = exports.getNextCodePoint = exports.computeCodePoint = exports.isLowSurrogate = exports.isHighSurrogate = exports.commonSuffixLength = exports.commonPrefixLength = exports.startsWithIgnoreCase = exports.equalsIgnoreCase = exports.isUpperAsciiLetter = exports.isLowerAsciiLetter = exports.compareSubstringIgnoreCase = exports.compareIgnoreCase = exports.compareSubstring = exports.compare = exports.lastNonWhitespaceIndex = exports.getLeadingWhitespace = exports.firstNonWhitespaceIndex = exports.splitLines = exports.regExpFlags = exports.regExpLeadsToEndlessLoop = exports.createRegExp = exports.stripWildcards = exports.convertSimple2RegExpPattern = exports.rtrim = exports.ltrim = exports.trim = exports.escapeRegExpCharacters = exports.escape = exports.format = exports.isFalsyOrWhitespace = void 0;
+    exports.InvisibleCharacters = exports.AmbiguousCharacters = exports.noBreakWhitespace = exports.getLeftDeleteOffset = exports.breakBetweenGraphemeBreakType = exports.getGraphemeBreakType = exports.singleLetterHash = exports.containsUppercaseCharacter = exports.startsWithUTF8BOM = exports.UTF8_BOM_CHARACTER = exports.isEmojiImprecise = exports.isFullWidthCharacter = exports.containsFullWidthCharacter = exports.containsUnusualLineTerminators = exports.UNUSUAL_LINE_TERMINATORS = exports.isBasicASCII = exports.containsEmoji = exports.containsRTL = exports.prevCharLength = exports.nextCharLength = exports.getNextCodePoint = exports.computeCodePoint = exports.isLowSurrogate = exports.isHighSurrogate = exports.commonSuffixLength = exports.commonPrefixLength = exports.startsWithIgnoreCase = exports.equalsIgnoreCase = exports.isUpperAsciiLetter = exports.isLowerAsciiLetter = exports.compareSubstringIgnoreCase = exports.compareIgnoreCase = exports.compareSubstring = exports.compare = exports.lastNonWhitespaceIndex = exports.getLeadingWhitespace = exports.firstNonWhitespaceIndex = exports.splitLines = exports.regExpFlags = exports.regExpLeadsToEndlessLoop = exports.createRegExp = exports.stripWildcards = exports.convertSimple2RegExpPattern = exports.rtrim = exports.ltrim = exports.trim = exports.escapeRegExpCharacters = exports.escape = exports.format = exports.isFalsyOrWhitespace = void 0;
     function isFalsyOrWhitespace(str) {
         if (!str || typeof str !== 'string') {
             return true;
@@ -7738,98 +6129,43 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
         }
         return charCode;
     }
-    class CodePointIterator {
-        constructor(str, offset = 0) {
-            this._str = str;
-            this._len = str.length;
-            this._offset = offset;
-        }
-        get offset() {
-            return this._offset;
-        }
-        setOffset(offset) {
-            this._offset = offset;
-        }
-        prevCodePoint() {
-            const codePoint = getPrevCodePoint(this._str, this._offset);
-            this._offset -= (codePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1);
-            return codePoint;
-        }
-        nextCodePoint() {
-            const codePoint = getNextCodePoint(this._str, this._len, this._offset);
-            this._offset += (codePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1);
-            return codePoint;
-        }
-        eol() {
-            return (this._offset >= this._len);
-        }
-    }
-    exports.CodePointIterator = CodePointIterator;
-    class GraphemeIterator {
-        constructor(str, offset = 0) {
-            this._iterator = new CodePointIterator(str, offset);
-        }
-        get offset() {
-            return this._iterator.offset;
-        }
-        nextGraphemeLength() {
-            const graphemeBreakTree = GraphemeBreakTree.getInstance();
-            const iterator = this._iterator;
-            const initialOffset = iterator.offset;
-            let graphemeBreakType = graphemeBreakTree.getGraphemeBreakType(iterator.nextCodePoint());
-            while (!iterator.eol()) {
-                const offset = iterator.offset;
-                const nextGraphemeBreakType = graphemeBreakTree.getGraphemeBreakType(iterator.nextCodePoint());
-                if (breakBetweenGraphemeBreakType(graphemeBreakType, nextGraphemeBreakType)) {
-                    // move iterator back
-                    iterator.setOffset(offset);
-                    break;
-                }
-                graphemeBreakType = nextGraphemeBreakType;
+    function nextCharLength(str, offset) {
+        const graphemeBreakTree = GraphemeBreakTree.getInstance();
+        const initialOffset = offset;
+        const len = str.length;
+        const initialCodePoint = getNextCodePoint(str, len, offset);
+        offset += (initialCodePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1);
+        let graphemeBreakType = graphemeBreakTree.getGraphemeBreakType(initialCodePoint);
+        while (offset < len) {
+            const nextCodePoint = getNextCodePoint(str, len, offset);
+            const nextGraphemeBreakType = graphemeBreakTree.getGraphemeBreakType(nextCodePoint);
+            if (breakBetweenGraphemeBreakType(graphemeBreakType, nextGraphemeBreakType)) {
+                break;
             }
-            return (iterator.offset - initialOffset);
+            offset += (nextCodePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1);
+            graphemeBreakType = nextGraphemeBreakType;
         }
-        prevGraphemeLength() {
-            const graphemeBreakTree = GraphemeBreakTree.getInstance();
-            const iterator = this._iterator;
-            const initialOffset = iterator.offset;
-            let graphemeBreakType = graphemeBreakTree.getGraphemeBreakType(iterator.prevCodePoint());
-            while (iterator.offset > 0) {
-                const offset = iterator.offset;
-                const prevGraphemeBreakType = graphemeBreakTree.getGraphemeBreakType(iterator.prevCodePoint());
-                if (breakBetweenGraphemeBreakType(prevGraphemeBreakType, graphemeBreakType)) {
-                    // move iterator back
-                    iterator.setOffset(offset);
-                    break;
-                }
-                graphemeBreakType = prevGraphemeBreakType;
-            }
-            return (initialOffset - iterator.offset);
-        }
-        eol() {
-            return this._iterator.eol();
-        }
-    }
-    exports.GraphemeIterator = GraphemeIterator;
-    function nextCharLength(str, initialOffset) {
-        const iterator = new GraphemeIterator(str, initialOffset);
-        return iterator.nextGraphemeLength();
+        return (offset - initialOffset);
     }
     exports.nextCharLength = nextCharLength;
-    function prevCharLength(str, initialOffset) {
-        const iterator = new GraphemeIterator(str, initialOffset);
-        return iterator.prevGraphemeLength();
+    function prevCharLength(str, offset) {
+        const graphemeBreakTree = GraphemeBreakTree.getInstance();
+        const initialOffset = offset;
+        const initialCodePoint = getPrevCodePoint(str, offset);
+        offset -= (initialCodePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1);
+        let graphemeBreakType = graphemeBreakTree.getGraphemeBreakType(initialCodePoint);
+        while (offset > 0) {
+            const prevCodePoint = getPrevCodePoint(str, offset);
+            const prevGraphemeBreakType = graphemeBreakTree.getGraphemeBreakType(prevCodePoint);
+            if (breakBetweenGraphemeBreakType(prevGraphemeBreakType, graphemeBreakType)) {
+                break;
+            }
+            offset -= (prevCodePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1);
+            graphemeBreakType = prevGraphemeBreakType;
+        }
+        return (initialOffset - offset);
     }
     exports.prevCharLength = prevCharLength;
-    function getCharContainingOffset(str, offset) {
-        if (offset > 0 && isLowSurrogate(str.charCodeAt(offset))) {
-            offset--;
-        }
-        const endOffset = offset + nextCharLength(str, offset);
-        const startOffset = endOffset - prevCharLength(str, endOffset);
-        return [startOffset, endOffset];
-    }
-    exports.getCharContainingOffset = getCharContainingOffset;
     /**
      * Generated using https://github.com/alexdima/unicode-utils/blob/main/rtl-test.js
      */
@@ -7841,6 +6177,14 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
         return CONTAINS_RTL.test(str);
     }
     exports.containsRTL = containsRTL;
+    /**
+     * Generated using https://github.com/alexdima/unicode-utils/blob/main/emoji-test.js
+     */
+    const CONTAINS_EMOJI = /(?:[\u231A\u231B\u23F0\u23F3\u2600-\u27BF\u2B50\u2B55]|\uD83C[\uDDE6-\uDDFF\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F\uDE80-\uDEFC\uDFE0-\uDFF0]|\uD83E[\uDD00-\uDDFF\uDE70-\uDEF6])/;
+    function containsEmoji(str) {
+        return CONTAINS_EMOJI.test(str);
+    }
+    exports.containsEmoji = containsEmoji;
     const IS_BASIC_ASCII = /^[\t\n\r\x20-\x7E]*$/;
     /**
      * Returns true if `str` contains only basic ASCII characters in the range 32 - 126 (including 32 and 126) or \n, \r, \t
@@ -7857,6 +6201,15 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
         return exports.UNUSUAL_LINE_TERMINATORS.test(str);
     }
     exports.containsUnusualLineTerminators = containsUnusualLineTerminators;
+    function containsFullWidthCharacter(str) {
+        for (let i = 0, len = str.length; i < len; i++) {
+            if (isFullWidthCharacter(str.charCodeAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    exports.containsFullWidthCharacter = containsFullWidthCharacter;
     function isFullWidthCharacter(charCode) {
         // Do a cheap trick to better support wrapping of wide characters, treat them as 2 columns
         // http://jrgraphix.net/research/unicode_blocks.php
@@ -7941,6 +6294,12 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
         return String.fromCharCode(65 /* A */ + n - LETTERS_CNT);
     }
     exports.singleLetterHash = singleLetterHash;
+    //#region Unicode Grapheme Break
+    function getGraphemeBreakType(codePoint) {
+        const graphemeBreakTree = GraphemeBreakTree.getInstance();
+        return graphemeBreakTree.getGraphemeBreakType(codePoint);
+    }
+    exports.getGraphemeBreakType = getGraphemeBreakType;
     function breakBetweenGraphemeBreakType(breakTypeA, breakTypeB) {
         // http://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
         // !!! Let's make the common case a bit faster
@@ -8012,6 +6371,7 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
         // GB999                                     Any ÷ Any
         return true;
     }
+    exports.breakBetweenGraphemeBreakType = breakBetweenGraphemeBreakType;
     class GraphemeBreakTree {
         constructor() {
             this._data = getGraphemeBreakRawData();
@@ -8077,121 +6437,96 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
             return emojiOffset;
         }
         // Otherwise, just skip a single code point.
-        const iterator = new CodePointIterator(str, offset);
-        iterator.prevCodePoint();
-        return iterator.offset;
+        const codePoint = getPrevCodePoint(str, offset);
+        offset -= getUTF16Length(codePoint);
+        return offset;
     }
     exports.getLeftDeleteOffset = getLeftDeleteOffset;
-    function getOffsetBeforeLastEmojiComponent(initialOffset, str) {
+    function getOffsetBeforeLastEmojiComponent(offset, str) {
         // See https://www.unicode.org/reports/tr51/tr51-14.html#EBNF_and_Regex for the
         // structure of emojis.
-        const iterator = new CodePointIterator(str, initialOffset);
-        let codePoint = iterator.prevCodePoint();
+        let codePoint = getPrevCodePoint(str, offset);
+        offset -= getUTF16Length(codePoint);
         // Skip modifiers
         while ((isEmojiModifier(codePoint) || codePoint === 65039 /* emojiVariantSelector */ || codePoint === 8419 /* enclosingKeyCap */)) {
-            if (iterator.offset === 0) {
+            if (offset === 0) {
                 // Cannot skip modifier, no preceding emoji base.
                 return undefined;
             }
-            codePoint = iterator.prevCodePoint();
+            codePoint = getPrevCodePoint(str, offset);
+            offset -= getUTF16Length(codePoint);
         }
         // Expect base emoji
         if (!isEmojiImprecise(codePoint)) {
             // Unexpected code point, not a valid emoji.
             return undefined;
         }
-        let resultOffset = iterator.offset;
-        if (resultOffset > 0) {
+        if (offset >= 0) {
             // Skip optional ZWJ code points that combine multiple emojis.
             // In theory, we should check if that ZWJ actually combines multiple emojis
             // to prevent deleting ZWJs in situations we didn't account for.
-            const optionalZwjCodePoint = iterator.prevCodePoint();
+            const optionalZwjCodePoint = getPrevCodePoint(str, offset);
             if (optionalZwjCodePoint === 8205 /* zwj */) {
-                resultOffset = iterator.offset;
+                offset -= getUTF16Length(optionalZwjCodePoint);
             }
         }
-        return resultOffset;
+        return offset;
+    }
+    function getUTF16Length(codePoint) {
+        return codePoint >= 65536 /* UNICODE_SUPPLEMENTARY_PLANE_BEGIN */ ? 2 : 1;
     }
     function isEmojiModifier(codePoint) {
         return 0x1F3FB <= codePoint && codePoint <= 0x1F3FF;
     }
     exports.noBreakWhitespace = '\xa0';
     class AmbiguousCharacters {
-        constructor(confusableDictionary) {
-            this.confusableDictionary = confusableDictionary;
+        static getData() {
+            // Stored as key1, value1, key2, value2, ...
+            return JSON.parse('{\"_common\":[8232,32,8233,32,5760,32,8192,32,8193,32,8194,32,8195,32,8196,32,8197,32,8198,32,8200,32,8201,32,8202,32,8287,32,8199,32,8239,32,2042,95,65101,95,65102,95,65103,95,8208,45,8209,45,8210,45,65112,45,1748,45,8259,45,727,45,8722,45,10134,45,11450,45,1549,44,1643,44,8218,44,184,44,42233,44,894,59,2307,58,2691,58,1417,58,1795,58,1796,58,5868,58,65072,58,6147,58,6153,58,8282,58,1475,58,760,58,42889,58,8758,58,720,58,42237,58,451,33,11601,33,660,63,577,63,2429,63,5038,63,42731,63,119149,46,8228,46,1793,46,1794,46,42510,46,68176,46,1632,46,1776,46,42232,46,1373,96,65287,96,8219,96,8242,96,1370,96,1523,96,8175,96,65344,96,900,96,8189,96,8125,96,8127,96,8190,96,697,96,884,96,712,96,714,96,715,96,756,96,699,96,701,96,700,96,702,96,42892,96,1497,96,2036,96,2037,96,5194,96,5836,96,94033,96,94034,96,65339,40,10088,40,10098,40,12308,40,64830,40,65341,41,10089,41,10099,41,12309,41,64831,41,10100,123,119060,123,10101,125,8270,42,1645,42,8727,42,66335,42,5941,47,8257,47,8725,47,8260,47,9585,47,10187,47,10744,47,119354,47,12755,47,12339,47,11462,47,20031,47,12035,47,65340,92,65128,92,8726,92,10189,92,10741,92,10745,92,119311,92,119355,92,12756,92,20022,92,12034,92,42872,38,708,94,710,94,5869,43,10133,43,66203,43,8249,60,10094,60,706,60,119350,60,5176,60,5810,60,5120,61,11840,61,12448,61,42239,61,8250,62,10095,62,707,62,119351,62,5171,62,94015,62,8275,126,732,126,8128,126,8764,126,120784,50,120794,50,120804,50,120814,50,120824,50,130034,50,42842,50,423,50,1000,50,42564,50,5311,50,42735,50,119302,51,120785,51,120795,51,120805,51,120815,51,120825,51,130035,51,42923,51,540,51,439,51,42858,51,11468,51,1248,51,94011,51,71882,51,120786,52,120796,52,120806,52,120816,52,120826,52,130036,52,5070,52,71855,52,120787,53,120797,53,120807,53,120817,53,120827,53,130037,53,444,53,71867,53,120788,54,120798,54,120808,54,120818,54,120828,54,130038,54,11474,54,5102,54,71893,54,119314,55,120789,55,120799,55,120809,55,120819,55,120829,55,130039,55,66770,55,71878,55,2819,56,2538,56,2666,56,125131,56,120790,56,120800,56,120810,56,120820,56,120830,56,130040,56,547,56,546,56,66330,56,2663,57,2920,57,2541,57,3437,57,120791,57,120801,57,120811,57,120821,57,120831,57,130041,57,42862,57,11466,57,71884,57,71852,57,71894,57,9082,97,65345,97,119834,97,119886,97,119938,97,119990,97,120042,97,120094,97,120146,97,120198,97,120250,97,120302,97,120354,97,120406,97,120458,97,593,97,945,97,120514,97,120572,97,120630,97,120688,97,120746,97,65313,65,119808,65,119860,65,119912,65,119964,65,120016,65,120068,65,120120,65,120172,65,120224,65,120276,65,120328,65,120380,65,120432,65,913,65,120488,65,120546,65,120604,65,120662,65,120720,65,5034,65,5573,65,42222,65,94016,65,66208,65,119835,98,119887,98,119939,98,119991,98,120043,98,120095,98,120147,98,120199,98,120251,98,120303,98,120355,98,120407,98,120459,98,388,98,5071,98,5234,98,5551,98,65314,66,8492,66,119809,66,119861,66,119913,66,120017,66,120069,66,120121,66,120173,66,120225,66,120277,66,120329,66,120381,66,120433,66,42932,66,914,66,120489,66,120547,66,120605,66,120663,66,120721,66,5108,66,5623,66,42192,66,66178,66,66209,66,66305,66,65347,99,8573,99,119836,99,119888,99,119940,99,119992,99,120044,99,120096,99,120148,99,120200,99,120252,99,120304,99,120356,99,120408,99,120460,99,7428,99,1010,99,11429,99,43951,99,66621,99,128844,67,71922,67,71913,67,65315,67,8557,67,8450,67,8493,67,119810,67,119862,67,119914,67,119966,67,120018,67,120174,67,120226,67,120278,67,120330,67,120382,67,120434,67,1017,67,11428,67,5087,67,42202,67,66210,67,66306,67,66581,67,66844,67,8574,100,8518,100,119837,100,119889,100,119941,100,119993,100,120045,100,120097,100,120149,100,120201,100,120253,100,120305,100,120357,100,120409,100,120461,100,1281,100,5095,100,5231,100,42194,100,8558,68,8517,68,119811,68,119863,68,119915,68,119967,68,120019,68,120071,68,120123,68,120175,68,120227,68,120279,68,120331,68,120383,68,120435,68,5024,68,5598,68,5610,68,42195,68,8494,101,65349,101,8495,101,8519,101,119838,101,119890,101,119942,101,120046,101,120098,101,120150,101,120202,101,120254,101,120306,101,120358,101,120410,101,120462,101,43826,101,1213,101,8959,69,65317,69,8496,69,119812,69,119864,69,119916,69,120020,69,120072,69,120124,69,120176,69,120228,69,120280,69,120332,69,120384,69,120436,69,917,69,120492,69,120550,69,120608,69,120666,69,120724,69,11577,69,5036,69,42224,69,71846,69,71854,69,66182,69,119839,102,119891,102,119943,102,119995,102,120047,102,120099,102,120151,102,120203,102,120255,102,120307,102,120359,102,120411,102,120463,102,43829,102,42905,102,383,102,7837,102,1412,102,119315,70,8497,70,119813,70,119865,70,119917,70,120021,70,120073,70,120125,70,120177,70,120229,70,120281,70,120333,70,120385,70,120437,70,42904,70,988,70,120778,70,5556,70,42205,70,71874,70,71842,70,66183,70,66213,70,66853,70,65351,103,8458,103,119840,103,119892,103,119944,103,120048,103,120100,103,120152,103,120204,103,120256,103,120308,103,120360,103,120412,103,120464,103,609,103,7555,103,397,103,1409,103,119814,71,119866,71,119918,71,119970,71,120022,71,120074,71,120126,71,120178,71,120230,71,120282,71,120334,71,120386,71,120438,71,1292,71,5056,71,5107,71,42198,71,65352,104,8462,104,119841,104,119945,104,119997,104,120049,104,120101,104,120153,104,120205,104,120257,104,120309,104,120361,104,120413,104,120465,104,1211,104,1392,104,5058,104,65320,72,8459,72,8460,72,8461,72,119815,72,119867,72,119919,72,120023,72,120179,72,120231,72,120283,72,120335,72,120387,72,120439,72,919,72,120494,72,120552,72,120610,72,120668,72,120726,72,11406,72,5051,72,5500,72,42215,72,66255,72,731,105,9075,105,65353,105,8560,105,8505,105,8520,105,119842,105,119894,105,119946,105,119998,105,120050,105,120102,105,120154,105,120206,105,120258,105,120310,105,120362,105,120414,105,120466,105,120484,105,618,105,617,105,953,105,8126,105,890,105,120522,105,120580,105,120638,105,120696,105,120754,105,1110,105,42567,105,1231,105,43893,105,5029,105,71875,105,65354,106,8521,106,119843,106,119895,106,119947,106,119999,106,120051,106,120103,106,120155,106,120207,106,120259,106,120311,106,120363,106,120415,106,120467,106,1011,106,1112,106,65322,74,119817,74,119869,74,119921,74,119973,74,120025,74,120077,74,120129,74,120181,74,120233,74,120285,74,120337,74,120389,74,120441,74,42930,74,895,74,1032,74,5035,74,5261,74,42201,74,119844,107,119896,107,119948,107,120000,107,120052,107,120104,107,120156,107,120208,107,120260,107,120312,107,120364,107,120416,107,120468,107,8490,75,65323,75,119818,75,119870,75,119922,75,119974,75,120026,75,120078,75,120130,75,120182,75,120234,75,120286,75,120338,75,120390,75,120442,75,922,75,120497,75,120555,75,120613,75,120671,75,120729,75,11412,75,5094,75,5845,75,42199,75,66840,75,1472,124,8739,124,9213,124,65512,124,1633,124,1777,124,66336,124,125127,124,120783,124,120793,124,120803,124,120813,124,120823,124,130033,124,65321,124,8544,124,8464,124,8465,124,119816,124,119868,124,119920,124,120024,124,120128,124,120180,124,120232,124,120284,124,120336,124,120388,124,120440,124,406,124,65356,124,8572,124,8467,124,119845,124,119897,124,119949,124,120001,124,120053,124,120105,124,120157,124,120209,124,120261,124,120313,124,120365,124,120417,124,120469,124,448,124,120496,124,120554,124,120612,124,120670,124,120728,124,11410,124,1030,124,1216,124,1493,124,1503,124,1575,124,126464,124,126592,124,65166,124,65165,124,1994,124,11599,124,5825,124,42226,124,93992,124,66186,124,66313,124,119338,76,8556,76,8466,76,119819,76,119871,76,119923,76,120027,76,120079,76,120131,76,120183,76,120235,76,120287,76,120339,76,120391,76,120443,76,11472,76,5086,76,5290,76,42209,76,93974,76,71843,76,71858,76,66587,76,66854,76,65325,77,8559,77,8499,77,119820,77,119872,77,119924,77,120028,77,120080,77,120132,77,120184,77,120236,77,120288,77,120340,77,120392,77,120444,77,924,77,120499,77,120557,77,120615,77,120673,77,120731,77,1018,77,11416,77,5047,77,5616,77,5846,77,42207,77,66224,77,66321,77,119847,110,119899,110,119951,110,120003,110,120055,110,120107,110,120159,110,120211,110,120263,110,120315,110,120367,110,120419,110,120471,110,1400,110,1404,110,65326,78,8469,78,119821,78,119873,78,119925,78,119977,78,120029,78,120081,78,120185,78,120237,78,120289,78,120341,78,120393,78,120445,78,925,78,120500,78,120558,78,120616,78,120674,78,120732,78,11418,78,42208,78,66835,78,3074,111,3202,111,3330,111,3458,111,2406,111,2662,111,2790,111,3046,111,3174,111,3302,111,3430,111,3664,111,3792,111,4160,111,1637,111,1781,111,65359,111,8500,111,119848,111,119900,111,119952,111,120056,111,120108,111,120160,111,120212,111,120264,111,120316,111,120368,111,120420,111,120472,111,7439,111,7441,111,43837,111,959,111,120528,111,120586,111,120644,111,120702,111,120760,111,963,111,120532,111,120590,111,120648,111,120706,111,120764,111,11423,111,4351,111,1413,111,1505,111,1607,111,126500,111,126564,111,126596,111,65259,111,65260,111,65258,111,65257,111,1726,111,64428,111,64429,111,64427,111,64426,111,1729,111,64424,111,64425,111,64423,111,64422,111,1749,111,3360,111,4125,111,66794,111,71880,111,71895,111,66604,111,1984,79,2534,79,2918,79,12295,79,70864,79,71904,79,120782,79,120792,79,120802,79,120812,79,120822,79,130032,79,65327,79,119822,79,119874,79,119926,79,119978,79,120030,79,120082,79,120134,79,120186,79,120238,79,120290,79,120342,79,120394,79,120446,79,927,79,120502,79,120560,79,120618,79,120676,79,120734,79,11422,79,1365,79,11604,79,4816,79,2848,79,66754,79,42227,79,71861,79,66194,79,66219,79,66564,79,66838,79,9076,112,65360,112,119849,112,119901,112,119953,112,120005,112,120057,112,120109,112,120161,112,120213,112,120265,112,120317,112,120369,112,120421,112,120473,112,961,112,120530,112,120544,112,120588,112,120602,112,120646,112,120660,112,120704,112,120718,112,120762,112,120776,112,11427,112,65328,80,8473,80,119823,80,119875,80,119927,80,119979,80,120031,80,120083,80,120187,80,120239,80,120291,80,120343,80,120395,80,120447,80,929,80,120504,80,120562,80,120620,80,120678,80,120736,80,11426,80,5090,80,5229,80,42193,80,66197,80,119850,113,119902,113,119954,113,120006,113,120058,113,120110,113,120162,113,120214,113,120266,113,120318,113,120370,113,120422,113,120474,113,1307,113,1379,113,1382,113,8474,81,119824,81,119876,81,119928,81,119980,81,120032,81,120084,81,120188,81,120240,81,120292,81,120344,81,120396,81,120448,81,11605,81,119851,114,119903,114,119955,114,120007,114,120059,114,120111,114,120163,114,120215,114,120267,114,120319,114,120371,114,120423,114,120475,114,43847,114,43848,114,7462,114,11397,114,43905,114,119318,82,8475,82,8476,82,8477,82,119825,82,119877,82,119929,82,120033,82,120189,82,120241,82,120293,82,120345,82,120397,82,120449,82,422,82,5025,82,5074,82,66740,82,5511,82,42211,82,94005,82,65363,115,119852,115,119904,115,119956,115,120008,115,120060,115,120112,115,120164,115,120216,115,120268,115,120320,115,120372,115,120424,115,120476,115,42801,115,445,115,1109,115,43946,115,71873,115,66632,115,65331,83,119826,83,119878,83,119930,83,119982,83,120034,83,120086,83,120138,83,120190,83,120242,83,120294,83,120346,83,120398,83,120450,83,1029,83,1359,83,5077,83,5082,83,42210,83,94010,83,66198,83,66592,83,119853,116,119905,116,119957,116,120009,116,120061,116,120113,116,120165,116,120217,116,120269,116,120321,116,120373,116,120425,116,120477,116,8868,84,10201,84,128872,84,65332,84,119827,84,119879,84,119931,84,119983,84,120035,84,120087,84,120139,84,120191,84,120243,84,120295,84,120347,84,120399,84,120451,84,932,84,120507,84,120565,84,120623,84,120681,84,120739,84,11430,84,5026,84,42196,84,93962,84,71868,84,66199,84,66225,84,66325,84,119854,117,119906,117,119958,117,120010,117,120062,117,120114,117,120166,117,120218,117,120270,117,120322,117,120374,117,120426,117,120478,117,42911,117,7452,117,43854,117,43858,117,651,117,965,117,120534,117,120592,117,120650,117,120708,117,120766,117,1405,117,66806,117,71896,117,8746,85,8899,85,119828,85,119880,85,119932,85,119984,85,120036,85,120088,85,120140,85,120192,85,120244,85,120296,85,120348,85,120400,85,120452,85,1357,85,4608,85,66766,85,5196,85,42228,85,94018,85,71864,85,8744,118,8897,118,65366,118,8564,118,119855,118,119907,118,119959,118,120011,118,120063,118,120115,118,120167,118,120219,118,120271,118,120323,118,120375,118,120427,118,120479,118,7456,118,957,118,120526,118,120584,118,120642,118,120700,118,120758,118,1141,118,1496,118,71430,118,43945,118,71872,118,119309,86,1639,86,1783,86,8548,86,119829,86,119881,86,119933,86,119985,86,120037,86,120089,86,120141,86,120193,86,120245,86,120297,86,120349,86,120401,86,120453,86,1140,86,11576,86,5081,86,5167,86,42719,86,42214,86,93960,86,71840,86,66845,86,623,119,119856,119,119908,119,119960,119,120012,119,120064,119,120116,119,120168,119,120220,119,120272,119,120324,119,120376,119,120428,119,120480,119,7457,119,1121,119,1309,119,1377,119,71434,119,71438,119,71439,119,43907,119,71919,87,71910,87,119830,87,119882,87,119934,87,119986,87,120038,87,120090,87,120142,87,120194,87,120246,87,120298,87,120350,87,120402,87,120454,87,1308,87,5043,87,5076,87,42218,87,5742,120,10539,120,10540,120,10799,120,65368,120,8569,120,119857,120,119909,120,119961,120,120013,120,120065,120,120117,120,120169,120,120221,120,120273,120,120325,120,120377,120,120429,120,120481,120,5441,120,5501,120,5741,88,9587,88,66338,88,71916,88,65336,88,8553,88,119831,88,119883,88,119935,88,119987,88,120039,88,120091,88,120143,88,120195,88,120247,88,120299,88,120351,88,120403,88,120455,88,42931,88,935,88,120510,88,120568,88,120626,88,120684,88,120742,88,11436,88,11613,88,5815,88,42219,88,66192,88,66228,88,66327,88,66855,88,611,121,7564,121,65369,121,119858,121,119910,121,119962,121,120014,121,120066,121,120118,121,120170,121,120222,121,120274,121,120326,121,120378,121,120430,121,120482,121,655,121,7935,121,43866,121,947,121,8509,121,120516,121,120574,121,120632,121,120690,121,120748,121,1199,121,4327,121,71900,121,65337,89,119832,89,119884,89,119936,89,119988,89,120040,89,120092,89,120144,89,120196,89,120248,89,120300,89,120352,89,120404,89,120456,89,933,89,978,89,120508,89,120566,89,120624,89,120682,89,120740,89,11432,89,1198,89,5033,89,5053,89,42220,89,94019,89,71844,89,66226,89,119859,122,119911,122,119963,122,120015,122,120067,122,120119,122,120171,122,120223,122,120275,122,120327,122,120379,122,120431,122,120483,122,7458,122,43923,122,71876,122,66293,90,71909,90,65338,90,8484,90,8488,90,119833,90,119885,90,119937,90,119989,90,120041,90,120197,90,120249,90,120301,90,120353,90,120405,90,120457,90,918,90,120493,90,120551,90,120609,90,120667,90,120725,90,5059,90,42204,90,71849,90],\"_default\":[160,32,8211,45,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"cs\":[65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,1093,120,1061,88,1091,121,1059,89],\"de\":[65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,1093,120,1061,88,1091,121,1059,89],\"es\":[8211,45,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"fr\":[65306,58,65281,33,8216,96,8245,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"it\":[160,32,8211,45,65306,58,65281,33,8216,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"ja\":[8211,45,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"ko\":[8211,45,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"pl\":[65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"pt-BR\":[65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"qps-ploc\":[160,32,8211,45,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"ru\":[65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,305,105,921,124,1009,112,215,120],\"tr\":[160,32,8211,45,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"zh-hans\":[65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89],\"zh-hant\":[8211,45,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,124,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89]}');
         }
-        static getInstance(locales) {
-            return AmbiguousCharacters.cache.get(Array.from(locales));
+        static getConfusablesForCurrentLocale() {
+            if (!AmbiguousCharacters.map) {
+                const data = AmbiguousCharacters.getData();
+                let locale = platform.locale;
+                if (!locale || !(locale in data)) {
+                    locale = platform.language;
+                }
+                if (!locale || !(locale in data)) {
+                    locale = '_default';
+                }
+                function arrayToMap(arr) {
+                    const result = new Map();
+                    for (let i = 0; i < arr.length; i += 2) {
+                        result.set(arr[i], arr[i + 1]);
+                    }
+                    return result;
+                }
+                const set = arrayToMap(data['_common']);
+                const additionalConfusables = arrayToMap(data[locale]);
+                for (const [codePoint, originalCodePoint] of additionalConfusables) {
+                    set.set(codePoint, originalCodePoint);
+                }
+                AmbiguousCharacters.map = set;
+            }
+            return AmbiguousCharacters.map;
         }
-        static getLocales() {
-            return AmbiguousCharacters._locales.getValue();
-        }
-        isAmbiguous(codePoint) {
-            return this.confusableDictionary.has(codePoint);
+        static isAmbiguous(codePoint) {
+            return AmbiguousCharacters.getConfusablesForCurrentLocale().has(codePoint);
         }
         /**
          * Returns the non basic ASCII code point that the given code point can be confused,
          * or undefined if such code point does note exist.
-         */
-        getPrimaryConfusable(codePoint) {
-            return this.confusableDictionary.get(codePoint);
+        */
+        static getPrimaryConfusable(codePoint) {
+            return AmbiguousCharacters.getConfusablesForCurrentLocale().get(codePoint);
         }
-        getConfusableCodePoints() {
-            return new Set(this.confusableDictionary.keys());
+        static getPrimaryConfusableCodePoints() {
+            return new Set(AmbiguousCharacters.getConfusablesForCurrentLocale().keys());
         }
     }
     exports.AmbiguousCharacters = AmbiguousCharacters;
-    _a = AmbiguousCharacters;
-    AmbiguousCharacters.ambiguousCharacterData = new lazy_1.Lazy(() => {
-        // Generated using https://github.com/hediet/vscode-unicode-data
-        // Stored as key1, value1, key2, value2, ...
-        return JSON.parse('{\"_common\":[8232,32,8233,32,5760,32,8192,32,8193,32,8194,32,8195,32,8196,32,8197,32,8198,32,8200,32,8201,32,8202,32,8287,32,8199,32,8239,32,2042,95,65101,95,65102,95,65103,95,8208,45,8209,45,8210,45,65112,45,1748,45,8259,45,727,45,8722,45,10134,45,11450,45,1549,44,1643,44,8218,44,184,44,42233,44,894,59,2307,58,2691,58,1417,58,1795,58,1796,58,5868,58,65072,58,6147,58,6153,58,8282,58,1475,58,760,58,42889,58,8758,58,720,58,42237,58,451,33,11601,33,660,63,577,63,2429,63,5038,63,42731,63,119149,46,8228,46,1793,46,1794,46,42510,46,68176,46,1632,46,1776,46,42232,46,1373,96,65287,96,8219,96,8242,96,1370,96,1523,96,8175,96,65344,96,900,96,8189,96,8125,96,8127,96,8190,96,697,96,884,96,712,96,714,96,715,96,756,96,699,96,701,96,700,96,702,96,42892,96,1497,96,2036,96,2037,96,5194,96,5836,96,94033,96,94034,96,65339,91,10088,40,10098,40,12308,40,64830,40,65341,93,10089,41,10099,41,12309,41,64831,41,10100,123,119060,123,10101,125,65342,94,8270,42,1645,42,8727,42,66335,42,5941,47,8257,47,8725,47,8260,47,9585,47,10187,47,10744,47,119354,47,12755,47,12339,47,11462,47,20031,47,12035,47,65340,92,65128,92,8726,92,10189,92,10741,92,10745,92,119311,92,119355,92,12756,92,20022,92,12034,92,42872,38,708,94,710,94,5869,43,10133,43,66203,43,8249,60,10094,60,706,60,119350,60,5176,60,5810,60,5120,61,11840,61,12448,61,42239,61,8250,62,10095,62,707,62,119351,62,5171,62,94015,62,8275,126,732,126,8128,126,8764,126,65372,124,65293,45,120784,50,120794,50,120804,50,120814,50,120824,50,130034,50,42842,50,423,50,1000,50,42564,50,5311,50,42735,50,119302,51,120785,51,120795,51,120805,51,120815,51,120825,51,130035,51,42923,51,540,51,439,51,42858,51,11468,51,1248,51,94011,51,71882,51,120786,52,120796,52,120806,52,120816,52,120826,52,130036,52,5070,52,71855,52,120787,53,120797,53,120807,53,120817,53,120827,53,130037,53,444,53,71867,53,120788,54,120798,54,120808,54,120818,54,120828,54,130038,54,11474,54,5102,54,71893,54,119314,55,120789,55,120799,55,120809,55,120819,55,120829,55,130039,55,66770,55,71878,55,2819,56,2538,56,2666,56,125131,56,120790,56,120800,56,120810,56,120820,56,120830,56,130040,56,547,56,546,56,66330,56,2663,57,2920,57,2541,57,3437,57,120791,57,120801,57,120811,57,120821,57,120831,57,130041,57,42862,57,11466,57,71884,57,71852,57,71894,57,9082,97,65345,97,119834,97,119886,97,119938,97,119990,97,120042,97,120094,97,120146,97,120198,97,120250,97,120302,97,120354,97,120406,97,120458,97,593,97,945,97,120514,97,120572,97,120630,97,120688,97,120746,97,65313,65,119808,65,119860,65,119912,65,119964,65,120016,65,120068,65,120120,65,120172,65,120224,65,120276,65,120328,65,120380,65,120432,65,913,65,120488,65,120546,65,120604,65,120662,65,120720,65,5034,65,5573,65,42222,65,94016,65,66208,65,119835,98,119887,98,119939,98,119991,98,120043,98,120095,98,120147,98,120199,98,120251,98,120303,98,120355,98,120407,98,120459,98,388,98,5071,98,5234,98,5551,98,65314,66,8492,66,119809,66,119861,66,119913,66,120017,66,120069,66,120121,66,120173,66,120225,66,120277,66,120329,66,120381,66,120433,66,42932,66,914,66,120489,66,120547,66,120605,66,120663,66,120721,66,5108,66,5623,66,42192,66,66178,66,66209,66,66305,66,65347,99,8573,99,119836,99,119888,99,119940,99,119992,99,120044,99,120096,99,120148,99,120200,99,120252,99,120304,99,120356,99,120408,99,120460,99,7428,99,1010,99,11429,99,43951,99,66621,99,128844,67,71922,67,71913,67,65315,67,8557,67,8450,67,8493,67,119810,67,119862,67,119914,67,119966,67,120018,67,120174,67,120226,67,120278,67,120330,67,120382,67,120434,67,1017,67,11428,67,5087,67,42202,67,66210,67,66306,67,66581,67,66844,67,8574,100,8518,100,119837,100,119889,100,119941,100,119993,100,120045,100,120097,100,120149,100,120201,100,120253,100,120305,100,120357,100,120409,100,120461,100,1281,100,5095,100,5231,100,42194,100,8558,68,8517,68,119811,68,119863,68,119915,68,119967,68,120019,68,120071,68,120123,68,120175,68,120227,68,120279,68,120331,68,120383,68,120435,68,5024,68,5598,68,5610,68,42195,68,8494,101,65349,101,8495,101,8519,101,119838,101,119890,101,119942,101,120046,101,120098,101,120150,101,120202,101,120254,101,120306,101,120358,101,120410,101,120462,101,43826,101,1213,101,8959,69,65317,69,8496,69,119812,69,119864,69,119916,69,120020,69,120072,69,120124,69,120176,69,120228,69,120280,69,120332,69,120384,69,120436,69,917,69,120492,69,120550,69,120608,69,120666,69,120724,69,11577,69,5036,69,42224,69,71846,69,71854,69,66182,69,119839,102,119891,102,119943,102,119995,102,120047,102,120099,102,120151,102,120203,102,120255,102,120307,102,120359,102,120411,102,120463,102,43829,102,42905,102,383,102,7837,102,1412,102,119315,70,8497,70,119813,70,119865,70,119917,70,120021,70,120073,70,120125,70,120177,70,120229,70,120281,70,120333,70,120385,70,120437,70,42904,70,988,70,120778,70,5556,70,42205,70,71874,70,71842,70,66183,70,66213,70,66853,70,65351,103,8458,103,119840,103,119892,103,119944,103,120048,103,120100,103,120152,103,120204,103,120256,103,120308,103,120360,103,120412,103,120464,103,609,103,7555,103,397,103,1409,103,119814,71,119866,71,119918,71,119970,71,120022,71,120074,71,120126,71,120178,71,120230,71,120282,71,120334,71,120386,71,120438,71,1292,71,5056,71,5107,71,42198,71,65352,104,8462,104,119841,104,119945,104,119997,104,120049,104,120101,104,120153,104,120205,104,120257,104,120309,104,120361,104,120413,104,120465,104,1211,104,1392,104,5058,104,65320,72,8459,72,8460,72,8461,72,119815,72,119867,72,119919,72,120023,72,120179,72,120231,72,120283,72,120335,72,120387,72,120439,72,919,72,120494,72,120552,72,120610,72,120668,72,120726,72,11406,72,5051,72,5500,72,42215,72,66255,72,731,105,9075,105,65353,105,8560,105,8505,105,8520,105,119842,105,119894,105,119946,105,119998,105,120050,105,120102,105,120154,105,120206,105,120258,105,120310,105,120362,105,120414,105,120466,105,120484,105,618,105,617,105,953,105,8126,105,890,105,120522,105,120580,105,120638,105,120696,105,120754,105,1110,105,42567,105,1231,105,43893,105,5029,105,71875,105,65354,106,8521,106,119843,106,119895,106,119947,106,119999,106,120051,106,120103,106,120155,106,120207,106,120259,106,120311,106,120363,106,120415,106,120467,106,1011,106,1112,106,65322,74,119817,74,119869,74,119921,74,119973,74,120025,74,120077,74,120129,74,120181,74,120233,74,120285,74,120337,74,120389,74,120441,74,42930,74,895,74,1032,74,5035,74,5261,74,42201,74,119844,107,119896,107,119948,107,120000,107,120052,107,120104,107,120156,107,120208,107,120260,107,120312,107,120364,107,120416,107,120468,107,8490,75,65323,75,119818,75,119870,75,119922,75,119974,75,120026,75,120078,75,120130,75,120182,75,120234,75,120286,75,120338,75,120390,75,120442,75,922,75,120497,75,120555,75,120613,75,120671,75,120729,75,11412,75,5094,75,5845,75,42199,75,66840,75,1472,108,8739,73,9213,73,65512,73,1633,108,1777,73,66336,108,125127,108,120783,73,120793,73,120803,73,120813,73,120823,73,130033,73,65321,73,8544,73,8464,73,8465,73,119816,73,119868,73,119920,73,120024,73,120128,73,120180,73,120232,73,120284,73,120336,73,120388,73,120440,73,65356,108,8572,73,8467,108,119845,108,119897,108,119949,108,120001,108,120053,108,120105,73,120157,73,120209,73,120261,73,120313,73,120365,73,120417,73,120469,73,448,73,120496,73,120554,73,120612,73,120670,73,120728,73,11410,73,1030,73,1216,73,1493,108,1503,108,1575,108,126464,108,126592,108,65166,108,65165,108,1994,108,11599,73,5825,73,42226,73,93992,73,66186,124,66313,124,119338,76,8556,76,8466,76,119819,76,119871,76,119923,76,120027,76,120079,76,120131,76,120183,76,120235,76,120287,76,120339,76,120391,76,120443,76,11472,76,5086,76,5290,76,42209,76,93974,76,71843,76,71858,76,66587,76,66854,76,65325,77,8559,77,8499,77,119820,77,119872,77,119924,77,120028,77,120080,77,120132,77,120184,77,120236,77,120288,77,120340,77,120392,77,120444,77,924,77,120499,77,120557,77,120615,77,120673,77,120731,77,1018,77,11416,77,5047,77,5616,77,5846,77,42207,77,66224,77,66321,77,119847,110,119899,110,119951,110,120003,110,120055,110,120107,110,120159,110,120211,110,120263,110,120315,110,120367,110,120419,110,120471,110,1400,110,1404,110,65326,78,8469,78,119821,78,119873,78,119925,78,119977,78,120029,78,120081,78,120185,78,120237,78,120289,78,120341,78,120393,78,120445,78,925,78,120500,78,120558,78,120616,78,120674,78,120732,78,11418,78,42208,78,66835,78,3074,111,3202,111,3330,111,3458,111,2406,111,2662,111,2790,111,3046,111,3174,111,3302,111,3430,111,3664,111,3792,111,4160,111,1637,111,1781,111,65359,111,8500,111,119848,111,119900,111,119952,111,120056,111,120108,111,120160,111,120212,111,120264,111,120316,111,120368,111,120420,111,120472,111,7439,111,7441,111,43837,111,959,111,120528,111,120586,111,120644,111,120702,111,120760,111,963,111,120532,111,120590,111,120648,111,120706,111,120764,111,11423,111,4351,111,1413,111,1505,111,1607,111,126500,111,126564,111,126596,111,65259,111,65260,111,65258,111,65257,111,1726,111,64428,111,64429,111,64427,111,64426,111,1729,111,64424,111,64425,111,64423,111,64422,111,1749,111,3360,111,4125,111,66794,111,71880,111,71895,111,66604,111,1984,79,2534,79,2918,79,12295,79,70864,79,71904,79,120782,79,120792,79,120802,79,120812,79,120822,79,130032,79,65327,79,119822,79,119874,79,119926,79,119978,79,120030,79,120082,79,120134,79,120186,79,120238,79,120290,79,120342,79,120394,79,120446,79,927,79,120502,79,120560,79,120618,79,120676,79,120734,79,11422,79,1365,79,11604,79,4816,79,2848,79,66754,79,42227,79,71861,79,66194,79,66219,79,66564,79,66838,79,9076,112,65360,112,119849,112,119901,112,119953,112,120005,112,120057,112,120109,112,120161,112,120213,112,120265,112,120317,112,120369,112,120421,112,120473,112,961,112,120530,112,120544,112,120588,112,120602,112,120646,112,120660,112,120704,112,120718,112,120762,112,120776,112,11427,112,65328,80,8473,80,119823,80,119875,80,119927,80,119979,80,120031,80,120083,80,120187,80,120239,80,120291,80,120343,80,120395,80,120447,80,929,80,120504,80,120562,80,120620,80,120678,80,120736,80,11426,80,5090,80,5229,80,42193,80,66197,80,119850,113,119902,113,119954,113,120006,113,120058,113,120110,113,120162,113,120214,113,120266,113,120318,113,120370,113,120422,113,120474,113,1307,113,1379,113,1382,113,8474,81,119824,81,119876,81,119928,81,119980,81,120032,81,120084,81,120188,81,120240,81,120292,81,120344,81,120396,81,120448,81,11605,81,119851,114,119903,114,119955,114,120007,114,120059,114,120111,114,120163,114,120215,114,120267,114,120319,114,120371,114,120423,114,120475,114,43847,114,43848,114,7462,114,11397,114,43905,114,119318,82,8475,82,8476,82,8477,82,119825,82,119877,82,119929,82,120033,82,120189,82,120241,82,120293,82,120345,82,120397,82,120449,82,422,82,5025,82,5074,82,66740,82,5511,82,42211,82,94005,82,65363,115,119852,115,119904,115,119956,115,120008,115,120060,115,120112,115,120164,115,120216,115,120268,115,120320,115,120372,115,120424,115,120476,115,42801,115,445,115,1109,115,43946,115,71873,115,66632,115,65331,83,119826,83,119878,83,119930,83,119982,83,120034,83,120086,83,120138,83,120190,83,120242,83,120294,83,120346,83,120398,83,120450,83,1029,83,1359,83,5077,83,5082,83,42210,83,94010,83,66198,83,66592,83,119853,116,119905,116,119957,116,120009,116,120061,116,120113,116,120165,116,120217,116,120269,116,120321,116,120373,116,120425,116,120477,116,8868,84,10201,84,128872,84,65332,84,119827,84,119879,84,119931,84,119983,84,120035,84,120087,84,120139,84,120191,84,120243,84,120295,84,120347,84,120399,84,120451,84,932,84,120507,84,120565,84,120623,84,120681,84,120739,84,11430,84,5026,84,42196,84,93962,84,71868,84,66199,84,66225,84,66325,84,119854,117,119906,117,119958,117,120010,117,120062,117,120114,117,120166,117,120218,117,120270,117,120322,117,120374,117,120426,117,120478,117,42911,117,7452,117,43854,117,43858,117,651,117,965,117,120534,117,120592,117,120650,117,120708,117,120766,117,1405,117,66806,117,71896,117,8746,85,8899,85,119828,85,119880,85,119932,85,119984,85,120036,85,120088,85,120140,85,120192,85,120244,85,120296,85,120348,85,120400,85,120452,85,1357,85,4608,85,66766,85,5196,85,42228,85,94018,85,71864,85,8744,118,8897,118,65366,118,8564,118,119855,118,119907,118,119959,118,120011,118,120063,118,120115,118,120167,118,120219,118,120271,118,120323,118,120375,118,120427,118,120479,118,7456,118,957,118,120526,118,120584,118,120642,118,120700,118,120758,118,1141,118,1496,118,71430,118,43945,118,71872,118,119309,86,1639,86,1783,86,8548,86,119829,86,119881,86,119933,86,119985,86,120037,86,120089,86,120141,86,120193,86,120245,86,120297,86,120349,86,120401,86,120453,86,1140,86,11576,86,5081,86,5167,86,42719,86,42214,86,93960,86,71840,86,66845,86,623,119,119856,119,119908,119,119960,119,120012,119,120064,119,120116,119,120168,119,120220,119,120272,119,120324,119,120376,119,120428,119,120480,119,7457,119,1121,119,1309,119,1377,119,71434,119,71438,119,71439,119,43907,119,71919,87,71910,87,119830,87,119882,87,119934,87,119986,87,120038,87,120090,87,120142,87,120194,87,120246,87,120298,87,120350,87,120402,87,120454,87,1308,87,5043,87,5076,87,42218,87,5742,120,10539,120,10540,120,10799,120,65368,120,8569,120,119857,120,119909,120,119961,120,120013,120,120065,120,120117,120,120169,120,120221,120,120273,120,120325,120,120377,120,120429,120,120481,120,5441,120,5501,120,5741,88,9587,88,66338,88,71916,88,65336,88,8553,88,119831,88,119883,88,119935,88,119987,88,120039,88,120091,88,120143,88,120195,88,120247,88,120299,88,120351,88,120403,88,120455,88,42931,88,935,88,120510,88,120568,88,120626,88,120684,88,120742,88,11436,88,11613,88,5815,88,42219,88,66192,88,66228,88,66327,88,66855,88,611,121,7564,121,65369,121,119858,121,119910,121,119962,121,120014,121,120066,121,120118,121,120170,121,120222,121,120274,121,120326,121,120378,121,120430,121,120482,121,655,121,7935,121,43866,121,947,121,8509,121,120516,121,120574,121,120632,121,120690,121,120748,121,1199,121,4327,121,71900,121,65337,89,119832,89,119884,89,119936,89,119988,89,120040,89,120092,89,120144,89,120196,89,120248,89,120300,89,120352,89,120404,89,120456,89,933,89,978,89,120508,89,120566,89,120624,89,120682,89,120740,89,11432,89,1198,89,5033,89,5053,89,42220,89,94019,89,71844,89,66226,89,119859,122,119911,122,119963,122,120015,122,120067,122,120119,122,120171,122,120223,122,120275,122,120327,122,120379,122,120431,122,120483,122,7458,122,43923,122,71876,122,66293,90,71909,90,65338,90,8484,90,8488,90,119833,90,119885,90,119937,90,119989,90,120041,90,120197,90,120249,90,120301,90,120353,90,120405,90,120457,90,918,90,120493,90,120551,90,120609,90,120667,90,120725,90,5059,90,42204,90,71849,90,65282,34,65284,36,65285,37,65286,38,65290,42,65291,43,65294,46,65295,47,65296,48,65297,49,65298,50,65299,51,65300,52,65301,53,65302,54,65303,55,65304,56,65305,57,65308,60,65309,61,65310,62,65312,64,65316,68,65318,70,65319,71,65324,76,65329,81,65330,82,65333,85,65334,86,65335,87,65343,95,65346,98,65348,100,65350,102,65355,107,65357,109,65358,110,65361,113,65362,114,65364,116,65365,117,65367,119,65370,122,65371,123,65373,125],\"_default\":[160,32,8211,45,65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"cs\":[65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"de\":[65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"es\":[8211,45,65374,126,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"fr\":[65374,126,65306,58,65281,33,8216,96,8245,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"it\":[160,32,8211,45,65374,126,65306,58,65281,33,8216,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"ja\":[8211,45,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65292,44,65307,59],\"ko\":[8211,45,65374,126,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"pl\":[65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"pt-BR\":[65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"qps-ploc\":[160,32,8211,45,65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"ru\":[65374,126,65306,58,65281,33,8216,96,8217,96,8245,96,180,96,12494,47,305,105,921,73,1009,112,215,120,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"tr\":[160,32,8211,45,65374,126,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65288,40,65289,41,65292,44,65307,59,65311,63],\"zh-hans\":[65374,126,65306,58,65281,33,8245,96,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65288,40,65289,41],\"zh-hant\":[8211,45,65374,126,180,96,12494,47,1047,51,1073,54,1072,97,1040,65,1068,98,1042,66,1089,99,1057,67,1077,101,1045,69,1053,72,305,105,1050,75,921,73,1052,77,1086,111,1054,79,1009,112,1088,112,1056,80,1075,114,1058,84,215,120,1093,120,1061,88,1091,121,1059,89,65283,35,65307,59]}');
-    });
-    AmbiguousCharacters.cache = new cache_1.LRUCachedComputed((locales) => {
-        function arrayToMap(arr) {
-            const result = new Map();
-            for (let i = 0; i < arr.length; i += 2) {
-                result.set(arr[i], arr[i + 1]);
-            }
-            return result;
-        }
-        function mergeMaps(map1, map2) {
-            const result = new Map(map1);
-            for (const [key, value] of map2) {
-                result.set(key, value);
-            }
-            return result;
-        }
-        function intersectMaps(map1, map2) {
-            if (!map1) {
-                return map2;
-            }
-            const result = new Map();
-            for (const [key, value] of map1) {
-                if (map2.has(key)) {
-                    result.set(key, value);
-                }
-            }
-            return result;
-        }
-        const data = _a.ambiguousCharacterData.getValue();
-        let filteredLocales = locales.filter((l) => !l.startsWith('_') && l in data);
-        if (filteredLocales.length === 0) {
-            filteredLocales = ['_default'];
-        }
-        let languageSpecificMap = undefined;
-        for (const locale of filteredLocales) {
-            const map = arrayToMap(data[locale]);
-            languageSpecificMap = intersectMaps(languageSpecificMap, map);
-        }
-        const commonMap = arrayToMap(data['_common']);
-        const map = mergeMaps(commonMap, languageSpecificMap);
-        return new AmbiguousCharacters(map);
-    });
-    AmbiguousCharacters._locales = new lazy_1.Lazy(() => Object.keys(AmbiguousCharacters.ambiguousCharacterData.getValue()).filter((k) => !k.startsWith('_')));
     class InvisibleCharacters {
         static getRawData() {
-            // Generated using https://github.com/hediet/vscode-unicode-data
             return JSON.parse('[9,10,11,12,13,32,127,160,173,847,1564,4447,4448,6068,6069,6155,6156,6157,6158,7355,7356,8192,8193,8194,8195,8196,8197,8198,8199,8200,8201,8202,8203,8204,8205,8206,8207,8234,8235,8236,8237,8238,8239,8287,8288,8289,8290,8291,8292,8293,8294,8295,8296,8297,8298,8299,8300,8301,8302,8303,10240,12288,12644,65024,65025,65026,65027,65028,65029,65030,65031,65032,65033,65034,65035,65036,65037,65038,65039,65279,65440,65520,65521,65522,65523,65524,65525,65526,65527,65528,65532,78844,119155,119156,119157,119158,119159,119160,119161,119162,917504,917505,917506,917507,917508,917509,917510,917511,917512,917513,917514,917515,917516,917517,917518,917519,917520,917521,917522,917523,917524,917525,917526,917527,917528,917529,917530,917531,917532,917533,917534,917535,917536,917537,917538,917539,917540,917541,917542,917543,917544,917545,917546,917547,917548,917549,917550,917551,917552,917553,917554,917555,917556,917557,917558,917559,917560,917561,917562,917563,917564,917565,917566,917567,917568,917569,917570,917571,917572,917573,917574,917575,917576,917577,917578,917579,917580,917581,917582,917583,917584,917585,917586,917587,917588,917589,917590,917591,917592,917593,917594,917595,917596,917597,917598,917599,917600,917601,917602,917603,917604,917605,917606,917607,917608,917609,917610,917611,917612,917613,917614,917615,917616,917617,917618,917619,917620,917621,917622,917623,917624,917625,917626,917627,917628,917629,917630,917631,917760,917761,917762,917763,917764,917765,917766,917767,917768,917769,917770,917771,917772,917773,917774,917775,917776,917777,917778,917779,917780,917781,917782,917783,917784,917785,917786,917787,917788,917789,917790,917791,917792,917793,917794,917795,917796,917797,917798,917799,917800,917801,917802,917803,917804,917805,917806,917807,917808,917809,917810,917811,917812,917813,917814,917815,917816,917817,917818,917819,917820,917821,917822,917823,917824,917825,917826,917827,917828,917829,917830,917831,917832,917833,917834,917835,917836,917837,917838,917839,917840,917841,917842,917843,917844,917845,917846,917847,917848,917849,917850,917851,917852,917853,917854,917855,917856,917857,917858,917859,917860,917861,917862,917863,917864,917865,917866,917867,917868,917869,917870,917871,917872,917873,917874,917875,917876,917877,917878,917879,917880,917881,917882,917883,917884,917885,917886,917887,917888,917889,917890,917891,917892,917893,917894,917895,917896,917897,917898,917899,917900,917901,917902,917903,917904,917905,917906,917907,917908,917909,917910,917911,917912,917913,917914,917915,917916,917917,917918,917919,917920,917921,917922,917923,917924,917925,917926,917927,917928,917929,917930,917931,917932,917933,917934,917935,917936,917937,917938,917939,917940,917941,917942,917943,917944,917945,917946,917947,917948,917949,917950,917951,917952,917953,917954,917955,917956,917957,917958,917959,917960,917961,917962,917963,917964,917965,917966,917967,917968,917969,917970,917971,917972,917973,917974,917975,917976,917977,917978,917979,917980,917981,917982,917983,917984,917985,917986,917987,917988,917989,917990,917991,917992,917993,917994,917995,917996,917997,917998,917999]');
         }
         static getData() {
@@ -8215,174 +6550,7 @@ define(__m[2/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/,19/*vs/b
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[29/*vs/base/common/extpath*/], __M([0/*require*/,1/*exports*/,8/*vs/base/common/path*/,3/*vs/base/common/platform*/,2/*vs/base/common/strings*/]), function (require, exports, path_1, platform_1, strings_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.hasDriveLetter = exports.isRootOrDriveLetter = exports.isWindowsDriveLetter = exports.isEqualOrParent = exports.getRoot = exports.toPosixPath = exports.toSlashes = exports.isPathSeparator = void 0;
-    function isPathSeparator(code) {
-        return code === 47 /* Slash */ || code === 92 /* Backslash */;
-    }
-    exports.isPathSeparator = isPathSeparator;
-    /**
-     * Takes a Windows OS path and changes backward slashes to forward slashes.
-     * This should only be done for OS paths from Windows (or user provided paths potentially from Windows).
-     * Using it on a Linux or MaxOS path might change it.
-     */
-    function toSlashes(osPath) {
-        return osPath.replace(/[\\/]/g, path_1.posix.sep);
-    }
-    exports.toSlashes = toSlashes;
-    /**
-     * Takes a Windows OS path (using backward or forward slashes) and turns it into a posix path:
-     * - turns backward slashes into forward slashes
-     * - makes it absolute if it starts with a drive letter
-     * This should only be done for OS paths from Windows (or user provided paths potentially from Windows).
-     * Using it on a Linux or MaxOS path might change it.
-     */
-    function toPosixPath(osPath) {
-        if (osPath.indexOf('/') === -1) {
-            osPath = toSlashes(osPath);
-        }
-        if (/^[a-zA-Z]:(\/|$)/.test(osPath)) { // starts with a drive letter
-            osPath = '/' + osPath;
-        }
-        return osPath;
-    }
-    exports.toPosixPath = toPosixPath;
-    /**
-     * Computes the _root_ this path, like `getRoot('c:\files') === c:\`,
-     * `getRoot('files:///files/path') === files:///`,
-     * or `getRoot('\\server\shares\path') === \\server\shares\`
-     */
-    function getRoot(path, sep = path_1.posix.sep) {
-        if (!path) {
-            return '';
-        }
-        const len = path.length;
-        const firstLetter = path.charCodeAt(0);
-        if (isPathSeparator(firstLetter)) {
-            if (isPathSeparator(path.charCodeAt(1))) {
-                // UNC candidate \\localhost\shares\ddd
-                //               ^^^^^^^^^^^^^^^^^^^
-                if (!isPathSeparator(path.charCodeAt(2))) {
-                    let pos = 3;
-                    const start = pos;
-                    for (; pos < len; pos++) {
-                        if (isPathSeparator(path.charCodeAt(pos))) {
-                            break;
-                        }
-                    }
-                    if (start !== pos && !isPathSeparator(path.charCodeAt(pos + 1))) {
-                        pos += 1;
-                        for (; pos < len; pos++) {
-                            if (isPathSeparator(path.charCodeAt(pos))) {
-                                return path.slice(0, pos + 1) // consume this separator
-                                    .replace(/[\\/]/g, sep);
-                            }
-                        }
-                    }
-                }
-            }
-            // /user/far
-            // ^
-            return sep;
-        }
-        else if (isWindowsDriveLetter(firstLetter)) {
-            // check for windows drive letter c:\ or c:
-            if (path.charCodeAt(1) === 58 /* Colon */) {
-                if (isPathSeparator(path.charCodeAt(2))) {
-                    // C:\fff
-                    // ^^^
-                    return path.slice(0, 2) + sep;
-                }
-                else {
-                    // C:
-                    // ^^
-                    return path.slice(0, 2);
-                }
-            }
-        }
-        // check for URI
-        // scheme://authority/path
-        // ^^^^^^^^^^^^^^^^^^^
-        let pos = path.indexOf('://');
-        if (pos !== -1) {
-            pos += 3; // 3 -> "://".length
-            for (; pos < len; pos++) {
-                if (isPathSeparator(path.charCodeAt(pos))) {
-                    return path.slice(0, pos + 1); // consume this separator
-                }
-            }
-        }
-        return '';
-    }
-    exports.getRoot = getRoot;
-    /**
-     * @deprecated please use `IUriIdentityService.extUri.isEqualOrParent` instead. If
-     * you are in a context without services, consider to pass down the `extUri` from the
-     * outside, or use `extUriBiasedIgnorePathCase` if you know what you are doing.
-     */
-    function isEqualOrParent(base, parentCandidate, ignoreCase, separator = path_1.sep) {
-        if (base === parentCandidate) {
-            return true;
-        }
-        if (!base || !parentCandidate) {
-            return false;
-        }
-        if (parentCandidate.length > base.length) {
-            return false;
-        }
-        if (ignoreCase) {
-            const beginsWith = (0, strings_1.startsWithIgnoreCase)(base, parentCandidate);
-            if (!beginsWith) {
-                return false;
-            }
-            if (parentCandidate.length === base.length) {
-                return true; // same path, different casing
-            }
-            let sepOffset = parentCandidate.length;
-            if (parentCandidate.charAt(parentCandidate.length - 1) === separator) {
-                sepOffset--; // adjust the expected sep offset in case our candidate already ends in separator character
-            }
-            return base.charAt(sepOffset) === separator;
-        }
-        if (parentCandidate.charAt(parentCandidate.length - 1) !== separator) {
-            parentCandidate += separator;
-        }
-        return base.indexOf(parentCandidate) === 0;
-    }
-    exports.isEqualOrParent = isEqualOrParent;
-    function isWindowsDriveLetter(char0) {
-        return char0 >= 65 /* A */ && char0 <= 90 /* Z */ || char0 >= 97 /* a */ && char0 <= 122 /* z */;
-    }
-    exports.isWindowsDriveLetter = isWindowsDriveLetter;
-    function isRootOrDriveLetter(path) {
-        const pathNormalized = (0, path_1.normalize)(path);
-        if (platform_1.isWindows) {
-            if (path.length > 3) {
-                return false;
-            }
-            return hasDriveLetter(pathNormalized) &&
-                (path.length === 2 || pathNormalized.charCodeAt(2) === 92 /* Backslash */);
-        }
-        return pathNormalized === path_1.posix.sep;
-    }
-    exports.isRootOrDriveLetter = isRootOrDriveLetter;
-    function hasDriveLetter(path, continueAsWindows) {
-        const isWindowsPath = ((continueAsWindows !== undefined) ? continueAsWindows : platform_1.isWindows);
-        if (isWindowsPath) {
-            return isWindowsDriveLetter(path.charCodeAt(0)) && path.charCodeAt(1) === 58 /* Colon */;
-        }
-        return false;
-    }
-    exports.hasDriveLetter = hasDriveLetter;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[30/*vs/base/common/hash*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/strings*/]), function (require, exports, strings) {
+define(__m[24/*vs/base/common/hash*/], __M([0/*require*/,1/*exports*/,3/*vs/base/common/strings*/]), function (require, exports, strings) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.StringSHA1 = exports.toHexString = exports.stringHash = exports.numberHash = exports.doHash = exports.hash = void 0;
@@ -8651,7 +6819,7 @@ define(__m[30/*vs/base/common/hash*/], __M([0/*require*/,1/*exports*/,2/*vs/base
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[14/*vs/base/common/diff/diff*/], __M([0/*require*/,1/*exports*/,21/*vs/base/common/diff/diffChange*/,30/*vs/base/common/hash*/]), function (require, exports, diffChange_1, hash_1) {
+define(__m[11/*vs/base/common/diff/diff*/], __M([0/*require*/,1/*exports*/,16/*vs/base/common/diff/diffChange*/,24/*vs/base/common/hash*/]), function (require, exports, diffChange_1, hash_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.LcsDiff = exports.MyArray = exports.Debug = exports.stringDiff = exports.StringDiffSequence = void 0;
@@ -9555,1581 +7723,7 @@ define(__m[14/*vs/base/common/diff/diff*/], __M([0/*require*/,1/*exports*/,21/*v
     exports.LcsDiff = LcsDiff;
 });
 
-define(__m[31/*vs/base/common/map*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/strings*/]), function (require, exports, strings_1) {
-    "use strict";
-    var _a, _b;
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.LRUCache = exports.LinkedMap = exports.ResourceMap = exports.TernarySearchTree = exports.UriIterator = exports.PathIterator = exports.ConfigKeysIterator = exports.StringIterator = void 0;
-    class StringIterator {
-        constructor() {
-            this._value = '';
-            this._pos = 0;
-        }
-        reset(key) {
-            this._value = key;
-            this._pos = 0;
-            return this;
-        }
-        next() {
-            this._pos += 1;
-            return this;
-        }
-        hasNext() {
-            return this._pos < this._value.length - 1;
-        }
-        cmp(a) {
-            const aCode = a.charCodeAt(0);
-            const thisCode = this._value.charCodeAt(this._pos);
-            return aCode - thisCode;
-        }
-        value() {
-            return this._value[this._pos];
-        }
-    }
-    exports.StringIterator = StringIterator;
-    class ConfigKeysIterator {
-        constructor(_caseSensitive = true) {
-            this._caseSensitive = _caseSensitive;
-        }
-        reset(key) {
-            this._value = key;
-            this._from = 0;
-            this._to = 0;
-            return this.next();
-        }
-        hasNext() {
-            return this._to < this._value.length;
-        }
-        next() {
-            // this._data = key.split(/[\\/]/).filter(s => !!s);
-            this._from = this._to;
-            let justSeps = true;
-            for (; this._to < this._value.length; this._to++) {
-                const ch = this._value.charCodeAt(this._to);
-                if (ch === 46 /* Period */) {
-                    if (justSeps) {
-                        this._from++;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                else {
-                    justSeps = false;
-                }
-            }
-            return this;
-        }
-        cmp(a) {
-            return this._caseSensitive
-                ? (0, strings_1.compareSubstring)(a, this._value, 0, a.length, this._from, this._to)
-                : (0, strings_1.compareSubstringIgnoreCase)(a, this._value, 0, a.length, this._from, this._to);
-        }
-        value() {
-            return this._value.substring(this._from, this._to);
-        }
-    }
-    exports.ConfigKeysIterator = ConfigKeysIterator;
-    class PathIterator {
-        constructor(_splitOnBackslash = true, _caseSensitive = true) {
-            this._splitOnBackslash = _splitOnBackslash;
-            this._caseSensitive = _caseSensitive;
-        }
-        reset(key) {
-            this._from = 0;
-            this._to = 0;
-            this._value = key;
-            this._valueLen = key.length;
-            for (let pos = key.length - 1; pos >= 0; pos--, this._valueLen--) {
-                const ch = this._value.charCodeAt(pos);
-                if (!(ch === 47 /* Slash */ || this._splitOnBackslash && ch === 92 /* Backslash */)) {
-                    break;
-                }
-            }
-            return this.next();
-        }
-        hasNext() {
-            return this._to < this._valueLen;
-        }
-        next() {
-            // this._data = key.split(/[\\/]/).filter(s => !!s);
-            this._from = this._to;
-            let justSeps = true;
-            for (; this._to < this._valueLen; this._to++) {
-                const ch = this._value.charCodeAt(this._to);
-                if (ch === 47 /* Slash */ || this._splitOnBackslash && ch === 92 /* Backslash */) {
-                    if (justSeps) {
-                        this._from++;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                else {
-                    justSeps = false;
-                }
-            }
-            return this;
-        }
-        cmp(a) {
-            return this._caseSensitive
-                ? (0, strings_1.compareSubstring)(a, this._value, 0, a.length, this._from, this._to)
-                : (0, strings_1.compareSubstringIgnoreCase)(a, this._value, 0, a.length, this._from, this._to);
-        }
-        value() {
-            return this._value.substring(this._from, this._to);
-        }
-    }
-    exports.PathIterator = PathIterator;
-    class UriIterator {
-        constructor(_ignorePathCasing) {
-            this._ignorePathCasing = _ignorePathCasing;
-            this._states = [];
-            this._stateIdx = 0;
-        }
-        reset(key) {
-            this._value = key;
-            this._states = [];
-            if (this._value.scheme) {
-                this._states.push(1 /* Scheme */);
-            }
-            if (this._value.authority) {
-                this._states.push(2 /* Authority */);
-            }
-            if (this._value.path) {
-                this._pathIterator = new PathIterator(false, !this._ignorePathCasing(key));
-                this._pathIterator.reset(key.path);
-                if (this._pathIterator.value()) {
-                    this._states.push(3 /* Path */);
-                }
-            }
-            if (this._value.query) {
-                this._states.push(4 /* Query */);
-            }
-            if (this._value.fragment) {
-                this._states.push(5 /* Fragment */);
-            }
-            this._stateIdx = 0;
-            return this;
-        }
-        next() {
-            if (this._states[this._stateIdx] === 3 /* Path */ && this._pathIterator.hasNext()) {
-                this._pathIterator.next();
-            }
-            else {
-                this._stateIdx += 1;
-            }
-            return this;
-        }
-        hasNext() {
-            return (this._states[this._stateIdx] === 3 /* Path */ && this._pathIterator.hasNext())
-                || this._stateIdx < this._states.length - 1;
-        }
-        cmp(a) {
-            if (this._states[this._stateIdx] === 1 /* Scheme */) {
-                return (0, strings_1.compareIgnoreCase)(a, this._value.scheme);
-            }
-            else if (this._states[this._stateIdx] === 2 /* Authority */) {
-                return (0, strings_1.compareIgnoreCase)(a, this._value.authority);
-            }
-            else if (this._states[this._stateIdx] === 3 /* Path */) {
-                return this._pathIterator.cmp(a);
-            }
-            else if (this._states[this._stateIdx] === 4 /* Query */) {
-                return (0, strings_1.compare)(a, this._value.query);
-            }
-            else if (this._states[this._stateIdx] === 5 /* Fragment */) {
-                return (0, strings_1.compare)(a, this._value.fragment);
-            }
-            throw new Error();
-        }
-        value() {
-            if (this._states[this._stateIdx] === 1 /* Scheme */) {
-                return this._value.scheme;
-            }
-            else if (this._states[this._stateIdx] === 2 /* Authority */) {
-                return this._value.authority;
-            }
-            else if (this._states[this._stateIdx] === 3 /* Path */) {
-                return this._pathIterator.value();
-            }
-            else if (this._states[this._stateIdx] === 4 /* Query */) {
-                return this._value.query;
-            }
-            else if (this._states[this._stateIdx] === 5 /* Fragment */) {
-                return this._value.fragment;
-            }
-            throw new Error();
-        }
-    }
-    exports.UriIterator = UriIterator;
-    class TernarySearchTreeNode {
-        constructor() {
-            this.height = 1;
-        }
-        rotateLeft() {
-            const tmp = this.right;
-            this.right = tmp.left;
-            tmp.left = this;
-            this.updateHeight();
-            tmp.updateHeight();
-            return tmp;
-        }
-        rotateRight() {
-            const tmp = this.left;
-            this.left = tmp.right;
-            tmp.right = this;
-            this.updateHeight();
-            tmp.updateHeight();
-            return tmp;
-        }
-        updateHeight() {
-            this.height = 1 + Math.max(this.heightLeft, this.heightRight);
-        }
-        balanceFactor() {
-            return this.heightRight - this.heightLeft;
-        }
-        get heightLeft() {
-            var _c, _d;
-            return (_d = (_c = this.left) === null || _c === void 0 ? void 0 : _c.height) !== null && _d !== void 0 ? _d : 0;
-        }
-        get heightRight() {
-            var _c, _d;
-            return (_d = (_c = this.right) === null || _c === void 0 ? void 0 : _c.height) !== null && _d !== void 0 ? _d : 0;
-        }
-    }
-    class TernarySearchTree {
-        constructor(segments) {
-            this._iter = segments;
-        }
-        static forUris(ignorePathCasing = () => false) {
-            return new TernarySearchTree(new UriIterator(ignorePathCasing));
-        }
-        static forStrings() {
-            return new TernarySearchTree(new StringIterator());
-        }
-        static forConfigKeys() {
-            return new TernarySearchTree(new ConfigKeysIterator());
-        }
-        clear() {
-            this._root = undefined;
-        }
-        set(key, element) {
-            const iter = this._iter.reset(key);
-            let node;
-            if (!this._root) {
-                this._root = new TernarySearchTreeNode();
-                this._root.segment = iter.value();
-            }
-            const stack = [];
-            // find insert_node
-            node = this._root;
-            while (true) {
-                const val = iter.cmp(node.segment);
-                if (val > 0) {
-                    // left
-                    if (!node.left) {
-                        node.left = new TernarySearchTreeNode();
-                        node.left.segment = iter.value();
-                    }
-                    stack.push([-1 /* Left */, node]);
-                    node = node.left;
-                }
-                else if (val < 0) {
-                    // right
-                    if (!node.right) {
-                        node.right = new TernarySearchTreeNode();
-                        node.right.segment = iter.value();
-                    }
-                    stack.push([1 /* Right */, node]);
-                    node = node.right;
-                }
-                else if (iter.hasNext()) {
-                    // mid
-                    iter.next();
-                    if (!node.mid) {
-                        node.mid = new TernarySearchTreeNode();
-                        node.mid.segment = iter.value();
-                    }
-                    stack.push([0 /* Mid */, node]);
-                    node = node.mid;
-                }
-                else {
-                    break;
-                }
-            }
-            // set value
-            const oldElement = node.value;
-            node.value = element;
-            node.key = key;
-            // balance
-            for (let i = stack.length - 1; i >= 0; i--) {
-                const node = stack[i][1];
-                node.updateHeight();
-                const bf = node.balanceFactor();
-                if (bf < -1 || bf > 1) {
-                    // needs rotate
-                    const d1 = stack[i][0];
-                    const d2 = stack[i + 1][0];
-                    if (d1 === 1 /* Right */ && d2 === 1 /* Right */) {
-                        //right, right -> rotate left
-                        stack[i][1] = node.rotateLeft();
-                    }
-                    else if (d1 === -1 /* Left */ && d2 === -1 /* Left */) {
-                        // left, left -> rotate right
-                        stack[i][1] = node.rotateRight();
-                    }
-                    else if (d1 === 1 /* Right */ && d2 === -1 /* Left */) {
-                        // right, left -> double rotate right, left
-                        node.right = stack[i + 1][1] = stack[i + 1][1].rotateRight();
-                        stack[i][1] = node.rotateLeft();
-                    }
-                    else if (d1 === -1 /* Left */ && d2 === 1 /* Right */) {
-                        // left, right -> double rotate left, right
-                        node.left = stack[i + 1][1] = stack[i + 1][1].rotateLeft();
-                        stack[i][1] = node.rotateRight();
-                    }
-                    else {
-                        throw new Error();
-                    }
-                    // patch path to parent
-                    if (i > 0) {
-                        switch (stack[i - 1][0]) {
-                            case -1 /* Left */:
-                                stack[i - 1][1].left = stack[i][1];
-                                break;
-                            case 1 /* Right */:
-                                stack[i - 1][1].right = stack[i][1];
-                                break;
-                            case 0 /* Mid */:
-                                stack[i - 1][1].mid = stack[i][1];
-                                break;
-                        }
-                    }
-                    else {
-                        this._root = stack[0][1];
-                    }
-                }
-            }
-            return oldElement;
-        }
-        get(key) {
-            var _c;
-            return (_c = this._getNode(key)) === null || _c === void 0 ? void 0 : _c.value;
-        }
-        _getNode(key) {
-            const iter = this._iter.reset(key);
-            let node = this._root;
-            while (node) {
-                const val = iter.cmp(node.segment);
-                if (val > 0) {
-                    // left
-                    node = node.left;
-                }
-                else if (val < 0) {
-                    // right
-                    node = node.right;
-                }
-                else if (iter.hasNext()) {
-                    // mid
-                    iter.next();
-                    node = node.mid;
-                }
-                else {
-                    break;
-                }
-            }
-            return node;
-        }
-        has(key) {
-            const node = this._getNode(key);
-            return !((node === null || node === void 0 ? void 0 : node.value) === undefined && (node === null || node === void 0 ? void 0 : node.mid) === undefined);
-        }
-        delete(key) {
-            return this._delete(key, false);
-        }
-        deleteSuperstr(key) {
-            return this._delete(key, true);
-        }
-        _delete(key, superStr) {
-            var _c;
-            const iter = this._iter.reset(key);
-            const stack = [];
-            let node = this._root;
-            // find node
-            while (node) {
-                const val = iter.cmp(node.segment);
-                if (val > 0) {
-                    // left
-                    stack.push([-1 /* Left */, node]);
-                    node = node.left;
-                }
-                else if (val < 0) {
-                    // right
-                    stack.push([1 /* Right */, node]);
-                    node = node.right;
-                }
-                else if (iter.hasNext()) {
-                    // mid
-                    iter.next();
-                    stack.push([0 /* Mid */, node]);
-                    node = node.mid;
-                }
-                else {
-                    break;
-                }
-            }
-            if (!node) {
-                // node not found
-                return;
-            }
-            if (superStr) {
-                // removing children, reset height
-                node.left = undefined;
-                node.mid = undefined;
-                node.right = undefined;
-                node.height = 1;
-            }
-            else {
-                // removing element
-                node.key = undefined;
-                node.value = undefined;
-            }
-            // BST node removal
-            if (!node.mid && !node.value) {
-                if (node.left && node.right) {
-                    // full node
-                    const min = this._min(node.right);
-                    const { key, value, segment } = min;
-                    this._delete(min.key, false);
-                    node.key = key;
-                    node.value = value;
-                    node.segment = segment;
-                }
-                else {
-                    // empty or half empty
-                    const newChild = (_c = node.left) !== null && _c !== void 0 ? _c : node.right;
-                    if (stack.length > 0) {
-                        const [dir, parent] = stack[stack.length - 1];
-                        switch (dir) {
-                            case -1 /* Left */:
-                                parent.left = newChild;
-                                break;
-                            case 0 /* Mid */:
-                                parent.mid = newChild;
-                                break;
-                            case 1 /* Right */:
-                                parent.right = newChild;
-                                break;
-                        }
-                    }
-                    else {
-                        this._root = newChild;
-                    }
-                }
-            }
-            // AVL balance
-            for (let i = stack.length - 1; i >= 0; i--) {
-                const node = stack[i][1];
-                node.updateHeight();
-                const bf = node.balanceFactor();
-                if (bf > 1) {
-                    // right heavy
-                    if (node.right.balanceFactor() >= 0) {
-                        // right, right -> rotate left
-                        stack[i][1] = node.rotateLeft();
-                    }
-                    else {
-                        // right, left -> double rotate
-                        node.right = node.right.rotateRight();
-                        stack[i][1] = node.rotateLeft();
-                    }
-                }
-                else if (bf < -1) {
-                    // left heavy
-                    if (node.left.balanceFactor() <= 0) {
-                        // left, left -> rotate right
-                        stack[i][1] = node.rotateRight();
-                    }
-                    else {
-                        // left, right -> double rotate
-                        node.left = node.left.rotateLeft();
-                        stack[i][1] = node.rotateRight();
-                    }
-                }
-                // patch path to parent
-                if (i > 0) {
-                    switch (stack[i - 1][0]) {
-                        case -1 /* Left */:
-                            stack[i - 1][1].left = stack[i][1];
-                            break;
-                        case 1 /* Right */:
-                            stack[i - 1][1].right = stack[i][1];
-                            break;
-                        case 0 /* Mid */:
-                            stack[i - 1][1].mid = stack[i][1];
-                            break;
-                    }
-                }
-                else {
-                    this._root = stack[0][1];
-                }
-            }
-        }
-        _min(node) {
-            while (node.left) {
-                node = node.left;
-            }
-            return node;
-        }
-        findSubstr(key) {
-            const iter = this._iter.reset(key);
-            let node = this._root;
-            let candidate = undefined;
-            while (node) {
-                const val = iter.cmp(node.segment);
-                if (val > 0) {
-                    // left
-                    node = node.left;
-                }
-                else if (val < 0) {
-                    // right
-                    node = node.right;
-                }
-                else if (iter.hasNext()) {
-                    // mid
-                    iter.next();
-                    candidate = node.value || candidate;
-                    node = node.mid;
-                }
-                else {
-                    break;
-                }
-            }
-            return node && node.value || candidate;
-        }
-        findSuperstr(key) {
-            const iter = this._iter.reset(key);
-            let node = this._root;
-            while (node) {
-                const val = iter.cmp(node.segment);
-                if (val > 0) {
-                    // left
-                    node = node.left;
-                }
-                else if (val < 0) {
-                    // right
-                    node = node.right;
-                }
-                else if (iter.hasNext()) {
-                    // mid
-                    iter.next();
-                    node = node.mid;
-                }
-                else {
-                    // collect
-                    if (!node.mid) {
-                        return undefined;
-                    }
-                    else {
-                        return this._entries(node.mid);
-                    }
-                }
-            }
-            return undefined;
-        }
-        forEach(callback) {
-            for (const [key, value] of this) {
-                callback(value, key);
-            }
-        }
-        *[Symbol.iterator]() {
-            yield* this._entries(this._root);
-        }
-        *_entries(node) {
-            // DFS
-            if (!node) {
-                return;
-            }
-            if (node.left) {
-                yield* this._entries(node.left);
-            }
-            if (node.value) {
-                yield [node.key, node.value];
-            }
-            if (node.mid) {
-                yield* this._entries(node.mid);
-            }
-            if (node.right) {
-                yield* this._entries(node.right);
-            }
-        }
-    }
-    exports.TernarySearchTree = TernarySearchTree;
-    class ResourceMapEntry {
-        constructor(uri, value) {
-            this.uri = uri;
-            this.value = value;
-        }
-    }
-    class ResourceMap {
-        constructor(mapOrKeyFn, toKey) {
-            this[_a] = 'ResourceMap';
-            if (mapOrKeyFn instanceof ResourceMap) {
-                this.map = new Map(mapOrKeyFn.map);
-                this.toKey = toKey !== null && toKey !== void 0 ? toKey : ResourceMap.defaultToKey;
-            }
-            else {
-                this.map = new Map();
-                this.toKey = mapOrKeyFn !== null && mapOrKeyFn !== void 0 ? mapOrKeyFn : ResourceMap.defaultToKey;
-            }
-        }
-        set(resource, value) {
-            this.map.set(this.toKey(resource), new ResourceMapEntry(resource, value));
-            return this;
-        }
-        get(resource) {
-            var _c;
-            return (_c = this.map.get(this.toKey(resource))) === null || _c === void 0 ? void 0 : _c.value;
-        }
-        has(resource) {
-            return this.map.has(this.toKey(resource));
-        }
-        get size() {
-            return this.map.size;
-        }
-        clear() {
-            this.map.clear();
-        }
-        delete(resource) {
-            return this.map.delete(this.toKey(resource));
-        }
-        forEach(clb, thisArg) {
-            if (typeof thisArg !== 'undefined') {
-                clb = clb.bind(thisArg);
-            }
-            for (let [_, entry] of this.map) {
-                clb(entry.value, entry.uri, this);
-            }
-        }
-        *values() {
-            for (let entry of this.map.values()) {
-                yield entry.value;
-            }
-        }
-        *keys() {
-            for (let entry of this.map.values()) {
-                yield entry.uri;
-            }
-        }
-        *entries() {
-            for (let entry of this.map.values()) {
-                yield [entry.uri, entry.value];
-            }
-        }
-        *[(_a = Symbol.toStringTag, Symbol.iterator)]() {
-            for (let [, entry] of this.map) {
-                yield [entry.uri, entry.value];
-            }
-        }
-    }
-    exports.ResourceMap = ResourceMap;
-    ResourceMap.defaultToKey = (resource) => resource.toString();
-    class LinkedMap {
-        constructor() {
-            this[_b] = 'LinkedMap';
-            this._map = new Map();
-            this._head = undefined;
-            this._tail = undefined;
-            this._size = 0;
-            this._state = 0;
-        }
-        clear() {
-            this._map.clear();
-            this._head = undefined;
-            this._tail = undefined;
-            this._size = 0;
-            this._state++;
-        }
-        isEmpty() {
-            return !this._head && !this._tail;
-        }
-        get size() {
-            return this._size;
-        }
-        get first() {
-            var _c;
-            return (_c = this._head) === null || _c === void 0 ? void 0 : _c.value;
-        }
-        get last() {
-            var _c;
-            return (_c = this._tail) === null || _c === void 0 ? void 0 : _c.value;
-        }
-        has(key) {
-            return this._map.has(key);
-        }
-        get(key, touch = 0 /* None */) {
-            const item = this._map.get(key);
-            if (!item) {
-                return undefined;
-            }
-            if (touch !== 0 /* None */) {
-                this.touch(item, touch);
-            }
-            return item.value;
-        }
-        set(key, value, touch = 0 /* None */) {
-            let item = this._map.get(key);
-            if (item) {
-                item.value = value;
-                if (touch !== 0 /* None */) {
-                    this.touch(item, touch);
-                }
-            }
-            else {
-                item = { key, value, next: undefined, previous: undefined };
-                switch (touch) {
-                    case 0 /* None */:
-                        this.addItemLast(item);
-                        break;
-                    case 1 /* AsOld */:
-                        this.addItemFirst(item);
-                        break;
-                    case 2 /* AsNew */:
-                        this.addItemLast(item);
-                        break;
-                    default:
-                        this.addItemLast(item);
-                        break;
-                }
-                this._map.set(key, item);
-                this._size++;
-            }
-            return this;
-        }
-        delete(key) {
-            return !!this.remove(key);
-        }
-        remove(key) {
-            const item = this._map.get(key);
-            if (!item) {
-                return undefined;
-            }
-            this._map.delete(key);
-            this.removeItem(item);
-            this._size--;
-            return item.value;
-        }
-        shift() {
-            if (!this._head && !this._tail) {
-                return undefined;
-            }
-            if (!this._head || !this._tail) {
-                throw new Error('Invalid list');
-            }
-            const item = this._head;
-            this._map.delete(item.key);
-            this.removeItem(item);
-            this._size--;
-            return item.value;
-        }
-        forEach(callbackfn, thisArg) {
-            const state = this._state;
-            let current = this._head;
-            while (current) {
-                if (thisArg) {
-                    callbackfn.bind(thisArg)(current.value, current.key, this);
-                }
-                else {
-                    callbackfn(current.value, current.key, this);
-                }
-                if (this._state !== state) {
-                    throw new Error(`LinkedMap got modified during iteration.`);
-                }
-                current = current.next;
-            }
-        }
-        keys() {
-            const map = this;
-            const state = this._state;
-            let current = this._head;
-            const iterator = {
-                [Symbol.iterator]() {
-                    return iterator;
-                },
-                next() {
-                    if (map._state !== state) {
-                        throw new Error(`LinkedMap got modified during iteration.`);
-                    }
-                    if (current) {
-                        const result = { value: current.key, done: false };
-                        current = current.next;
-                        return result;
-                    }
-                    else {
-                        return { value: undefined, done: true };
-                    }
-                }
-            };
-            return iterator;
-        }
-        values() {
-            const map = this;
-            const state = this._state;
-            let current = this._head;
-            const iterator = {
-                [Symbol.iterator]() {
-                    return iterator;
-                },
-                next() {
-                    if (map._state !== state) {
-                        throw new Error(`LinkedMap got modified during iteration.`);
-                    }
-                    if (current) {
-                        const result = { value: current.value, done: false };
-                        current = current.next;
-                        return result;
-                    }
-                    else {
-                        return { value: undefined, done: true };
-                    }
-                }
-            };
-            return iterator;
-        }
-        entries() {
-            const map = this;
-            const state = this._state;
-            let current = this._head;
-            const iterator = {
-                [Symbol.iterator]() {
-                    return iterator;
-                },
-                next() {
-                    if (map._state !== state) {
-                        throw new Error(`LinkedMap got modified during iteration.`);
-                    }
-                    if (current) {
-                        const result = { value: [current.key, current.value], done: false };
-                        current = current.next;
-                        return result;
-                    }
-                    else {
-                        return { value: undefined, done: true };
-                    }
-                }
-            };
-            return iterator;
-        }
-        [(_b = Symbol.toStringTag, Symbol.iterator)]() {
-            return this.entries();
-        }
-        trimOld(newSize) {
-            if (newSize >= this.size) {
-                return;
-            }
-            if (newSize === 0) {
-                this.clear();
-                return;
-            }
-            let current = this._head;
-            let currentSize = this.size;
-            while (current && currentSize > newSize) {
-                this._map.delete(current.key);
-                current = current.next;
-                currentSize--;
-            }
-            this._head = current;
-            this._size = currentSize;
-            if (current) {
-                current.previous = undefined;
-            }
-            this._state++;
-        }
-        addItemFirst(item) {
-            // First time Insert
-            if (!this._head && !this._tail) {
-                this._tail = item;
-            }
-            else if (!this._head) {
-                throw new Error('Invalid list');
-            }
-            else {
-                item.next = this._head;
-                this._head.previous = item;
-            }
-            this._head = item;
-            this._state++;
-        }
-        addItemLast(item) {
-            // First time Insert
-            if (!this._head && !this._tail) {
-                this._head = item;
-            }
-            else if (!this._tail) {
-                throw new Error('Invalid list');
-            }
-            else {
-                item.previous = this._tail;
-                this._tail.next = item;
-            }
-            this._tail = item;
-            this._state++;
-        }
-        removeItem(item) {
-            if (item === this._head && item === this._tail) {
-                this._head = undefined;
-                this._tail = undefined;
-            }
-            else if (item === this._head) {
-                // This can only happen if size === 1 which is handled
-                // by the case above.
-                if (!item.next) {
-                    throw new Error('Invalid list');
-                }
-                item.next.previous = undefined;
-                this._head = item.next;
-            }
-            else if (item === this._tail) {
-                // This can only happen if size === 1 which is handled
-                // by the case above.
-                if (!item.previous) {
-                    throw new Error('Invalid list');
-                }
-                item.previous.next = undefined;
-                this._tail = item.previous;
-            }
-            else {
-                const next = item.next;
-                const previous = item.previous;
-                if (!next || !previous) {
-                    throw new Error('Invalid list');
-                }
-                next.previous = previous;
-                previous.next = next;
-            }
-            item.next = undefined;
-            item.previous = undefined;
-            this._state++;
-        }
-        touch(item, touch) {
-            if (!this._head || !this._tail) {
-                throw new Error('Invalid list');
-            }
-            if ((touch !== 1 /* AsOld */ && touch !== 2 /* AsNew */)) {
-                return;
-            }
-            if (touch === 1 /* AsOld */) {
-                if (item === this._head) {
-                    return;
-                }
-                const next = item.next;
-                const previous = item.previous;
-                // Unlink the item
-                if (item === this._tail) {
-                    // previous must be defined since item was not head but is tail
-                    // So there are more than on item in the map
-                    previous.next = undefined;
-                    this._tail = previous;
-                }
-                else {
-                    // Both next and previous are not undefined since item was neither head nor tail.
-                    next.previous = previous;
-                    previous.next = next;
-                }
-                // Insert the node at head
-                item.previous = undefined;
-                item.next = this._head;
-                this._head.previous = item;
-                this._head = item;
-                this._state++;
-            }
-            else if (touch === 2 /* AsNew */) {
-                if (item === this._tail) {
-                    return;
-                }
-                const next = item.next;
-                const previous = item.previous;
-                // Unlink the item.
-                if (item === this._head) {
-                    // next must be defined since item was not tail but is head
-                    // So there are more than on item in the map
-                    next.previous = undefined;
-                    this._head = next;
-                }
-                else {
-                    // Both next and previous are not undefined since item was neither head nor tail.
-                    next.previous = previous;
-                    previous.next = next;
-                }
-                item.next = undefined;
-                item.previous = this._tail;
-                this._tail.next = item;
-                this._tail = item;
-                this._state++;
-            }
-        }
-        toJSON() {
-            const data = [];
-            this.forEach((value, key) => {
-                data.push([key, value]);
-            });
-            return data;
-        }
-        fromJSON(data) {
-            this.clear();
-            for (const [key, value] of data) {
-                this.set(key, value);
-            }
-        }
-    }
-    exports.LinkedMap = LinkedMap;
-    class LRUCache extends LinkedMap {
-        constructor(limit, ratio = 1) {
-            super();
-            this._limit = limit;
-            this._ratio = Math.min(Math.max(0, ratio), 1);
-        }
-        get limit() {
-            return this._limit;
-        }
-        set limit(limit) {
-            this._limit = limit;
-            this.checkTrim();
-        }
-        get(key, touch = 2 /* AsNew */) {
-            return super.get(key, touch);
-        }
-        peek(key) {
-            return super.get(key, 0 /* None */);
-        }
-        set(key, value) {
-            super.set(key, value, 2 /* AsNew */);
-            this.checkTrim();
-            return this;
-        }
-        checkTrim() {
-            if (this.size > this._limit) {
-                this.trimOld(Math.round(this._limit * this._ratio));
-            }
-        }
-    }
-    exports.LRUCache = LRUCache;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[32/*vs/base/common/glob*/], __M([0/*require*/,1/*exports*/,28/*vs/base/common/async*/,29/*vs/base/common/extpath*/,31/*vs/base/common/map*/,8/*vs/base/common/path*/,3/*vs/base/common/platform*/,2/*vs/base/common/strings*/]), function (require, exports, async_1, extpath_1, map_1, path_1, platform_1, strings_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.isRelativePattern = exports.parse = exports.match = exports.splitGlobAware = exports.GLOB_SPLIT = exports.GLOBSTAR = void 0;
-    exports.GLOBSTAR = '**';
-    exports.GLOB_SPLIT = '/';
-    const PATH_REGEX = '[/\\\\]'; // any slash or backslash
-    const NO_PATH_REGEX = '[^/\\\\]'; // any non-slash and non-backslash
-    const ALL_FORWARD_SLASHES = /\//g;
-    function starsToRegExp(starCount) {
-        switch (starCount) {
-            case 0:
-                return '';
-            case 1:
-                return `${NO_PATH_REGEX}*?`; // 1 star matches any number of characters except path separator (/ and \) - non greedy (?)
-            default:
-                // Matches:  (Path Sep OR Path Val followed by Path Sep OR Path Sep followed by Path Val) 0-many times
-                // Group is non capturing because we don't need to capture at all (?:...)
-                // Overall we use non-greedy matching because it could be that we match too much
-                return `(?:${PATH_REGEX}|${NO_PATH_REGEX}+${PATH_REGEX}|${PATH_REGEX}${NO_PATH_REGEX}+)*?`;
-        }
-    }
-    function splitGlobAware(pattern, splitChar) {
-        if (!pattern) {
-            return [];
-        }
-        const segments = [];
-        let inBraces = false;
-        let inBrackets = false;
-        let curVal = '';
-        for (const char of pattern) {
-            switch (char) {
-                case splitChar:
-                    if (!inBraces && !inBrackets) {
-                        segments.push(curVal);
-                        curVal = '';
-                        continue;
-                    }
-                    break;
-                case '{':
-                    inBraces = true;
-                    break;
-                case '}':
-                    inBraces = false;
-                    break;
-                case '[':
-                    inBrackets = true;
-                    break;
-                case ']':
-                    inBrackets = false;
-                    break;
-            }
-            curVal += char;
-        }
-        // Tail
-        if (curVal) {
-            segments.push(curVal);
-        }
-        return segments;
-    }
-    exports.splitGlobAware = splitGlobAware;
-    function parseRegExp(pattern) {
-        if (!pattern) {
-            return '';
-        }
-        let regEx = '';
-        // Split up into segments for each slash found
-        const segments = splitGlobAware(pattern, exports.GLOB_SPLIT);
-        // Special case where we only have globstars
-        if (segments.every(s => s === exports.GLOBSTAR)) {
-            regEx = '.*';
-        }
-        // Build regex over segments
-        else {
-            let previousSegmentWasGlobStar = false;
-            segments.forEach((segment, index) => {
-                // Globstar is special
-                if (segment === exports.GLOBSTAR) {
-                    // if we have more than one globstar after another, just ignore it
-                    if (!previousSegmentWasGlobStar) {
-                        regEx += starsToRegExp(2);
-                        previousSegmentWasGlobStar = true;
-                    }
-                    return;
-                }
-                // States
-                let inBraces = false;
-                let braceVal = '';
-                let inBrackets = false;
-                let bracketVal = '';
-                for (const char of segment) {
-                    // Support brace expansion
-                    if (char !== '}' && inBraces) {
-                        braceVal += char;
-                        continue;
-                    }
-                    // Support brackets
-                    if (inBrackets && (char !== ']' || !bracketVal) /* ] is literally only allowed as first character in brackets to match it */) {
-                        let res;
-                        // range operator
-                        if (char === '-') {
-                            res = char;
-                        }
-                        // negation operator (only valid on first index in bracket)
-                        else if ((char === '^' || char === '!') && !bracketVal) {
-                            res = '^';
-                        }
-                        // glob split matching is not allowed within character ranges
-                        // see http://man7.org/linux/man-pages/man7/glob.7.html
-                        else if (char === exports.GLOB_SPLIT) {
-                            res = '';
-                        }
-                        // anything else gets escaped
-                        else {
-                            res = (0, strings_1.escapeRegExpCharacters)(char);
-                        }
-                        bracketVal += res;
-                        continue;
-                    }
-                    switch (char) {
-                        case '{':
-                            inBraces = true;
-                            continue;
-                        case '[':
-                            inBrackets = true;
-                            continue;
-                        case '}': {
-                            const choices = splitGlobAware(braceVal, ',');
-                            // Converts {foo,bar} => [foo|bar]
-                            const braceRegExp = `(?:${choices.map(c => parseRegExp(c)).join('|')})`;
-                            regEx += braceRegExp;
-                            inBraces = false;
-                            braceVal = '';
-                            break;
-                        }
-                        case ']':
-                            regEx += ('[' + bracketVal + ']');
-                            inBrackets = false;
-                            bracketVal = '';
-                            break;
-                        case '?':
-                            regEx += NO_PATH_REGEX; // 1 ? matches any single character except path separator (/ and \)
-                            continue;
-                        case '*':
-                            regEx += starsToRegExp(1);
-                            continue;
-                        default:
-                            regEx += (0, strings_1.escapeRegExpCharacters)(char);
-                    }
-                }
-                // Tail: Add the slash we had split on if there is more to come and the remaining pattern is not a globstar
-                // For example if pattern: some/**/*.js we want the "/" after some to be included in the RegEx to prevent
-                // a folder called "something" to match as well.
-                // However, if pattern: some/**, we tolerate that we also match on "something" because our globstar behaviour
-                // is to match 0-N segments.
-                if (index < segments.length - 1 && (segments[index + 1] !== exports.GLOBSTAR || index + 2 < segments.length)) {
-                    regEx += PATH_REGEX;
-                }
-                // reset state
-                previousSegmentWasGlobStar = false;
-            });
-        }
-        return regEx;
-    }
-    // regexes to check for trivial glob patterns that just check for String#endsWith
-    const T1 = /^\*\*\/\*\.[\w\.-]+$/; // **/*.something
-    const T2 = /^\*\*\/([\w\.-]+)\/?$/; // **/something
-    const T3 = /^{\*\*\/[\*\.]?[\w\.-]+\/?(,\*\*\/[\*\.]?[\w\.-]+\/?)*}$/; // {**/*.something,**/*.else} or {**/package.json,**/project.json}
-    const T3_2 = /^{\*\*\/[\*\.]?[\w\.-]+(\/(\*\*)?)?(,\*\*\/[\*\.]?[\w\.-]+(\/(\*\*)?)?)*}$/; // Like T3, with optional trailing /**
-    const T4 = /^\*\*((\/[\w\.-]+)+)\/?$/; // **/something/else
-    const T5 = /^([\w\.-]+(\/[\w\.-]+)*)\/?$/; // something/else
-    const CACHE = new map_1.LRUCache(10000); // bounded to 10000 elements
-    const FALSE = function () {
-        return false;
-    };
-    const NULL = function () {
-        return null;
-    };
-    function parsePattern(arg1, options) {
-        if (!arg1) {
-            return NULL;
-        }
-        // Handle IRelativePattern
-        let pattern;
-        if (typeof arg1 !== 'string') {
-            pattern = arg1.pattern;
-        }
-        else {
-            pattern = arg1;
-        }
-        // Whitespace trimming
-        pattern = pattern.trim();
-        // Check cache
-        const patternKey = `${pattern}_${!!options.trimForExclusions}`;
-        let parsedPattern = CACHE.get(patternKey);
-        if (parsedPattern) {
-            return wrapRelativePattern(parsedPattern, arg1);
-        }
-        // Check for Trivials
-        let match;
-        if (T1.test(pattern)) { // common pattern: **/*.txt just need endsWith check
-            const base = pattern.substr(4); // '**/*'.length === 4
-            parsedPattern = function (path, basename) {
-                return typeof path === 'string' && path.endsWith(base) ? pattern : null;
-            };
-        }
-        else if (match = T2.exec(trimForExclusions(pattern, options))) { // common pattern: **/some.txt just need basename check
-            parsedPattern = trivia2(match[1], pattern);
-        }
-        else if ((options.trimForExclusions ? T3_2 : T3).test(pattern)) { // repetition of common patterns (see above) {**/*.txt,**/*.png}
-            parsedPattern = trivia3(pattern, options);
-        }
-        else if (match = T4.exec(trimForExclusions(pattern, options))) { // common pattern: **/something/else just need endsWith check
-            parsedPattern = trivia4and5(match[1].substr(1), pattern, true);
-        }
-        else if (match = T5.exec(trimForExclusions(pattern, options))) { // common pattern: something/else just need equals check
-            parsedPattern = trivia4and5(match[1], pattern, false);
-        }
-        // Otherwise convert to pattern
-        else {
-            parsedPattern = toRegExp(pattern);
-        }
-        // Cache
-        CACHE.set(patternKey, parsedPattern);
-        return wrapRelativePattern(parsedPattern, arg1);
-    }
-    function wrapRelativePattern(parsedPattern, arg2) {
-        if (typeof arg2 === 'string') {
-            return parsedPattern;
-        }
-        return function (path, basename) {
-            if (!(0, extpath_1.isEqualOrParent)(path, arg2.base, !platform_1.isLinux)) {
-                // skip glob matching if `base` is not a parent of `path`
-                return null;
-            }
-            // Given we have checked `base` being a parent of `path`,
-            // we can now remove the `base` portion of the `path`
-            // and only match on the remaining path components
-            return parsedPattern(path.substr(arg2.base.length + 1), basename);
-        };
-    }
-    function trimForExclusions(pattern, options) {
-        return options.trimForExclusions && pattern.endsWith('/**') ? pattern.substr(0, pattern.length - 2) : pattern; // dropping **, tailing / is dropped later
-    }
-    // common pattern: **/some.txt just need basename check
-    function trivia2(base, originalPattern) {
-        const slashBase = `/${base}`;
-        const backslashBase = `\\${base}`;
-        const parsedPattern = function (path, basename) {
-            if (typeof path !== 'string') {
-                return null;
-            }
-            if (basename) {
-                return basename === base ? originalPattern : null;
-            }
-            return path === base || path.endsWith(slashBase) || path.endsWith(backslashBase) ? originalPattern : null;
-        };
-        const basenames = [base];
-        parsedPattern.basenames = basenames;
-        parsedPattern.patterns = [originalPattern];
-        parsedPattern.allBasenames = basenames;
-        return parsedPattern;
-    }
-    // repetition of common patterns (see above) {**/*.txt,**/*.png}
-    function trivia3(pattern, options) {
-        const parsedPatterns = aggregateBasenameMatches(pattern.slice(1, -1).split(',')
-            .map(pattern => parsePattern(pattern, options))
-            .filter(pattern => pattern !== NULL), pattern);
-        const n = parsedPatterns.length;
-        if (!n) {
-            return NULL;
-        }
-        if (n === 1) {
-            return parsedPatterns[0];
-        }
-        const parsedPattern = function (path, basename) {
-            for (let i = 0, n = parsedPatterns.length; i < n; i++) {
-                if (parsedPatterns[i](path, basename)) {
-                    return pattern;
-                }
-            }
-            return null;
-        };
-        const withBasenames = parsedPatterns.find(pattern => !!pattern.allBasenames);
-        if (withBasenames) {
-            parsedPattern.allBasenames = withBasenames.allBasenames;
-        }
-        const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
-        if (allPaths.length) {
-            parsedPattern.allPaths = allPaths;
-        }
-        return parsedPattern;
-    }
-    // common patterns: **/something/else just need endsWith check, something/else just needs and equals check
-    function trivia4and5(targetPath, pattern, matchPathEnds) {
-        const usingPosixSep = path_1.sep === path_1.posix.sep;
-        const nativePath = usingPosixSep ? targetPath : targetPath.replace(ALL_FORWARD_SLASHES, path_1.sep);
-        const nativePathEnd = path_1.sep + nativePath;
-        const targetPathEnd = path_1.posix.sep + targetPath;
-        const parsedPattern = matchPathEnds ? function (testPath, basename) {
-            return typeof testPath === 'string' &&
-                ((testPath === nativePath || testPath.endsWith(nativePathEnd))
-                    || !usingPosixSep && (testPath === targetPath || testPath.endsWith(targetPathEnd)))
-                ? pattern : null;
-        } : function (testPath, basename) {
-            return typeof testPath === 'string' &&
-                (testPath === nativePath
-                    || (!usingPosixSep && testPath === targetPath))
-                ? pattern : null;
-        };
-        parsedPattern.allPaths = [(matchPathEnds ? '*/' : './') + targetPath];
-        return parsedPattern;
-    }
-    function toRegExp(pattern) {
-        try {
-            const regExp = new RegExp(`^${parseRegExp(pattern)}$`);
-            return function (path) {
-                regExp.lastIndex = 0; // reset RegExp to its initial state to reuse it!
-                return typeof path === 'string' && regExp.test(path) ? pattern : null;
-            };
-        }
-        catch (error) {
-            return NULL;
-        }
-    }
-    function match(arg1, path, hasSibling) {
-        if (!arg1 || typeof path !== 'string') {
-            return false;
-        }
-        return parse(arg1)(path, undefined, hasSibling);
-    }
-    exports.match = match;
-    function parse(arg1, options = {}) {
-        if (!arg1) {
-            return FALSE;
-        }
-        // Glob with String
-        if (typeof arg1 === 'string' || isRelativePattern(arg1)) {
-            const parsedPattern = parsePattern(arg1, options);
-            if (parsedPattern === NULL) {
-                return FALSE;
-            }
-            const resultPattern = function (path, basename) {
-                return !!parsedPattern(path, basename);
-            };
-            if (parsedPattern.allBasenames) {
-                resultPattern.allBasenames = parsedPattern.allBasenames;
-            }
-            if (parsedPattern.allPaths) {
-                resultPattern.allPaths = parsedPattern.allPaths;
-            }
-            return resultPattern;
-        }
-        // Glob with Expression
-        return parsedExpression(arg1, options);
-    }
-    exports.parse = parse;
-    function isRelativePattern(obj) {
-        const rp = obj;
-        if (!rp) {
-            return false;
-        }
-        return typeof rp.base === 'string' && typeof rp.pattern === 'string';
-    }
-    exports.isRelativePattern = isRelativePattern;
-    function parsedExpression(expression, options) {
-        const parsedPatterns = aggregateBasenameMatches(Object.getOwnPropertyNames(expression)
-            .map(pattern => parseExpressionPattern(pattern, expression[pattern], options))
-            .filter(pattern => pattern !== NULL));
-        const n = parsedPatterns.length;
-        if (!n) {
-            return NULL;
-        }
-        if (!parsedPatterns.some(parsedPattern => !!parsedPattern.requiresSiblings)) {
-            if (n === 1) {
-                return parsedPatterns[0];
-            }
-            const resultExpression = function (path, basename) {
-                for (let i = 0, n = parsedPatterns.length; i < n; i++) {
-                    // Pattern matches path
-                    const result = parsedPatterns[i](path, basename);
-                    if (result) {
-                        return result;
-                    }
-                }
-                return null;
-            };
-            const withBasenames = parsedPatterns.find(pattern => !!pattern.allBasenames);
-            if (withBasenames) {
-                resultExpression.allBasenames = withBasenames.allBasenames;
-            }
-            const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
-            if (allPaths.length) {
-                resultExpression.allPaths = allPaths;
-            }
-            return resultExpression;
-        }
-        const resultExpression = function (path, base, hasSibling) {
-            let name = undefined;
-            for (let i = 0, n = parsedPatterns.length; i < n; i++) {
-                // Pattern matches path
-                const parsedPattern = parsedPatterns[i];
-                if (parsedPattern.requiresSiblings && hasSibling) {
-                    if (!base) {
-                        base = (0, path_1.basename)(path);
-                    }
-                    if (!name) {
-                        name = base.substr(0, base.length - (0, path_1.extname)(path).length);
-                    }
-                }
-                const result = parsedPattern(path, base, name, hasSibling);
-                if (result) {
-                    return result;
-                }
-            }
-            return null;
-        };
-        const withBasenames = parsedPatterns.find(pattern => !!pattern.allBasenames);
-        if (withBasenames) {
-            resultExpression.allBasenames = withBasenames.allBasenames;
-        }
-        const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
-        if (allPaths.length) {
-            resultExpression.allPaths = allPaths;
-        }
-        return resultExpression;
-    }
-    function parseExpressionPattern(pattern, value, options) {
-        if (value === false) {
-            return NULL; // pattern is disabled
-        }
-        const parsedPattern = parsePattern(pattern, options);
-        if (parsedPattern === NULL) {
-            return NULL;
-        }
-        // Expression Pattern is <boolean>
-        if (typeof value === 'boolean') {
-            return parsedPattern;
-        }
-        // Expression Pattern is <SiblingClause>
-        if (value) {
-            const when = value.when;
-            if (typeof when === 'string') {
-                const result = (path, basename, name, hasSibling) => {
-                    if (!hasSibling || !parsedPattern(path, basename)) {
-                        return null;
-                    }
-                    const clausePattern = when.replace('$(basename)', name);
-                    const matched = hasSibling(clausePattern);
-                    return (0, async_1.isThenable)(matched) ?
-                        matched.then(m => m ? pattern : null) :
-                        matched ? pattern : null;
-                };
-                result.requiresSiblings = true;
-                return result;
-            }
-        }
-        // Expression is Anything
-        return parsedPattern;
-    }
-    function aggregateBasenameMatches(parsedPatterns, result) {
-        const basenamePatterns = parsedPatterns.filter(parsedPattern => !!parsedPattern.basenames);
-        if (basenamePatterns.length < 2) {
-            return parsedPatterns;
-        }
-        const basenames = basenamePatterns.reduce((all, current) => {
-            const basenames = current.basenames;
-            return basenames ? all.concat(basenames) : all;
-        }, []);
-        let patterns;
-        if (result) {
-            patterns = [];
-            for (let i = 0, n = basenames.length; i < n; i++) {
-                patterns.push(result);
-            }
-        }
-        else {
-            patterns = basenamePatterns.reduce((all, current) => {
-                const patterns = current.patterns;
-                return patterns ? all.concat(patterns) : all;
-            }, []);
-        }
-        const aggregate = function (path, basename) {
-            if (typeof path !== 'string') {
-                return null;
-            }
-            if (!basename) {
-                let i;
-                for (i = path.length; i > 0; i--) {
-                    const ch = path.charCodeAt(i - 1);
-                    if (ch === 47 /* Slash */ || ch === 92 /* Backslash */) {
-                        break;
-                    }
-                }
-                basename = path.substr(i);
-            }
-            const index = basenames.indexOf(basename);
-            return index !== -1 ? patterns[index] : null;
-        };
-        aggregate.basenames = basenames;
-        aggregate.patterns = patterns;
-        aggregate.allBasenames = basenames;
-        const aggregatedPatterns = parsedPatterns.filter(parsedPattern => !parsedPattern.basenames);
-        aggregatedPatterns.push(aggregate);
-        return aggregatedPatterns;
-    }
-});
-
-define(__m[9/*vs/base/common/types*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[6/*vs/base/common/types*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assertNever = exports.withNullAsUndefined = exports.createProxyObject = exports.getAllMethodNames = exports.getAllPropertyNames = exports.validateConstraint = exports.validateConstraints = exports.isFunction = exports.assertIsDefined = exports.assertType = exports.isUndefinedOrNull = exports.isDefined = exports.isUndefined = exports.isBoolean = exports.isNumber = exports.isObject = exports.isString = exports.isArray = void 0;
@@ -11305,7 +7899,7 @@ define(__m[9/*vs/base/common/types*/], __M([0/*require*/,1/*exports*/]), functio
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[33/*vs/base/common/objects*/], __M([0/*require*/,1/*exports*/,9/*vs/base/common/types*/]), function (require, exports, types_1) {
+define(__m[25/*vs/base/common/objects*/], __M([0/*require*/,1/*exports*/,6/*vs/base/common/types*/]), function (require, exports, types_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getOrDefault = exports.equals = exports.mixin = exports.cloneAndChange = exports.deepFreeze = exports.deepClone = void 0;
@@ -11475,7 +8069,7 @@ define(__m[33/*vs/base/common/objects*/], __M([0/*require*/,1/*exports*/,9/*vs/b
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[15/*vs/base/common/uint*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[12/*vs/base/common/uint*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.toUint32 = exports.toUint8 = void 0;
@@ -11505,7 +8099,7 @@ define(__m[15/*vs/base/common/uint*/], __M([0/*require*/,1/*exports*/]), functio
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[11/*vs/base/common/uri*/], __M([0/*require*/,1/*exports*/,8/*vs/base/common/path*/,3/*vs/base/common/platform*/]), function (require, exports, paths, platform_1) {
+define(__m[13/*vs/base/common/uri*/], __M([0/*require*/,1/*exports*/,22/*vs/base/common/path*/,2/*vs/base/common/platform*/]), function (require, exports, paths, platform_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.uriToFsPath = exports.URI = void 0;
@@ -11707,7 +8301,7 @@ define(__m[11/*vs/base/common/uri*/], __M([0/*require*/,1/*exports*/,8/*vs/base/
         }
         // ---- parse & validate ------------------------
         /**
-         * Creates a new URI from a string, e.g. `http://www.example.com/some/path`,
+         * Creates a new URI from a string, e.g. `http://www.msft.com/some/path`,
          * `file:///usr/home`, or `scheme:with/path`.
          *
          * @param value A string which represents an URI (see `URI#toString`).
@@ -12100,7 +8694,7 @@ define(__m[11/*vs/base/common/uri*/], __M([0/*require*/,1/*exports*/,8/*vs/base/
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[50/*vs/base/common/worker/simpleWorker*/], __M([0/*require*/,1/*exports*/,10/*vs/base/common/errors*/,4/*vs/base/common/event*/,7/*vs/base/common/lifecycle*/,3/*vs/base/common/platform*/,9/*vs/base/common/types*/,2/*vs/base/common/strings*/]), function (require, exports, errors_1, event_1, lifecycle_1, platform_1, types, strings) {
+define(__m[40/*vs/base/common/worker/simpleWorker*/], __M([0/*require*/,1/*exports*/,8/*vs/base/common/errors*/,7/*vs/base/common/event*/,9/*vs/base/common/lifecycle*/,2/*vs/base/common/platform*/,6/*vs/base/common/types*/,3/*vs/base/common/strings*/]), function (require, exports, errors_1, event_1, lifecycle_1, platform_1, types, strings) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.create = exports.SimpleWorkerServer = exports.SimpleWorkerClient = exports.logOnceWebWorkerWarning = void 0;
@@ -12545,7 +9139,7 @@ define(__m[50/*vs/base/common/worker/simpleWorker*/], __M([0/*require*/,1/*expor
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[16/*vs/editor/common/core/characterClassifier*/], __M([0/*require*/,1/*exports*/,15/*vs/base/common/uint*/]), function (require, exports, uint_1) {
+define(__m[14/*vs/editor/common/core/characterClassifier*/], __M([0/*require*/,1/*exports*/,12/*vs/base/common/uint*/]), function (require, exports, uint_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CharacterSet = exports.CharacterClassifier = void 0;
@@ -12554,20 +9148,20 @@ define(__m[16/*vs/editor/common/core/characterClassifier*/], __M([0/*require*/,1
      */
     class CharacterClassifier {
         constructor(_defaultValue) {
-            const defaultValue = (0, uint_1.toUint8)(_defaultValue);
+            let defaultValue = (0, uint_1.toUint8)(_defaultValue);
             this._defaultValue = defaultValue;
             this._asciiMap = CharacterClassifier._createAsciiMap(defaultValue);
             this._map = new Map();
         }
         static _createAsciiMap(defaultValue) {
-            const asciiMap = new Uint8Array(256);
+            let asciiMap = new Uint8Array(256);
             for (let i = 0; i < 256; i++) {
                 asciiMap[i] = defaultValue;
             }
             return asciiMap;
         }
         set(charCode, _value) {
-            const value = (0, uint_1.toUint8)(_value);
+            let value = (0, uint_1.toUint8)(_value);
             if (charCode >= 0 && charCode < 256) {
                 this._asciiMap[charCode] = value;
             }
@@ -12603,7 +9197,38 @@ define(__m[16/*vs/editor/common/core/characterClassifier*/], __M([0/*require*/,1
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[5/*vs/editor/common/core/position*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[26/*vs/editor/common/controller/wordCharacterClassifier*/], __M([0/*require*/,1/*exports*/,14/*vs/editor/common/core/characterClassifier*/]), function (require, exports, characterClassifier_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getMapForWordSeparators = exports.WordCharacterClassifier = void 0;
+    class WordCharacterClassifier extends characterClassifier_1.CharacterClassifier {
+        constructor(wordSeparators) {
+            super(0 /* Regular */);
+            for (let i = 0, len = wordSeparators.length; i < len; i++) {
+                this.set(wordSeparators.charCodeAt(i), 2 /* WordSeparator */);
+            }
+            this.set(32 /* Space */, 1 /* Whitespace */);
+            this.set(9 /* Tab */, 1 /* Whitespace */);
+        }
+    }
+    exports.WordCharacterClassifier = WordCharacterClassifier;
+    function once(computeFn) {
+        let cache = {}; // TODO@Alex unbounded cache
+        return (input) => {
+            if (!cache.hasOwnProperty(input)) {
+                cache[input] = computeFn(input);
+            }
+            return cache[input];
+        };
+    }
+    exports.getMapForWordSeparators = once((input) => new WordCharacterClassifier(input));
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[4/*vs/editor/common/core/position*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Position = void 0;
@@ -12700,11 +9325,11 @@ define(__m[5/*vs/editor/common/core/position*/], __M([0/*require*/,1/*exports*/]
          * A function that compares positions, useful for sorting
          */
         static compare(a, b) {
-            const aLineNumber = a.lineNumber | 0;
-            const bLineNumber = b.lineNumber | 0;
+            let aLineNumber = a.lineNumber | 0;
+            let bLineNumber = b.lineNumber | 0;
             if (aLineNumber === bLineNumber) {
-                const aColumn = a.column | 0;
-                const bColumn = b.column | 0;
+                let aColumn = a.column | 0;
+                let bColumn = b.column | 0;
                 return aColumn - bColumn;
             }
             return aLineNumber - bLineNumber;
@@ -12744,7 +9369,7 @@ define(__m[5/*vs/editor/common/core/position*/], __M([0/*require*/,1/*exports*/]
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[6/*vs/editor/common/core/range*/], __M([0/*require*/,1/*exports*/,5/*vs/editor/common/core/position*/]), function (require, exports, position_1) {
+define(__m[5/*vs/editor/common/core/range*/], __M([0/*require*/,1/*exports*/,4/*vs/editor/common/core/position*/]), function (require, exports, position_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Range = void 0;
@@ -13126,7 +9751,7 @@ define(__m[6/*vs/editor/common/core/range*/], __M([0/*require*/,1/*exports*/,5/*
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[34/*vs/editor/common/core/selection*/], __M([0/*require*/,1/*exports*/,5/*vs/editor/common/core/position*/,6/*vs/editor/common/core/range*/]), function (require, exports, position_1, range_1) {
+define(__m[27/*vs/editor/common/core/selection*/], __M([0/*require*/,1/*exports*/,4/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/]), function (require, exports, position_1, range_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Selection = void 0;
@@ -13273,162 +9898,45 @@ define(__m[34/*vs/editor/common/core/selection*/], __M([0/*require*/,1/*exports*
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[35/*vs/editor/common/core/wordCharacterClassifier*/], __M([0/*require*/,1/*exports*/,16/*vs/editor/common/core/characterClassifier*/]), function (require, exports, characterClassifier_1) {
+define(__m[28/*vs/editor/common/core/token*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getMapForWordSeparators = exports.WordCharacterClassifier = void 0;
-    class WordCharacterClassifier extends characterClassifier_1.CharacterClassifier {
-        constructor(wordSeparators) {
-            super(0 /* Regular */);
-            for (let i = 0, len = wordSeparators.length; i < len; i++) {
-                this.set(wordSeparators.charCodeAt(i), 2 /* WordSeparator */);
-            }
-            this.set(32 /* Space */, 1 /* Whitespace */);
-            this.set(9 /* Tab */, 1 /* Whitespace */);
+    exports.TokenizationResult2 = exports.TokenizationResult = exports.Token = void 0;
+    class Token {
+        constructor(offset, type, language) {
+            this._tokenBrand = undefined;
+            this.offset = offset;
+            this.type = type;
+            this.language = language;
+        }
+        toString() {
+            return '(' + this.offset + ', ' + this.type + ')';
         }
     }
-    exports.WordCharacterClassifier = WordCharacterClassifier;
-    function once(computeFn) {
-        const cache = {}; // TODO@Alex unbounded cache
-        return (input) => {
-            if (!cache.hasOwnProperty(input)) {
-                cache[input] = computeFn(input);
-            }
-            return cache[input];
-        };
+    exports.Token = Token;
+    class TokenizationResult {
+        constructor(tokens, endState) {
+            this._tokenizationResultBrand = undefined;
+            this.tokens = tokens;
+            this.endState = endState;
+        }
     }
-    exports.getMapForWordSeparators = once((input) => new WordCharacterClassifier(input));
+    exports.TokenizationResult = TokenizationResult;
+    class TokenizationResult2 {
+        constructor(tokens, endState) {
+            this._tokenizationResult2Brand = undefined;
+            this.tokens = tokens;
+            this.endState = endState;
+        }
+    }
+    exports.TokenizationResult2 = TokenizationResult2;
 });
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[36/*vs/editor/common/core/wordHelper*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getWordAtText = exports.ensureValidWordDefinition = exports.DEFAULT_WORD_REGEXP = exports.USUAL_WORD_SEPARATORS = void 0;
-    exports.USUAL_WORD_SEPARATORS = '`~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?';
-    /**
-     * Create a word definition regular expression based on default word separators.
-     * Optionally provide allowed separators that should be included in words.
-     *
-     * The default would look like this:
-     * /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g
-     */
-    function createWordRegExp(allowInWords = '') {
-        let source = '(-?\\d*\\.\\d\\w*)|([^';
-        for (const sep of exports.USUAL_WORD_SEPARATORS) {
-            if (allowInWords.indexOf(sep) >= 0) {
-                continue;
-            }
-            source += '\\' + sep;
-        }
-        source += '\\s]+)';
-        return new RegExp(source, 'g');
-    }
-    // catches numbers (including floating numbers) in the first group, and alphanum in the second
-    exports.DEFAULT_WORD_REGEXP = createWordRegExp();
-    function ensureValidWordDefinition(wordDefinition) {
-        let result = exports.DEFAULT_WORD_REGEXP;
-        if (wordDefinition && (wordDefinition instanceof RegExp)) {
-            if (!wordDefinition.global) {
-                let flags = 'g';
-                if (wordDefinition.ignoreCase) {
-                    flags += 'i';
-                }
-                if (wordDefinition.multiline) {
-                    flags += 'm';
-                }
-                if (wordDefinition.unicode) {
-                    flags += 'u';
-                }
-                result = new RegExp(wordDefinition.source, flags);
-            }
-            else {
-                result = wordDefinition;
-            }
-        }
-        result.lastIndex = 0;
-        return result;
-    }
-    exports.ensureValidWordDefinition = ensureValidWordDefinition;
-    const _defaultConfig = {
-        maxLen: 1000,
-        windowSize: 15,
-        timeBudget: 150
-    };
-    function getWordAtText(column, wordDefinition, text, textOffset, config = _defaultConfig) {
-        if (text.length > config.maxLen) {
-            // don't throw strings that long at the regexp
-            // but use a sub-string in which a word must occur
-            let start = column - config.maxLen / 2;
-            if (start < 0) {
-                start = 0;
-            }
-            else {
-                textOffset += start;
-            }
-            text = text.substring(start, column + config.maxLen / 2);
-            return getWordAtText(column, wordDefinition, text, textOffset, config);
-        }
-        const t1 = Date.now();
-        const pos = column - 1 - textOffset;
-        let prevRegexIndex = -1;
-        let match = null;
-        for (let i = 1;; i++) {
-            // check time budget
-            if (Date.now() - t1 >= config.timeBudget) {
-                break;
-            }
-            // reset the index at which the regexp should start matching, also know where it
-            // should stop so that subsequent search don't repeat previous searches
-            const regexIndex = pos - config.windowSize * i;
-            wordDefinition.lastIndex = Math.max(0, regexIndex);
-            const thisMatch = _findRegexMatchEnclosingPosition(wordDefinition, text, pos, prevRegexIndex);
-            if (!thisMatch && match) {
-                // stop: we have something
-                break;
-            }
-            match = thisMatch;
-            // stop: searched at start
-            if (regexIndex <= 0) {
-                break;
-            }
-            prevRegexIndex = regexIndex;
-        }
-        if (match) {
-            const result = {
-                word: match[0],
-                startColumn: textOffset + 1 + match.index,
-                endColumn: textOffset + 1 + match.index + match[0].length
-            };
-            wordDefinition.lastIndex = 0;
-            return result;
-        }
-        return null;
-    }
-    exports.getWordAtText = getWordAtText;
-    function _findRegexMatchEnclosingPosition(wordDefinition, text, pos, stopPos) {
-        let match;
-        while (match = wordDefinition.exec(text)) {
-            const matchIndex = match.index || 0;
-            if (matchIndex <= pos && wordDefinition.lastIndex >= pos) {
-                return match;
-            }
-            else if (stopPos > 0 && matchIndex > stopPos) {
-                return null;
-            }
-        }
-        return null;
-    }
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[37/*vs/editor/common/diff/diffComputer*/], __M([0/*require*/,1/*exports*/,14/*vs/base/common/diff/diff*/,2/*vs/base/common/strings*/]), function (require, exports, diff_1, strings) {
+define(__m[29/*vs/editor/common/diff/diffComputer*/], __M([0/*require*/,1/*exports*/,11/*vs/base/common/diff/diff*/,3/*vs/base/common/strings*/]), function (require, exports, diff_1, strings) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiffComputer = void 0;
@@ -13827,478 +10335,10 @@ define(__m[37/*vs/editor/common/diff/diffComputer*/], __M([0/*require*/,1/*expor
     }
 });
 
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[38/*vs/editor/common/languageSelector*/], __M([0/*require*/,1/*exports*/,32/*vs/base/common/glob*/,8/*vs/base/common/path*/]), function (require, exports, glob_1, path_1) {
+define(__m[30/*vs/editor/common/model*/], __M([0/*require*/,1/*exports*/,25/*vs/base/common/objects*/]), function (require, exports, objects_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.score = void 0;
-    function score(selector, candidateUri, candidateLanguage, candidateIsSynchronized) {
-        if (Array.isArray(selector)) {
-            // array -> take max individual value
-            let ret = 0;
-            for (const filter of selector) {
-                const value = score(filter, candidateUri, candidateLanguage, candidateIsSynchronized);
-                if (value === 10) {
-                    return value; // already at the highest
-                }
-                if (value > ret) {
-                    ret = value;
-                }
-            }
-            return ret;
-        }
-        else if (typeof selector === 'string') {
-            if (!candidateIsSynchronized) {
-                return 0;
-            }
-            // short-hand notion, desugars to
-            // 'fooLang' -> { language: 'fooLang'}
-            // '*' -> { language: '*' }
-            if (selector === '*') {
-                return 5;
-            }
-            else if (selector === candidateLanguage) {
-                return 10;
-            }
-            else {
-                return 0;
-            }
-        }
-        else if (selector) {
-            // filter -> select accordingly, use defaults for scheme
-            const { language, pattern, scheme, hasAccessToAllModels } = selector; // TODO: microsoft/TypeScript#42768
-            if (!candidateIsSynchronized && !hasAccessToAllModels) {
-                return 0;
-            }
-            let ret = 0;
-            if (scheme) {
-                if (scheme === candidateUri.scheme) {
-                    ret = 10;
-                }
-                else if (scheme === '*') {
-                    ret = 5;
-                }
-                else {
-                    return 0;
-                }
-            }
-            if (language) {
-                if (language === candidateLanguage) {
-                    ret = 10;
-                }
-                else if (language === '*') {
-                    ret = Math.max(ret, 5);
-                }
-                else {
-                    return 0;
-                }
-            }
-            if (pattern) {
-                let normalizedPattern;
-                if (typeof pattern === 'string') {
-                    normalizedPattern = pattern;
-                }
-                else {
-                    // Since this pattern has a `base` property, we need
-                    // to normalize this path first before passing it on
-                    // because we will compare it against `Uri.fsPath`
-                    // which uses platform specific separators.
-                    // Refs: https://github.com/microsoft/vscode/issues/99938
-                    normalizedPattern = Object.assign(Object.assign({}, pattern), { base: (0, path_1.normalize)(pattern.base) });
-                }
-                if (normalizedPattern === candidateUri.fsPath || (0, glob_1.match)(normalizedPattern, candidateUri.fsPath)) {
-                    ret = 10;
-                }
-                else {
-                    return 0;
-                }
-            }
-            return ret;
-        }
-        else {
-            return 0;
-        }
-    }
-    exports.score = score;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[39/*vs/editor/common/languages/linkComputer*/], __M([0/*require*/,1/*exports*/,16/*vs/editor/common/core/characterClassifier*/]), function (require, exports, characterClassifier_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.computeLinks = exports.LinkComputer = exports.StateMachine = exports.Uint8Matrix = void 0;
-    class Uint8Matrix {
-        constructor(rows, cols, defaultValue) {
-            const data = new Uint8Array(rows * cols);
-            for (let i = 0, len = rows * cols; i < len; i++) {
-                data[i] = defaultValue;
-            }
-            this._data = data;
-            this.rows = rows;
-            this.cols = cols;
-        }
-        get(row, col) {
-            return this._data[row * this.cols + col];
-        }
-        set(row, col, value) {
-            this._data[row * this.cols + col] = value;
-        }
-    }
-    exports.Uint8Matrix = Uint8Matrix;
-    class StateMachine {
-        constructor(edges) {
-            let maxCharCode = 0;
-            let maxState = 0 /* Invalid */;
-            for (let i = 0, len = edges.length; i < len; i++) {
-                const [from, chCode, to] = edges[i];
-                if (chCode > maxCharCode) {
-                    maxCharCode = chCode;
-                }
-                if (from > maxState) {
-                    maxState = from;
-                }
-                if (to > maxState) {
-                    maxState = to;
-                }
-            }
-            maxCharCode++;
-            maxState++;
-            const states = new Uint8Matrix(maxState, maxCharCode, 0 /* Invalid */);
-            for (let i = 0, len = edges.length; i < len; i++) {
-                const [from, chCode, to] = edges[i];
-                states.set(from, chCode, to);
-            }
-            this._states = states;
-            this._maxCharCode = maxCharCode;
-        }
-        nextState(currentState, chCode) {
-            if (chCode < 0 || chCode >= this._maxCharCode) {
-                return 0 /* Invalid */;
-            }
-            return this._states.get(currentState, chCode);
-        }
-    }
-    exports.StateMachine = StateMachine;
-    // State machine for http:// or https:// or file://
-    let _stateMachine = null;
-    function getStateMachine() {
-        if (_stateMachine === null) {
-            _stateMachine = new StateMachine([
-                [1 /* Start */, 104 /* h */, 2 /* H */],
-                [1 /* Start */, 72 /* H */, 2 /* H */],
-                [1 /* Start */, 102 /* f */, 6 /* F */],
-                [1 /* Start */, 70 /* F */, 6 /* F */],
-                [2 /* H */, 116 /* t */, 3 /* HT */],
-                [2 /* H */, 84 /* T */, 3 /* HT */],
-                [3 /* HT */, 116 /* t */, 4 /* HTT */],
-                [3 /* HT */, 84 /* T */, 4 /* HTT */],
-                [4 /* HTT */, 112 /* p */, 5 /* HTTP */],
-                [4 /* HTT */, 80 /* P */, 5 /* HTTP */],
-                [5 /* HTTP */, 115 /* s */, 9 /* BeforeColon */],
-                [5 /* HTTP */, 83 /* S */, 9 /* BeforeColon */],
-                [5 /* HTTP */, 58 /* Colon */, 10 /* AfterColon */],
-                [6 /* F */, 105 /* i */, 7 /* FI */],
-                [6 /* F */, 73 /* I */, 7 /* FI */],
-                [7 /* FI */, 108 /* l */, 8 /* FIL */],
-                [7 /* FI */, 76 /* L */, 8 /* FIL */],
-                [8 /* FIL */, 101 /* e */, 9 /* BeforeColon */],
-                [8 /* FIL */, 69 /* E */, 9 /* BeforeColon */],
-                [9 /* BeforeColon */, 58 /* Colon */, 10 /* AfterColon */],
-                [10 /* AfterColon */, 47 /* Slash */, 11 /* AlmostThere */],
-                [11 /* AlmostThere */, 47 /* Slash */, 12 /* End */],
-            ]);
-        }
-        return _stateMachine;
-    }
-    let _classifier = null;
-    function getClassifier() {
-        if (_classifier === null) {
-            _classifier = new characterClassifier_1.CharacterClassifier(0 /* None */);
-            // allow-any-unicode-next-line
-            const FORCE_TERMINATION_CHARACTERS = ' \t<>\'\"、。｡､，．：；‘〈「『〔（［｛｢｣｝］）〕』」〉’｀～…';
-            for (let i = 0; i < FORCE_TERMINATION_CHARACTERS.length; i++) {
-                _classifier.set(FORCE_TERMINATION_CHARACTERS.charCodeAt(i), 1 /* ForceTermination */);
-            }
-            const CANNOT_END_WITH_CHARACTERS = '.,;';
-            for (let i = 0; i < CANNOT_END_WITH_CHARACTERS.length; i++) {
-                _classifier.set(CANNOT_END_WITH_CHARACTERS.charCodeAt(i), 2 /* CannotEndIn */);
-            }
-        }
-        return _classifier;
-    }
-    class LinkComputer {
-        static _createLink(classifier, line, lineNumber, linkBeginIndex, linkEndIndex) {
-            // Do not allow to end link in certain characters...
-            let lastIncludedCharIndex = linkEndIndex - 1;
-            do {
-                const chCode = line.charCodeAt(lastIncludedCharIndex);
-                const chClass = classifier.get(chCode);
-                if (chClass !== 2 /* CannotEndIn */) {
-                    break;
-                }
-                lastIncludedCharIndex--;
-            } while (lastIncludedCharIndex > linkBeginIndex);
-            // Handle links enclosed in parens, square brackets and curlys.
-            if (linkBeginIndex > 0) {
-                const charCodeBeforeLink = line.charCodeAt(linkBeginIndex - 1);
-                const lastCharCodeInLink = line.charCodeAt(lastIncludedCharIndex);
-                if ((charCodeBeforeLink === 40 /* OpenParen */ && lastCharCodeInLink === 41 /* CloseParen */)
-                    || (charCodeBeforeLink === 91 /* OpenSquareBracket */ && lastCharCodeInLink === 93 /* CloseSquareBracket */)
-                    || (charCodeBeforeLink === 123 /* OpenCurlyBrace */ && lastCharCodeInLink === 125 /* CloseCurlyBrace */)) {
-                    // Do not end in ) if ( is before the link start
-                    // Do not end in ] if [ is before the link start
-                    // Do not end in } if { is before the link start
-                    lastIncludedCharIndex--;
-                }
-            }
-            return {
-                range: {
-                    startLineNumber: lineNumber,
-                    startColumn: linkBeginIndex + 1,
-                    endLineNumber: lineNumber,
-                    endColumn: lastIncludedCharIndex + 2
-                },
-                url: line.substring(linkBeginIndex, lastIncludedCharIndex + 1)
-            };
-        }
-        static computeLinks(model, stateMachine = getStateMachine()) {
-            const classifier = getClassifier();
-            const result = [];
-            for (let i = 1, lineCount = model.getLineCount(); i <= lineCount; i++) {
-                const line = model.getLineContent(i);
-                const len = line.length;
-                let j = 0;
-                let linkBeginIndex = 0;
-                let linkBeginChCode = 0;
-                let state = 1 /* Start */;
-                let hasOpenParens = false;
-                let hasOpenSquareBracket = false;
-                let inSquareBrackets = false;
-                let hasOpenCurlyBracket = false;
-                while (j < len) {
-                    let resetStateMachine = false;
-                    const chCode = line.charCodeAt(j);
-                    if (state === 13 /* Accept */) {
-                        let chClass;
-                        switch (chCode) {
-                            case 40 /* OpenParen */:
-                                hasOpenParens = true;
-                                chClass = 0 /* None */;
-                                break;
-                            case 41 /* CloseParen */:
-                                chClass = (hasOpenParens ? 0 /* None */ : 1 /* ForceTermination */);
-                                break;
-                            case 91 /* OpenSquareBracket */:
-                                inSquareBrackets = true;
-                                hasOpenSquareBracket = true;
-                                chClass = 0 /* None */;
-                                break;
-                            case 93 /* CloseSquareBracket */:
-                                inSquareBrackets = false;
-                                chClass = (hasOpenSquareBracket ? 0 /* None */ : 1 /* ForceTermination */);
-                                break;
-                            case 123 /* OpenCurlyBrace */:
-                                hasOpenCurlyBracket = true;
-                                chClass = 0 /* None */;
-                                break;
-                            case 125 /* CloseCurlyBrace */:
-                                chClass = (hasOpenCurlyBracket ? 0 /* None */ : 1 /* ForceTermination */);
-                                break;
-                            /* The following three rules make it that ' or " or ` are allowed inside links if the link began with a different one */
-                            case 39 /* SingleQuote */:
-                                chClass = (linkBeginChCode === 34 /* DoubleQuote */ || linkBeginChCode === 96 /* BackTick */) ? 0 /* None */ : 1 /* ForceTermination */;
-                                break;
-                            case 34 /* DoubleQuote */:
-                                chClass = (linkBeginChCode === 39 /* SingleQuote */ || linkBeginChCode === 96 /* BackTick */) ? 0 /* None */ : 1 /* ForceTermination */;
-                                break;
-                            case 96 /* BackTick */:
-                                chClass = (linkBeginChCode === 39 /* SingleQuote */ || linkBeginChCode === 34 /* DoubleQuote */) ? 0 /* None */ : 1 /* ForceTermination */;
-                                break;
-                            case 42 /* Asterisk */:
-                                // `*` terminates a link if the link began with `*`
-                                chClass = (linkBeginChCode === 42 /* Asterisk */) ? 1 /* ForceTermination */ : 0 /* None */;
-                                break;
-                            case 124 /* Pipe */:
-                                // `|` terminates a link if the link began with `|`
-                                chClass = (linkBeginChCode === 124 /* Pipe */) ? 1 /* ForceTermination */ : 0 /* None */;
-                                break;
-                            case 32 /* Space */:
-                                // ` ` allow space in between [ and ]
-                                chClass = (inSquareBrackets ? 0 /* None */ : 1 /* ForceTermination */);
-                                break;
-                            default:
-                                chClass = classifier.get(chCode);
-                        }
-                        // Check if character terminates link
-                        if (chClass === 1 /* ForceTermination */) {
-                            result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, j));
-                            resetStateMachine = true;
-                        }
-                    }
-                    else if (state === 12 /* End */) {
-                        let chClass;
-                        if (chCode === 91 /* OpenSquareBracket */) {
-                            // Allow for the authority part to contain ipv6 addresses which contain [ and ]
-                            hasOpenSquareBracket = true;
-                            chClass = 0 /* None */;
-                        }
-                        else {
-                            chClass = classifier.get(chCode);
-                        }
-                        // Check if character terminates link
-                        if (chClass === 1 /* ForceTermination */) {
-                            resetStateMachine = true;
-                        }
-                        else {
-                            state = 13 /* Accept */;
-                        }
-                    }
-                    else {
-                        state = stateMachine.nextState(state, chCode);
-                        if (state === 0 /* Invalid */) {
-                            resetStateMachine = true;
-                        }
-                    }
-                    if (resetStateMachine) {
-                        state = 1 /* Start */;
-                        hasOpenParens = false;
-                        hasOpenSquareBracket = false;
-                        hasOpenCurlyBracket = false;
-                        // Record where the link started
-                        linkBeginIndex = j + 1;
-                        linkBeginChCode = chCode;
-                    }
-                    j++;
-                }
-                if (state === 13 /* Accept */) {
-                    result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, len));
-                }
-            }
-            return result;
-        }
-    }
-    exports.LinkComputer = LinkComputer;
-    /**
-     * Returns an array of all links contains in the provided
-     * document. *Note* that this operation is computational
-     * expensive and should not run in the UI thread.
-     */
-    function computeLinks(model) {
-        if (!model || typeof model.getLineCount !== 'function' || typeof model.getLineContent !== 'function') {
-            // Unknown caller!
-            return [];
-        }
-        return LinkComputer.computeLinks(model);
-    }
-    exports.computeLinks = computeLinks;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[40/*vs/editor/common/languages/supports/inplaceReplaceSupport*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.BasicInplaceReplace = void 0;
-    class BasicInplaceReplace {
-        constructor() {
-            this._defaultValueSet = [
-                ['true', 'false'],
-                ['True', 'False'],
-                ['Private', 'Public', 'Friend', 'ReadOnly', 'Partial', 'Protected', 'WriteOnly'],
-                ['public', 'protected', 'private'],
-            ];
-        }
-        navigateValueSet(range1, text1, range2, text2, up) {
-            if (range1 && text1) {
-                const result = this.doNavigateValueSet(text1, up);
-                if (result) {
-                    return {
-                        range: range1,
-                        value: result
-                    };
-                }
-            }
-            if (range2 && text2) {
-                const result = this.doNavigateValueSet(text2, up);
-                if (result) {
-                    return {
-                        range: range2,
-                        value: result
-                    };
-                }
-            }
-            return null;
-        }
-        doNavigateValueSet(text, up) {
-            const numberResult = this.numberReplace(text, up);
-            if (numberResult !== null) {
-                return numberResult;
-            }
-            return this.textReplace(text, up);
-        }
-        numberReplace(value, up) {
-            const precision = Math.pow(10, value.length - (value.lastIndexOf('.') + 1));
-            let n1 = Number(value);
-            let n2 = parseFloat(value);
-            if (!isNaN(n1) && !isNaN(n2) && n1 === n2) {
-                if (n1 === 0 && !up) {
-                    return null; // don't do negative
-                    //			} else if(n1 === 9 && up) {
-                    //				return null; // don't insert 10 into a number
-                }
-                else {
-                    n1 = Math.floor(n1 * precision);
-                    n1 += up ? precision : -precision;
-                    return String(n1 / precision);
-                }
-            }
-            return null;
-        }
-        textReplace(value, up) {
-            return this.valueSetsReplace(this._defaultValueSet, value, up);
-        }
-        valueSetsReplace(valueSets, value, up) {
-            let result = null;
-            for (let i = 0, len = valueSets.length; result === null && i < len; i++) {
-                result = this.valueSetReplace(valueSets[i], value, up);
-            }
-            return result;
-        }
-        valueSetReplace(valueSet, value, up) {
-            let idx = valueSet.indexOf(value);
-            if (idx >= 0) {
-                idx += up ? +1 : -1;
-                if (idx < 0) {
-                    idx = valueSet.length - 1;
-                }
-                else {
-                    idx %= valueSet.length;
-                }
-                return valueSet[idx];
-            }
-            return null;
-        }
-    }
-    exports.BasicInplaceReplace = BasicInplaceReplace;
-    BasicInplaceReplace.INSTANCE = new BasicInplaceReplace();
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[17/*vs/editor/common/model*/], __M([0/*require*/,1/*exports*/,33/*vs/base/common/objects*/]), function (require, exports, objects_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.shouldSynchronizeModel = exports.ApplyEditsResult = exports.SearchData = exports.ValidAnnotatedEditOperation = exports.FindMatch = exports.TextModelResolvedOptions = exports.InjectedTextCursorStops = exports.MinimapPosition = exports.OverviewRulerLane = void 0;
+    exports.ApplyEditsResult = exports.ValidAnnotatedEditOperation = exports.IndentGuideHorizontalLine = exports.IndentGuide = exports.HorizontalGuidesState = exports.FindMatch = exports.TextModelResolvedOptions = exports.MinimapPosition = exports.OverviewRulerLane = void 0;
     /**
      * Vertical Lane in the overview ruler of the editor.
      */
@@ -14317,13 +10357,6 @@ define(__m[17/*vs/editor/common/model*/], __M([0/*require*/,1/*exports*/,33/*vs/
         MinimapPosition[MinimapPosition["Inline"] = 1] = "Inline";
         MinimapPosition[MinimapPosition["Gutter"] = 2] = "Gutter";
     })(MinimapPosition = exports.MinimapPosition || (exports.MinimapPosition = {}));
-    var InjectedTextCursorStops;
-    (function (InjectedTextCursorStops) {
-        InjectedTextCursorStops[InjectedTextCursorStops["Both"] = 0] = "Both";
-        InjectedTextCursorStops[InjectedTextCursorStops["Right"] = 1] = "Right";
-        InjectedTextCursorStops[InjectedTextCursorStops["Left"] = 2] = "Left";
-        InjectedTextCursorStops[InjectedTextCursorStops["None"] = 3] = "None";
-    })(InjectedTextCursorStops = exports.InjectedTextCursorStops || (exports.InjectedTextCursorStops = {}));
     class TextModelResolvedOptions {
         /**
          * @internal
@@ -14375,6 +10408,41 @@ define(__m[17/*vs/editor/common/model*/], __M([0/*require*/,1/*exports*/,33/*vs/
     /**
      * @internal
      */
+    var HorizontalGuidesState;
+    (function (HorizontalGuidesState) {
+        HorizontalGuidesState[HorizontalGuidesState["Disabled"] = 0] = "Disabled";
+        HorizontalGuidesState[HorizontalGuidesState["EnabledForActive"] = 1] = "EnabledForActive";
+        HorizontalGuidesState[HorizontalGuidesState["Enabled"] = 2] = "Enabled";
+    })(HorizontalGuidesState = exports.HorizontalGuidesState || (exports.HorizontalGuidesState = {}));
+    /**
+     * @internal
+     */
+    class IndentGuide {
+        constructor(visibleColumn, className, 
+        /**
+         * If set, this indent guide is a horizontal guide (no vertical part).
+         * It starts at visibleColumn and continues until endColumn.
+        */
+        horizontalLine) {
+            this.visibleColumn = visibleColumn;
+            this.className = className;
+            this.horizontalLine = horizontalLine;
+        }
+    }
+    exports.IndentGuide = IndentGuide;
+    /**
+     * @internal
+     */
+    class IndentGuideHorizontalLine {
+        constructor(top, endColumn) {
+            this.top = top;
+            this.endColumn = endColumn;
+        }
+    }
+    exports.IndentGuideHorizontalLine = IndentGuideHorizontalLine;
+    /**
+     * @internal
+     */
     class ValidAnnotatedEditOperation {
         constructor(identifier, range, text, forceMoveMarkers, isAutoWhitespaceEdit, _isTracked) {
             this.identifier = identifier;
@@ -14389,17 +10457,6 @@ define(__m[17/*vs/editor/common/model*/], __M([0/*require*/,1/*exports*/,33/*vs/
     /**
      * @internal
      */
-    class SearchData {
-        constructor(regex, wordSeparators, simpleSearch) {
-            this.regex = regex;
-            this.wordSeparators = wordSeparators;
-            this.simpleSearch = simpleSearch;
-        }
-    }
-    exports.SearchData = SearchData;
-    /**
-     * @internal
-     */
     class ApplyEditsResult {
         constructor(reverseEdits, changes, trimAutoWhitespaceLineNumbers) {
             this.reverseEdits = reverseEdits;
@@ -14408,518 +10465,16 @@ define(__m[17/*vs/editor/common/model*/], __M([0/*require*/,1/*exports*/,33/*vs/
         }
     }
     exports.ApplyEditsResult = ApplyEditsResult;
-    /**
-     * @internal
-     */
-    function shouldSynchronizeModel(model) {
-        return (!model.isTooLargeForSyncing() && !model.isForSimpleWidget);
-    }
-    exports.shouldSynchronizeModel = shouldSynchronizeModel;
 });
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[41/*vs/editor/common/languageFeatureRegistry*/], __M([0/*require*/,1/*exports*/,4/*vs/base/common/event*/,7/*vs/base/common/lifecycle*/,17/*vs/editor/common/model*/,38/*vs/editor/common/languageSelector*/]), function (require, exports, event_1, lifecycle_1, model_1, languageSelector_1) {
+define(__m[31/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*exports*/,3/*vs/base/common/strings*/,26/*vs/editor/common/controller/wordCharacterClassifier*/,4/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/,30/*vs/editor/common/model*/]), function (require, exports, strings, wordCharacterClassifier_1, position_1, range_1, model_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.LanguageFeatureRegistry = void 0;
-    function isExclusive(selector) {
-        if (typeof selector === 'string') {
-            return false;
-        }
-        else if (Array.isArray(selector)) {
-            return selector.every(isExclusive);
-        }
-        else {
-            return !!selector.exclusive; // TODO: microsoft/TypeScript#42768
-        }
-    }
-    class LanguageFeatureRegistry {
-        constructor() {
-            this._clock = 0;
-            this._entries = [];
-            this._onDidChange = new event_1.Emitter();
-        }
-        get onDidChange() {
-            return this._onDidChange.event;
-        }
-        register(selector, provider) {
-            let entry = {
-                selector,
-                provider,
-                _score: -1,
-                _time: this._clock++
-            };
-            this._entries.push(entry);
-            this._lastCandidate = undefined;
-            this._onDidChange.fire(this._entries.length);
-            return (0, lifecycle_1.toDisposable)(() => {
-                if (entry) {
-                    const idx = this._entries.indexOf(entry);
-                    if (idx >= 0) {
-                        this._entries.splice(idx, 1);
-                        this._lastCandidate = undefined;
-                        this._onDidChange.fire(this._entries.length);
-                        entry = undefined;
-                    }
-                }
-            });
-        }
-        has(model) {
-            return this.all(model).length > 0;
-        }
-        all(model) {
-            if (!model) {
-                return [];
-            }
-            this._updateScores(model);
-            const result = [];
-            // from registry
-            for (let entry of this._entries) {
-                if (entry._score > 0) {
-                    result.push(entry.provider);
-                }
-            }
-            return result;
-        }
-        ordered(model) {
-            const result = [];
-            this._orderedForEach(model, entry => result.push(entry.provider));
-            return result;
-        }
-        orderedGroups(model) {
-            const result = [];
-            let lastBucket;
-            let lastBucketScore;
-            this._orderedForEach(model, entry => {
-                if (lastBucket && lastBucketScore === entry._score) {
-                    lastBucket.push(entry.provider);
-                }
-                else {
-                    lastBucketScore = entry._score;
-                    lastBucket = [entry.provider];
-                    result.push(lastBucket);
-                }
-            });
-            return result;
-        }
-        _orderedForEach(model, callback) {
-            if (!model) {
-                return;
-            }
-            this._updateScores(model);
-            for (const entry of this._entries) {
-                if (entry._score > 0) {
-                    callback(entry);
-                }
-            }
-        }
-        _updateScores(model) {
-            const candidate = {
-                uri: model.uri.toString(),
-                language: model.getLanguageId()
-            };
-            if (this._lastCandidate
-                && this._lastCandidate.language === candidate.language
-                && this._lastCandidate.uri === candidate.uri) {
-                // nothing has changed
-                return;
-            }
-            this._lastCandidate = candidate;
-            for (let entry of this._entries) {
-                entry._score = (0, languageSelector_1.score)(entry.selector, model.uri, model.getLanguageId(), (0, model_1.shouldSynchronizeModel)(model));
-                if (isExclusive(entry.selector) && entry._score > 0) {
-                    // support for one exclusive selector that overwrites
-                    // any other selector
-                    for (let entry of this._entries) {
-                        entry._score = 0;
-                    }
-                    entry._score = 1000;
-                    break;
-                }
-            }
-            // needs sorting
-            this._entries.sort(LanguageFeatureRegistry._compareByScoreAndTime);
-        }
-        static _compareByScoreAndTime(a, b) {
-            if (a._score < b._score) {
-                return 1;
-            }
-            else if (a._score > b._score) {
-                return -1;
-            }
-            else if (a._time < b._time) {
-                return 1;
-            }
-            else if (a._time > b._time) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
-        }
-    }
-    exports.LanguageFeatureRegistry = LanguageFeatureRegistry;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[42/*vs/editor/common/model/prefixSumComputer*/], __M([0/*require*/,1/*exports*/,18/*vs/base/common/arrays*/,15/*vs/base/common/uint*/]), function (require, exports, arrays_1, uint_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.PrefixSumIndexOfResult = exports.ConstantTimePrefixSumComputer = exports.PrefixSumComputer = void 0;
-    class PrefixSumComputer {
-        constructor(values) {
-            this.values = values;
-            this.prefixSum = new Uint32Array(values.length);
-            this.prefixSumValidIndex = new Int32Array(1);
-            this.prefixSumValidIndex[0] = -1;
-        }
-        insertValues(insertIndex, insertValues) {
-            insertIndex = (0, uint_1.toUint32)(insertIndex);
-            const oldValues = this.values;
-            const oldPrefixSum = this.prefixSum;
-            const insertValuesLen = insertValues.length;
-            if (insertValuesLen === 0) {
-                return false;
-            }
-            this.values = new Uint32Array(oldValues.length + insertValuesLen);
-            this.values.set(oldValues.subarray(0, insertIndex), 0);
-            this.values.set(oldValues.subarray(insertIndex), insertIndex + insertValuesLen);
-            this.values.set(insertValues, insertIndex);
-            if (insertIndex - 1 < this.prefixSumValidIndex[0]) {
-                this.prefixSumValidIndex[0] = insertIndex - 1;
-            }
-            this.prefixSum = new Uint32Array(this.values.length);
-            if (this.prefixSumValidIndex[0] >= 0) {
-                this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
-            }
-            return true;
-        }
-        setValue(index, value) {
-            index = (0, uint_1.toUint32)(index);
-            value = (0, uint_1.toUint32)(value);
-            if (this.values[index] === value) {
-                return false;
-            }
-            this.values[index] = value;
-            if (index - 1 < this.prefixSumValidIndex[0]) {
-                this.prefixSumValidIndex[0] = index - 1;
-            }
-            return true;
-        }
-        removeValues(startIndex, count) {
-            startIndex = (0, uint_1.toUint32)(startIndex);
-            count = (0, uint_1.toUint32)(count);
-            const oldValues = this.values;
-            const oldPrefixSum = this.prefixSum;
-            if (startIndex >= oldValues.length) {
-                return false;
-            }
-            const maxCount = oldValues.length - startIndex;
-            if (count >= maxCount) {
-                count = maxCount;
-            }
-            if (count === 0) {
-                return false;
-            }
-            this.values = new Uint32Array(oldValues.length - count);
-            this.values.set(oldValues.subarray(0, startIndex), 0);
-            this.values.set(oldValues.subarray(startIndex + count), startIndex);
-            this.prefixSum = new Uint32Array(this.values.length);
-            if (startIndex - 1 < this.prefixSumValidIndex[0]) {
-                this.prefixSumValidIndex[0] = startIndex - 1;
-            }
-            if (this.prefixSumValidIndex[0] >= 0) {
-                this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
-            }
-            return true;
-        }
-        getTotalSum() {
-            if (this.values.length === 0) {
-                return 0;
-            }
-            return this._getPrefixSum(this.values.length - 1);
-        }
-        /**
-         * Returns the sum of the first `index + 1` many items.
-         * @returns `SUM(0 <= j <= index, values[j])`.
-         */
-        getPrefixSum(index) {
-            if (index < 0) {
-                return 0;
-            }
-            index = (0, uint_1.toUint32)(index);
-            return this._getPrefixSum(index);
-        }
-        _getPrefixSum(index) {
-            if (index <= this.prefixSumValidIndex[0]) {
-                return this.prefixSum[index];
-            }
-            let startIndex = this.prefixSumValidIndex[0] + 1;
-            if (startIndex === 0) {
-                this.prefixSum[0] = this.values[0];
-                startIndex++;
-            }
-            if (index >= this.values.length) {
-                index = this.values.length - 1;
-            }
-            for (let i = startIndex; i <= index; i++) {
-                this.prefixSum[i] = this.prefixSum[i - 1] + this.values[i];
-            }
-            this.prefixSumValidIndex[0] = Math.max(this.prefixSumValidIndex[0], index);
-            return this.prefixSum[index];
-        }
-        getIndexOf(sum) {
-            sum = Math.floor(sum);
-            // Compute all sums (to get a fully valid prefixSum)
-            this.getTotalSum();
-            let low = 0;
-            let high = this.values.length - 1;
-            let mid = 0;
-            let midStop = 0;
-            let midStart = 0;
-            while (low <= high) {
-                mid = low + ((high - low) / 2) | 0;
-                midStop = this.prefixSum[mid];
-                midStart = midStop - this.values[mid];
-                if (sum < midStart) {
-                    high = mid - 1;
-                }
-                else if (sum >= midStop) {
-                    low = mid + 1;
-                }
-                else {
-                    break;
-                }
-            }
-            return new PrefixSumIndexOfResult(mid, sum - midStart);
-        }
-    }
-    exports.PrefixSumComputer = PrefixSumComputer;
-    /**
-     * {@link getIndexOf} has an amortized runtime complexity of O(1).
-     *
-     * ({@link PrefixSumComputer.getIndexOf} is just  O(log n))
-    */
-    class ConstantTimePrefixSumComputer {
-        constructor(values) {
-            this._values = values;
-            this._isValid = false;
-            this._validEndIndex = -1;
-            this._prefixSum = [];
-            this._indexBySum = [];
-        }
-        /**
-         * @returns SUM(0 <= j < values.length, values[j])
-         */
-        getTotalSum() {
-            this._ensureValid();
-            return this._indexBySum.length;
-        }
-        /**
-         * Returns the sum of the first `count` many items.
-         * @returns `SUM(0 <= j < count, values[j])`.
-         */
-        getPrefixSum(count) {
-            this._ensureValid();
-            if (count === 0) {
-                return 0;
-            }
-            return this._prefixSum[count - 1];
-        }
-        /**
-         * @returns `result`, such that `getPrefixSum(result.index) + result.remainder = sum`
-         */
-        getIndexOf(sum) {
-            this._ensureValid();
-            const idx = this._indexBySum[sum];
-            const viewLinesAbove = idx > 0 ? this._prefixSum[idx - 1] : 0;
-            return new PrefixSumIndexOfResult(idx, sum - viewLinesAbove);
-        }
-        removeValues(start, deleteCount) {
-            this._values.splice(start, deleteCount);
-            this._invalidate(start);
-        }
-        insertValues(insertIndex, insertArr) {
-            this._values = (0, arrays_1.arrayInsert)(this._values, insertIndex, insertArr);
-            this._invalidate(insertIndex);
-        }
-        _invalidate(index) {
-            this._isValid = false;
-            this._validEndIndex = Math.min(this._validEndIndex, index - 1);
-        }
-        _ensureValid() {
-            if (this._isValid) {
-                return;
-            }
-            for (let i = this._validEndIndex + 1, len = this._values.length; i < len; i++) {
-                const value = this._values[i];
-                const sumAbove = i > 0 ? this._prefixSum[i - 1] : 0;
-                this._prefixSum[i] = sumAbove + value;
-                for (let j = 0; j < value; j++) {
-                    this._indexBySum[sumAbove + j] = i;
-                }
-            }
-            // trim things
-            this._prefixSum.length = this._values.length;
-            this._indexBySum.length = this._prefixSum[this._prefixSum.length - 1];
-            // mark as valid
-            this._isValid = true;
-            this._validEndIndex = this._values.length - 1;
-        }
-        setValue(index, value) {
-            if (this._values[index] === value) {
-                // no change
-                return;
-            }
-            this._values[index] = value;
-            this._invalidate(index);
-        }
-    }
-    exports.ConstantTimePrefixSumComputer = ConstantTimePrefixSumComputer;
-    class PrefixSumIndexOfResult {
-        constructor(index, remainder) {
-            this.index = index;
-            this.remainder = remainder;
-            this._prefixSumIndexOfResultBrand = undefined;
-            this.index = index;
-            this.remainder = remainder;
-        }
-    }
-    exports.PrefixSumIndexOfResult = PrefixSumIndexOfResult;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[43/*vs/editor/common/model/mirrorTextModel*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/strings*/,5/*vs/editor/common/core/position*/,42/*vs/editor/common/model/prefixSumComputer*/]), function (require, exports, strings_1, position_1, prefixSumComputer_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.MirrorTextModel = void 0;
-    class MirrorTextModel {
-        constructor(uri, lines, eol, versionId) {
-            this._uri = uri;
-            this._lines = lines;
-            this._eol = eol;
-            this._versionId = versionId;
-            this._lineStarts = null;
-            this._cachedTextValue = null;
-        }
-        dispose() {
-            this._lines.length = 0;
-        }
-        get version() {
-            return this._versionId;
-        }
-        getText() {
-            if (this._cachedTextValue === null) {
-                this._cachedTextValue = this._lines.join(this._eol);
-            }
-            return this._cachedTextValue;
-        }
-        onEvents(e) {
-            if (e.eol && e.eol !== this._eol) {
-                this._eol = e.eol;
-                this._lineStarts = null;
-            }
-            // Update my lines
-            const changes = e.changes;
-            for (const change of changes) {
-                this._acceptDeleteRange(change.range);
-                this._acceptInsertText(new position_1.Position(change.range.startLineNumber, change.range.startColumn), change.text);
-            }
-            this._versionId = e.versionId;
-            this._cachedTextValue = null;
-        }
-        _ensureLineStarts() {
-            if (!this._lineStarts) {
-                const eolLength = this._eol.length;
-                const linesLength = this._lines.length;
-                const lineStartValues = new Uint32Array(linesLength);
-                for (let i = 0; i < linesLength; i++) {
-                    lineStartValues[i] = this._lines[i].length + eolLength;
-                }
-                this._lineStarts = new prefixSumComputer_1.PrefixSumComputer(lineStartValues);
-            }
-        }
-        /**
-         * All changes to a line's text go through this method
-         */
-        _setLineText(lineIndex, newValue) {
-            this._lines[lineIndex] = newValue;
-            if (this._lineStarts) {
-                // update prefix sum
-                this._lineStarts.setValue(lineIndex, this._lines[lineIndex].length + this._eol.length);
-            }
-        }
-        _acceptDeleteRange(range) {
-            if (range.startLineNumber === range.endLineNumber) {
-                if (range.startColumn === range.endColumn) {
-                    // Nothing to delete
-                    return;
-                }
-                // Delete text on the affected line
-                this._setLineText(range.startLineNumber - 1, this._lines[range.startLineNumber - 1].substring(0, range.startColumn - 1)
-                    + this._lines[range.startLineNumber - 1].substring(range.endColumn - 1));
-                return;
-            }
-            // Take remaining text on last line and append it to remaining text on first line
-            this._setLineText(range.startLineNumber - 1, this._lines[range.startLineNumber - 1].substring(0, range.startColumn - 1)
-                + this._lines[range.endLineNumber - 1].substring(range.endColumn - 1));
-            // Delete middle lines
-            this._lines.splice(range.startLineNumber, range.endLineNumber - range.startLineNumber);
-            if (this._lineStarts) {
-                // update prefix sum
-                this._lineStarts.removeValues(range.startLineNumber, range.endLineNumber - range.startLineNumber);
-            }
-        }
-        _acceptInsertText(position, insertText) {
-            if (insertText.length === 0) {
-                // Nothing to insert
-                return;
-            }
-            const insertLines = (0, strings_1.splitLines)(insertText);
-            if (insertLines.length === 1) {
-                // Inserting text on one line
-                this._setLineText(position.lineNumber - 1, this._lines[position.lineNumber - 1].substring(0, position.column - 1)
-                    + insertLines[0]
-                    + this._lines[position.lineNumber - 1].substring(position.column - 1));
-                return;
-            }
-            // Append overflowing text from first line to the end of text to insert
-            insertLines[insertLines.length - 1] += this._lines[position.lineNumber - 1].substring(position.column - 1);
-            // Delete overflowing text from first line and insert text on first line
-            this._setLineText(position.lineNumber - 1, this._lines[position.lineNumber - 1].substring(0, position.column - 1)
-                + insertLines[0]);
-            // Insert new lines & store lengths
-            const newLengths = new Uint32Array(insertLines.length - 1);
-            for (let i = 1; i < insertLines.length; i++) {
-                this._lines.splice(position.lineNumber + i - 1, 0, insertLines[i]);
-                newLengths[i - 1] = insertLines[i].length + this._eol.length;
-            }
-            if (this._lineStarts) {
-                // update prefix sum
-                this._lineStarts.insertValues(position.lineNumber, newLengths);
-            }
-        }
-    }
-    exports.MirrorTextModel = MirrorTextModel;
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[44/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*exports*/,2/*vs/base/common/strings*/,35/*vs/editor/common/core/wordCharacterClassifier*/,5/*vs/editor/common/core/position*/,6/*vs/editor/common/core/range*/,17/*vs/editor/common/model*/]), function (require, exports, strings, wordCharacterClassifier_1, position_1, range_1, model_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Searcher = exports.isValidMatch = exports.TextModelSearch = exports.createFindMatch = exports.isMultilineRegexSource = exports.SearchParams = void 0;
+    exports.Searcher = exports.isValidMatch = exports.TextModelSearch = exports.createFindMatch = exports.SearchData = exports.isMultilineRegexSource = exports.SearchParams = void 0;
     const LIMIT_FIND_COUNT = 999;
     class SearchParams {
         constructor(searchString, isRegex, matchCase, wordSeparators) {
@@ -14961,7 +10516,7 @@ define(__m[44/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*e
                 // casing might make a difference
                 canUseSimpleSearch = this.matchCase;
             }
-            return new model_1.SearchData(regex, this.wordSeparators ? (0, wordCharacterClassifier_1.getMapForWordSeparators)(this.wordSeparators) : null, canUseSimpleSearch ? this.searchString : null);
+            return new SearchData(regex, this.wordSeparators ? (0, wordCharacterClassifier_1.getMapForWordSeparators)(this.wordSeparators) : null, canUseSimpleSearch ? this.searchString : null);
         }
     }
     exports.SearchParams = SearchParams;
@@ -14987,11 +10542,19 @@ define(__m[44/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*e
         return false;
     }
     exports.isMultilineRegexSource = isMultilineRegexSource;
+    class SearchData {
+        constructor(regex, wordSeparators, simpleSearch) {
+            this.regex = regex;
+            this.wordSeparators = wordSeparators;
+            this.simpleSearch = simpleSearch;
+        }
+    }
+    exports.SearchData = SearchData;
     function createFindMatch(range, rawMatches, captureMatches) {
         if (!captureMatches) {
             return new model_1.FindMatch(range, null);
         }
-        const matches = [];
+        let matches = [];
         for (let i = 0, len = rawMatches.length; i < len; i++) {
             matches[i] = rawMatches[i];
         }
@@ -15000,7 +10563,7 @@ define(__m[44/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*e
     exports.createFindMatch = createFindMatch;
     class LineFeedCounter {
         constructor(text) {
-            const lineFeedsOffsets = [];
+            let lineFeedsOffsets = [];
             let lineFeedsOffsetsLen = 0;
             for (let i = 0, textLen = text.length; i < textLen; i++) {
                 if (text.charCodeAt(i) === 10 /* LineFeed */) {
@@ -15067,8 +10630,8 @@ define(__m[44/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*e
             }
             let endOffset;
             if (lfCounter) {
-                const lineFeedCountBeforeEndOfMatch = lfCounter.findLineFeedCountBeforeOffset(matchIndex + match0.length);
-                const lineFeedCountInMatch = lineFeedCountBeforeEndOfMatch - lineFeedCountBeforeMatch;
+                let lineFeedCountBeforeEndOfMatch = lfCounter.findLineFeedCountBeforeOffset(matchIndex + match0.length);
+                let lineFeedCountInMatch = lineFeedCountBeforeEndOfMatch - lineFeedCountBeforeMatch;
                 endOffset = startOffset + match0.length + lineFeedCountInMatch /* add as many \r as there were \n */;
             }
             else {
@@ -15372,7 +10935,497 @@ define(__m[44/*vs/editor/common/model/textModelSearch*/], __M([0/*require*/,1/*e
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[45/*vs/editor/common/languages/unicodeTextModelHighlighter*/], __M([0/*require*/,1/*exports*/,6/*vs/editor/common/core/range*/,44/*vs/editor/common/model/textModelSearch*/,2/*vs/base/common/strings*/,9/*vs/base/common/types*/]), function (require, exports, range_1, textModelSearch_1, strings, types_1) {
+define(__m[32/*vs/editor/common/model/wordHelper*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getWordAtText = exports.ensureValidWordDefinition = exports.DEFAULT_WORD_REGEXP = exports.USUAL_WORD_SEPARATORS = void 0;
+    exports.USUAL_WORD_SEPARATORS = '`~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?';
+    /**
+     * Create a word definition regular expression based on default word separators.
+     * Optionally provide allowed separators that should be included in words.
+     *
+     * The default would look like this:
+     * /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g
+     */
+    function createWordRegExp(allowInWords = '') {
+        let source = '(-?\\d*\\.\\d\\w*)|([^';
+        for (const sep of exports.USUAL_WORD_SEPARATORS) {
+            if (allowInWords.indexOf(sep) >= 0) {
+                continue;
+            }
+            source += '\\' + sep;
+        }
+        source += '\\s]+)';
+        return new RegExp(source, 'g');
+    }
+    // catches numbers (including floating numbers) in the first group, and alphanum in the second
+    exports.DEFAULT_WORD_REGEXP = createWordRegExp();
+    function ensureValidWordDefinition(wordDefinition) {
+        let result = exports.DEFAULT_WORD_REGEXP;
+        if (wordDefinition && (wordDefinition instanceof RegExp)) {
+            if (!wordDefinition.global) {
+                let flags = 'g';
+                if (wordDefinition.ignoreCase) {
+                    flags += 'i';
+                }
+                if (wordDefinition.multiline) {
+                    flags += 'm';
+                }
+                if (wordDefinition.unicode) {
+                    flags += 'u';
+                }
+                result = new RegExp(wordDefinition.source, flags);
+            }
+            else {
+                result = wordDefinition;
+            }
+        }
+        result.lastIndex = 0;
+        return result;
+    }
+    exports.ensureValidWordDefinition = ensureValidWordDefinition;
+    const _defaultConfig = {
+        maxLen: 1000,
+        windowSize: 15,
+        timeBudget: 150
+    };
+    function getWordAtText(column, wordDefinition, text, textOffset, config = _defaultConfig) {
+        if (text.length > config.maxLen) {
+            // don't throw strings that long at the regexp
+            // but use a sub-string in which a word must occur
+            let start = column - config.maxLen / 2;
+            if (start < 0) {
+                start = 0;
+            }
+            else {
+                textOffset += start;
+            }
+            text = text.substring(start, column + config.maxLen / 2);
+            return getWordAtText(column, wordDefinition, text, textOffset, config);
+        }
+        const t1 = Date.now();
+        const pos = column - 1 - textOffset;
+        let prevRegexIndex = -1;
+        let match = null;
+        for (let i = 1;; i++) {
+            // check time budget
+            if (Date.now() - t1 >= config.timeBudget) {
+                break;
+            }
+            // reset the index at which the regexp should start matching, also know where it
+            // should stop so that subsequent search don't repeat previous searches
+            const regexIndex = pos - config.windowSize * i;
+            wordDefinition.lastIndex = Math.max(0, regexIndex);
+            const thisMatch = _findRegexMatchEnclosingPosition(wordDefinition, text, pos, prevRegexIndex);
+            if (!thisMatch && match) {
+                // stop: we have something
+                break;
+            }
+            match = thisMatch;
+            // stop: searched at start
+            if (regexIndex <= 0) {
+                break;
+            }
+            prevRegexIndex = regexIndex;
+        }
+        if (match) {
+            let result = {
+                word: match[0],
+                startColumn: textOffset + 1 + match.index,
+                endColumn: textOffset + 1 + match.index + match[0].length
+            };
+            wordDefinition.lastIndex = 0;
+            return result;
+        }
+        return null;
+    }
+    exports.getWordAtText = getWordAtText;
+    function _findRegexMatchEnclosingPosition(wordDefinition, text, pos, stopPos) {
+        let match;
+        while (match = wordDefinition.exec(text)) {
+            const matchIndex = match.index || 0;
+            if (matchIndex <= pos && wordDefinition.lastIndex >= pos) {
+                return match;
+            }
+            else if (stopPos > 0 && matchIndex > stopPos) {
+                return null;
+            }
+        }
+        return null;
+    }
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[33/*vs/editor/common/modes/linkComputer*/], __M([0/*require*/,1/*exports*/,14/*vs/editor/common/core/characterClassifier*/]), function (require, exports, characterClassifier_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.computeLinks = exports.LinkComputer = exports.StateMachine = exports.Uint8Matrix = void 0;
+    class Uint8Matrix {
+        constructor(rows, cols, defaultValue) {
+            const data = new Uint8Array(rows * cols);
+            for (let i = 0, len = rows * cols; i < len; i++) {
+                data[i] = defaultValue;
+            }
+            this._data = data;
+            this.rows = rows;
+            this.cols = cols;
+        }
+        get(row, col) {
+            return this._data[row * this.cols + col];
+        }
+        set(row, col, value) {
+            this._data[row * this.cols + col] = value;
+        }
+    }
+    exports.Uint8Matrix = Uint8Matrix;
+    class StateMachine {
+        constructor(edges) {
+            let maxCharCode = 0;
+            let maxState = 0 /* Invalid */;
+            for (let i = 0, len = edges.length; i < len; i++) {
+                let [from, chCode, to] = edges[i];
+                if (chCode > maxCharCode) {
+                    maxCharCode = chCode;
+                }
+                if (from > maxState) {
+                    maxState = from;
+                }
+                if (to > maxState) {
+                    maxState = to;
+                }
+            }
+            maxCharCode++;
+            maxState++;
+            let states = new Uint8Matrix(maxState, maxCharCode, 0 /* Invalid */);
+            for (let i = 0, len = edges.length; i < len; i++) {
+                let [from, chCode, to] = edges[i];
+                states.set(from, chCode, to);
+            }
+            this._states = states;
+            this._maxCharCode = maxCharCode;
+        }
+        nextState(currentState, chCode) {
+            if (chCode < 0 || chCode >= this._maxCharCode) {
+                return 0 /* Invalid */;
+            }
+            return this._states.get(currentState, chCode);
+        }
+    }
+    exports.StateMachine = StateMachine;
+    // State machine for http:// or https:// or file://
+    let _stateMachine = null;
+    function getStateMachine() {
+        if (_stateMachine === null) {
+            _stateMachine = new StateMachine([
+                [1 /* Start */, 104 /* h */, 2 /* H */],
+                [1 /* Start */, 72 /* H */, 2 /* H */],
+                [1 /* Start */, 102 /* f */, 6 /* F */],
+                [1 /* Start */, 70 /* F */, 6 /* F */],
+                [2 /* H */, 116 /* t */, 3 /* HT */],
+                [2 /* H */, 84 /* T */, 3 /* HT */],
+                [3 /* HT */, 116 /* t */, 4 /* HTT */],
+                [3 /* HT */, 84 /* T */, 4 /* HTT */],
+                [4 /* HTT */, 112 /* p */, 5 /* HTTP */],
+                [4 /* HTT */, 80 /* P */, 5 /* HTTP */],
+                [5 /* HTTP */, 115 /* s */, 9 /* BeforeColon */],
+                [5 /* HTTP */, 83 /* S */, 9 /* BeforeColon */],
+                [5 /* HTTP */, 58 /* Colon */, 10 /* AfterColon */],
+                [6 /* F */, 105 /* i */, 7 /* FI */],
+                [6 /* F */, 73 /* I */, 7 /* FI */],
+                [7 /* FI */, 108 /* l */, 8 /* FIL */],
+                [7 /* FI */, 76 /* L */, 8 /* FIL */],
+                [8 /* FIL */, 101 /* e */, 9 /* BeforeColon */],
+                [8 /* FIL */, 69 /* E */, 9 /* BeforeColon */],
+                [9 /* BeforeColon */, 58 /* Colon */, 10 /* AfterColon */],
+                [10 /* AfterColon */, 47 /* Slash */, 11 /* AlmostThere */],
+                [11 /* AlmostThere */, 47 /* Slash */, 12 /* End */],
+            ]);
+        }
+        return _stateMachine;
+    }
+    let _classifier = null;
+    function getClassifier() {
+        if (_classifier === null) {
+            _classifier = new characterClassifier_1.CharacterClassifier(0 /* None */);
+            // allow-any-unicode-next-line
+            const FORCE_TERMINATION_CHARACTERS = ' \t<>\'\"、。｡､，．：；‘〈「『〔（［｛｢｣｝］）〕』」〉’｀～…';
+            for (let i = 0; i < FORCE_TERMINATION_CHARACTERS.length; i++) {
+                _classifier.set(FORCE_TERMINATION_CHARACTERS.charCodeAt(i), 1 /* ForceTermination */);
+            }
+            const CANNOT_END_WITH_CHARACTERS = '.,;';
+            for (let i = 0; i < CANNOT_END_WITH_CHARACTERS.length; i++) {
+                _classifier.set(CANNOT_END_WITH_CHARACTERS.charCodeAt(i), 2 /* CannotEndIn */);
+            }
+        }
+        return _classifier;
+    }
+    class LinkComputer {
+        static _createLink(classifier, line, lineNumber, linkBeginIndex, linkEndIndex) {
+            // Do not allow to end link in certain characters...
+            let lastIncludedCharIndex = linkEndIndex - 1;
+            do {
+                const chCode = line.charCodeAt(lastIncludedCharIndex);
+                const chClass = classifier.get(chCode);
+                if (chClass !== 2 /* CannotEndIn */) {
+                    break;
+                }
+                lastIncludedCharIndex--;
+            } while (lastIncludedCharIndex > linkBeginIndex);
+            // Handle links enclosed in parens, square brackets and curlys.
+            if (linkBeginIndex > 0) {
+                const charCodeBeforeLink = line.charCodeAt(linkBeginIndex - 1);
+                const lastCharCodeInLink = line.charCodeAt(lastIncludedCharIndex);
+                if ((charCodeBeforeLink === 40 /* OpenParen */ && lastCharCodeInLink === 41 /* CloseParen */)
+                    || (charCodeBeforeLink === 91 /* OpenSquareBracket */ && lastCharCodeInLink === 93 /* CloseSquareBracket */)
+                    || (charCodeBeforeLink === 123 /* OpenCurlyBrace */ && lastCharCodeInLink === 125 /* CloseCurlyBrace */)) {
+                    // Do not end in ) if ( is before the link start
+                    // Do not end in ] if [ is before the link start
+                    // Do not end in } if { is before the link start
+                    lastIncludedCharIndex--;
+                }
+            }
+            return {
+                range: {
+                    startLineNumber: lineNumber,
+                    startColumn: linkBeginIndex + 1,
+                    endLineNumber: lineNumber,
+                    endColumn: lastIncludedCharIndex + 2
+                },
+                url: line.substring(linkBeginIndex, lastIncludedCharIndex + 1)
+            };
+        }
+        static computeLinks(model, stateMachine = getStateMachine()) {
+            const classifier = getClassifier();
+            let result = [];
+            for (let i = 1, lineCount = model.getLineCount(); i <= lineCount; i++) {
+                const line = model.getLineContent(i);
+                const len = line.length;
+                let j = 0;
+                let linkBeginIndex = 0;
+                let linkBeginChCode = 0;
+                let state = 1 /* Start */;
+                let hasOpenParens = false;
+                let hasOpenSquareBracket = false;
+                let inSquareBrackets = false;
+                let hasOpenCurlyBracket = false;
+                while (j < len) {
+                    let resetStateMachine = false;
+                    const chCode = line.charCodeAt(j);
+                    if (state === 13 /* Accept */) {
+                        let chClass;
+                        switch (chCode) {
+                            case 40 /* OpenParen */:
+                                hasOpenParens = true;
+                                chClass = 0 /* None */;
+                                break;
+                            case 41 /* CloseParen */:
+                                chClass = (hasOpenParens ? 0 /* None */ : 1 /* ForceTermination */);
+                                break;
+                            case 91 /* OpenSquareBracket */:
+                                inSquareBrackets = true;
+                                hasOpenSquareBracket = true;
+                                chClass = 0 /* None */;
+                                break;
+                            case 93 /* CloseSquareBracket */:
+                                inSquareBrackets = false;
+                                chClass = (hasOpenSquareBracket ? 0 /* None */ : 1 /* ForceTermination */);
+                                break;
+                            case 123 /* OpenCurlyBrace */:
+                                hasOpenCurlyBracket = true;
+                                chClass = 0 /* None */;
+                                break;
+                            case 125 /* CloseCurlyBrace */:
+                                chClass = (hasOpenCurlyBracket ? 0 /* None */ : 1 /* ForceTermination */);
+                                break;
+                            /* The following three rules make it that ' or " or ` are allowed inside links if the link began with a different one */
+                            case 39 /* SingleQuote */:
+                                chClass = (linkBeginChCode === 34 /* DoubleQuote */ || linkBeginChCode === 96 /* BackTick */) ? 0 /* None */ : 1 /* ForceTermination */;
+                                break;
+                            case 34 /* DoubleQuote */:
+                                chClass = (linkBeginChCode === 39 /* SingleQuote */ || linkBeginChCode === 96 /* BackTick */) ? 0 /* None */ : 1 /* ForceTermination */;
+                                break;
+                            case 96 /* BackTick */:
+                                chClass = (linkBeginChCode === 39 /* SingleQuote */ || linkBeginChCode === 34 /* DoubleQuote */) ? 0 /* None */ : 1 /* ForceTermination */;
+                                break;
+                            case 42 /* Asterisk */:
+                                // `*` terminates a link if the link began with `*`
+                                chClass = (linkBeginChCode === 42 /* Asterisk */) ? 1 /* ForceTermination */ : 0 /* None */;
+                                break;
+                            case 124 /* Pipe */:
+                                // `|` terminates a link if the link began with `|`
+                                chClass = (linkBeginChCode === 124 /* Pipe */) ? 1 /* ForceTermination */ : 0 /* None */;
+                                break;
+                            case 32 /* Space */:
+                                // ` ` allow space in between [ and ]
+                                chClass = (inSquareBrackets ? 0 /* None */ : 1 /* ForceTermination */);
+                                break;
+                            default:
+                                chClass = classifier.get(chCode);
+                        }
+                        // Check if character terminates link
+                        if (chClass === 1 /* ForceTermination */) {
+                            result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, j));
+                            resetStateMachine = true;
+                        }
+                    }
+                    else if (state === 12 /* End */) {
+                        let chClass;
+                        if (chCode === 91 /* OpenSquareBracket */) {
+                            // Allow for the authority part to contain ipv6 addresses which contain [ and ]
+                            hasOpenSquareBracket = true;
+                            chClass = 0 /* None */;
+                        }
+                        else {
+                            chClass = classifier.get(chCode);
+                        }
+                        // Check if character terminates link
+                        if (chClass === 1 /* ForceTermination */) {
+                            resetStateMachine = true;
+                        }
+                        else {
+                            state = 13 /* Accept */;
+                        }
+                    }
+                    else {
+                        state = stateMachine.nextState(state, chCode);
+                        if (state === 0 /* Invalid */) {
+                            resetStateMachine = true;
+                        }
+                    }
+                    if (resetStateMachine) {
+                        state = 1 /* Start */;
+                        hasOpenParens = false;
+                        hasOpenSquareBracket = false;
+                        hasOpenCurlyBracket = false;
+                        // Record where the link started
+                        linkBeginIndex = j + 1;
+                        linkBeginChCode = chCode;
+                    }
+                    j++;
+                }
+                if (state === 13 /* Accept */) {
+                    result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, len));
+                }
+            }
+            return result;
+        }
+    }
+    exports.LinkComputer = LinkComputer;
+    /**
+     * Returns an array of all links contains in the provided
+     * document. *Note* that this operation is computational
+     * expensive and should not run in the UI thread.
+     */
+    function computeLinks(model) {
+        if (!model || typeof model.getLineCount !== 'function' || typeof model.getLineContent !== 'function') {
+            // Unknown caller!
+            return [];
+        }
+        return LinkComputer.computeLinks(model);
+    }
+    exports.computeLinks = computeLinks;
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[34/*vs/editor/common/modes/supports/inplaceReplaceSupport*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.BasicInplaceReplace = void 0;
+    class BasicInplaceReplace {
+        constructor() {
+            this._defaultValueSet = [
+                ['true', 'false'],
+                ['True', 'False'],
+                ['Private', 'Public', 'Friend', 'ReadOnly', 'Partial', 'Protected', 'WriteOnly'],
+                ['public', 'protected', 'private'],
+            ];
+        }
+        navigateValueSet(range1, text1, range2, text2, up) {
+            if (range1 && text1) {
+                let result = this.doNavigateValueSet(text1, up);
+                if (result) {
+                    return {
+                        range: range1,
+                        value: result
+                    };
+                }
+            }
+            if (range2 && text2) {
+                let result = this.doNavigateValueSet(text2, up);
+                if (result) {
+                    return {
+                        range: range2,
+                        value: result
+                    };
+                }
+            }
+            return null;
+        }
+        doNavigateValueSet(text, up) {
+            let numberResult = this.numberReplace(text, up);
+            if (numberResult !== null) {
+                return numberResult;
+            }
+            return this.textReplace(text, up);
+        }
+        numberReplace(value, up) {
+            let precision = Math.pow(10, value.length - (value.lastIndexOf('.') + 1));
+            let n1 = Number(value);
+            let n2 = parseFloat(value);
+            if (!isNaN(n1) && !isNaN(n2) && n1 === n2) {
+                if (n1 === 0 && !up) {
+                    return null; // don't do negative
+                    //			} else if(n1 === 9 && up) {
+                    //				return null; // don't insert 10 into a number
+                }
+                else {
+                    n1 = Math.floor(n1 * precision);
+                    n1 += up ? precision : -precision;
+                    return String(n1 / precision);
+                }
+            }
+            return null;
+        }
+        textReplace(value, up) {
+            return this.valueSetsReplace(this._defaultValueSet, value, up);
+        }
+        valueSetsReplace(valueSets, value, up) {
+            let result = null;
+            for (let i = 0, len = valueSets.length; result === null && i < len; i++) {
+                result = this.valueSetReplace(valueSets[i], value, up);
+            }
+            return result;
+        }
+        valueSetReplace(valueSet, value, up) {
+            let idx = valueSet.indexOf(value);
+            if (idx >= 0) {
+                idx += up ? +1 : -1;
+                if (idx < 0) {
+                    idx = valueSet.length - 1;
+                }
+                else {
+                    idx %= valueSet.length;
+                }
+                return valueSet[idx];
+            }
+            return null;
+        }
+    }
+    exports.BasicInplaceReplace = BasicInplaceReplace;
+    BasicInplaceReplace.INSTANCE = new BasicInplaceReplace();
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[35/*vs/editor/common/modes/unicodeTextModelHighlighter*/], __M([0/*require*/,1/*exports*/,5/*vs/editor/common/core/range*/,31/*vs/editor/common/model/textModelSearch*/,3/*vs/base/common/strings*/,6/*vs/base/common/types*/]), function (require, exports, range_1, textModelSearch_1, strings, types_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.UnicodeTextModelHighlighter = void 0;
@@ -15460,12 +11513,9 @@ define(__m[45/*vs/editor/common/languages/unicodeTextModelHighlighter*/], __M([0
                     return null;
                 case 2 /* Invisible */:
                     return { kind: 1 /* Invisible */ };
-                case 3 /* Ambiguous */: {
-                    const codePoint = char.codePointAt(0);
-                    const primaryConfusable = codePointHighlighter.ambiguousCharacters.getPrimaryConfusable(codePoint);
-                    const notAmbiguousInLocales = strings.AmbiguousCharacters.getLocales().filter((l) => !strings.AmbiguousCharacters.getInstance(new Set([...options.allowedLocales, l])).isAmbiguous(codePoint));
-                    return { kind: 0 /* Ambiguous */, confusableWith: String.fromCodePoint(primaryConfusable), notAmbiguousInLocales };
-                }
+                case 3 /* Ambiguous */:
+                    const primaryConfusable = strings.AmbiguousCharacters.getPrimaryConfusable(char.codePointAt(0));
+                    return { kind: 0 /* Ambiguous */, confusableWith: String.fromCodePoint(primaryConfusable) };
                 case 1 /* NonBasicASCII */:
                     return { kind: 2 /* NonBasicAscii */ };
             }
@@ -15480,7 +11530,6 @@ define(__m[45/*vs/editor/common/languages/unicodeTextModelHighlighter*/], __M([0
         constructor(options) {
             this.options = options;
             this.allowedCodePoints = new Set(options.allowedCodePoints);
-            this.ambiguousCharacters = strings.AmbiguousCharacters.getInstance(new Set(options.allowedLocales));
         }
         getCandidateCodePoints() {
             if (this.options.nonBasicASCII) {
@@ -15493,7 +11542,7 @@ define(__m[45/*vs/editor/common/languages/unicodeTextModelHighlighter*/], __M([0
                 }
             }
             if (this.options.ambiguousCharacters) {
-                for (const cp of this.ambiguousCharacters.getConfusableCodePoints()) {
+                for (const cp of strings.AmbiguousCharacters.getPrimaryConfusableCodePoints()) {
                     set.add(cp);
                 }
             }
@@ -15518,7 +11567,7 @@ define(__m[45/*vs/editor/common/languages/unicodeTextModelHighlighter*/], __M([0
                 }
             }
             if (this.options.ambiguousCharacters) {
-                if (this.ambiguousCharacters.isAmbiguous(codePoint)) {
+                if (strings.AmbiguousCharacters.isAmbiguous(codePoint)) {
                     return 3 /* Ambiguous */;
                 }
             }
@@ -15531,10 +11580,10 @@ define(__m[45/*vs/editor/common/languages/unicodeTextModelHighlighter*/], __M([0
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[46/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+define(__m[36/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.WrappingIndent = exports.TrackedRangeStickiness = exports.TextEditorCursorStyle = exports.TextEditorCursorBlinkingStyle = exports.SymbolTag = exports.SymbolKind = exports.SignatureHelpTriggerKind = exports.SelectionDirection = exports.ScrollbarVisibility = exports.ScrollType = exports.RenderMinimap = exports.RenderLineNumbersType = exports.PositionAffinity = exports.OverviewRulerLane = exports.OverlayWidgetPositionPreference = exports.MouseTargetType = exports.MinimapPosition = exports.MarkerTag = exports.MarkerSeverity = exports.KeyCode = exports.InlineCompletionTriggerKind = exports.InlayHintKind = exports.InjectedTextCursorStops = exports.IndentAction = exports.EndOfLineSequence = exports.EndOfLinePreference = exports.EditorOption = exports.EditorAutoIndentStrategy = exports.DocumentHighlightKind = exports.DefaultEndOfLine = exports.CursorChangeReason = exports.ContentWidgetPositionPreference = exports.CompletionTriggerKind = exports.CompletionItemTag = exports.CompletionItemKind = exports.CompletionItemInsertTextRule = exports.AccessibilitySupport = void 0;
+    exports.WrappingIndent = exports.TrackedRangeStickiness = exports.TextEditorCursorStyle = exports.TextEditorCursorBlinkingStyle = exports.SymbolTag = exports.SymbolKind = exports.SignatureHelpTriggerKind = exports.SelectionDirection = exports.ScrollbarVisibility = exports.ScrollType = exports.RenderMinimap = exports.RenderLineNumbersType = exports.OverviewRulerLane = exports.OverlayWidgetPositionPreference = exports.MouseTargetType = exports.MinimapPosition = exports.MarkerTag = exports.MarkerSeverity = exports.KeyCode = exports.InlineCompletionTriggerKind = exports.InlayHintKind = exports.IndentAction = exports.EndOfLineSequence = exports.EndOfLinePreference = exports.EditorOption = exports.EditorAutoIndentStrategy = exports.DocumentHighlightKind = exports.DefaultEndOfLine = exports.CursorChangeReason = exports.ContentWidgetPositionPreference = exports.CompletionTriggerKind = exports.CompletionItemTag = exports.CompletionItemKind = exports.CompletionItemInsertTextRule = exports.AccessibilitySupport = void 0;
     // THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY.
     var AccessibilitySupport;
     (function (AccessibilitySupport) {
@@ -15739,98 +11788,97 @@ define(__m[46/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/
         EditorOption[EditorOption["foldingStrategy"] = 38] = "foldingStrategy";
         EditorOption[EditorOption["foldingHighlight"] = 39] = "foldingHighlight";
         EditorOption[EditorOption["foldingImportsByDefault"] = 40] = "foldingImportsByDefault";
-        EditorOption[EditorOption["foldingMaximumRegions"] = 41] = "foldingMaximumRegions";
-        EditorOption[EditorOption["unfoldOnClickAfterEndOfLine"] = 42] = "unfoldOnClickAfterEndOfLine";
-        EditorOption[EditorOption["fontFamily"] = 43] = "fontFamily";
-        EditorOption[EditorOption["fontInfo"] = 44] = "fontInfo";
-        EditorOption[EditorOption["fontLigatures"] = 45] = "fontLigatures";
-        EditorOption[EditorOption["fontSize"] = 46] = "fontSize";
-        EditorOption[EditorOption["fontWeight"] = 47] = "fontWeight";
-        EditorOption[EditorOption["formatOnPaste"] = 48] = "formatOnPaste";
-        EditorOption[EditorOption["formatOnType"] = 49] = "formatOnType";
-        EditorOption[EditorOption["glyphMargin"] = 50] = "glyphMargin";
-        EditorOption[EditorOption["gotoLocation"] = 51] = "gotoLocation";
-        EditorOption[EditorOption["hideCursorInOverviewRuler"] = 52] = "hideCursorInOverviewRuler";
-        EditorOption[EditorOption["hover"] = 53] = "hover";
-        EditorOption[EditorOption["inDiffEditor"] = 54] = "inDiffEditor";
-        EditorOption[EditorOption["inlineSuggest"] = 55] = "inlineSuggest";
-        EditorOption[EditorOption["letterSpacing"] = 56] = "letterSpacing";
-        EditorOption[EditorOption["lightbulb"] = 57] = "lightbulb";
-        EditorOption[EditorOption["lineDecorationsWidth"] = 58] = "lineDecorationsWidth";
-        EditorOption[EditorOption["lineHeight"] = 59] = "lineHeight";
-        EditorOption[EditorOption["lineNumbers"] = 60] = "lineNumbers";
-        EditorOption[EditorOption["lineNumbersMinChars"] = 61] = "lineNumbersMinChars";
-        EditorOption[EditorOption["linkedEditing"] = 62] = "linkedEditing";
-        EditorOption[EditorOption["links"] = 63] = "links";
-        EditorOption[EditorOption["matchBrackets"] = 64] = "matchBrackets";
-        EditorOption[EditorOption["minimap"] = 65] = "minimap";
-        EditorOption[EditorOption["mouseStyle"] = 66] = "mouseStyle";
-        EditorOption[EditorOption["mouseWheelScrollSensitivity"] = 67] = "mouseWheelScrollSensitivity";
-        EditorOption[EditorOption["mouseWheelZoom"] = 68] = "mouseWheelZoom";
-        EditorOption[EditorOption["multiCursorMergeOverlapping"] = 69] = "multiCursorMergeOverlapping";
-        EditorOption[EditorOption["multiCursorModifier"] = 70] = "multiCursorModifier";
-        EditorOption[EditorOption["multiCursorPaste"] = 71] = "multiCursorPaste";
-        EditorOption[EditorOption["occurrencesHighlight"] = 72] = "occurrencesHighlight";
-        EditorOption[EditorOption["overviewRulerBorder"] = 73] = "overviewRulerBorder";
-        EditorOption[EditorOption["overviewRulerLanes"] = 74] = "overviewRulerLanes";
-        EditorOption[EditorOption["padding"] = 75] = "padding";
-        EditorOption[EditorOption["parameterHints"] = 76] = "parameterHints";
-        EditorOption[EditorOption["peekWidgetDefaultFocus"] = 77] = "peekWidgetDefaultFocus";
-        EditorOption[EditorOption["definitionLinkOpensInPeek"] = 78] = "definitionLinkOpensInPeek";
-        EditorOption[EditorOption["quickSuggestions"] = 79] = "quickSuggestions";
-        EditorOption[EditorOption["quickSuggestionsDelay"] = 80] = "quickSuggestionsDelay";
-        EditorOption[EditorOption["readOnly"] = 81] = "readOnly";
-        EditorOption[EditorOption["renameOnType"] = 82] = "renameOnType";
-        EditorOption[EditorOption["renderControlCharacters"] = 83] = "renderControlCharacters";
-        EditorOption[EditorOption["renderFinalNewline"] = 84] = "renderFinalNewline";
-        EditorOption[EditorOption["renderLineHighlight"] = 85] = "renderLineHighlight";
-        EditorOption[EditorOption["renderLineHighlightOnlyWhenFocus"] = 86] = "renderLineHighlightOnlyWhenFocus";
-        EditorOption[EditorOption["renderValidationDecorations"] = 87] = "renderValidationDecorations";
-        EditorOption[EditorOption["renderWhitespace"] = 88] = "renderWhitespace";
-        EditorOption[EditorOption["revealHorizontalRightPadding"] = 89] = "revealHorizontalRightPadding";
-        EditorOption[EditorOption["roundedSelection"] = 90] = "roundedSelection";
-        EditorOption[EditorOption["rulers"] = 91] = "rulers";
-        EditorOption[EditorOption["scrollbar"] = 92] = "scrollbar";
-        EditorOption[EditorOption["scrollBeyondLastColumn"] = 93] = "scrollBeyondLastColumn";
-        EditorOption[EditorOption["scrollBeyondLastLine"] = 94] = "scrollBeyondLastLine";
-        EditorOption[EditorOption["scrollPredominantAxis"] = 95] = "scrollPredominantAxis";
-        EditorOption[EditorOption["selectionClipboard"] = 96] = "selectionClipboard";
-        EditorOption[EditorOption["selectionHighlight"] = 97] = "selectionHighlight";
-        EditorOption[EditorOption["selectOnLineNumbers"] = 98] = "selectOnLineNumbers";
-        EditorOption[EditorOption["showFoldingControls"] = 99] = "showFoldingControls";
-        EditorOption[EditorOption["showUnused"] = 100] = "showUnused";
-        EditorOption[EditorOption["snippetSuggestions"] = 101] = "snippetSuggestions";
-        EditorOption[EditorOption["smartSelect"] = 102] = "smartSelect";
-        EditorOption[EditorOption["smoothScrolling"] = 103] = "smoothScrolling";
-        EditorOption[EditorOption["stickyTabStops"] = 104] = "stickyTabStops";
-        EditorOption[EditorOption["stopRenderingLineAfter"] = 105] = "stopRenderingLineAfter";
-        EditorOption[EditorOption["suggest"] = 106] = "suggest";
-        EditorOption[EditorOption["suggestFontSize"] = 107] = "suggestFontSize";
-        EditorOption[EditorOption["suggestLineHeight"] = 108] = "suggestLineHeight";
-        EditorOption[EditorOption["suggestOnTriggerCharacters"] = 109] = "suggestOnTriggerCharacters";
-        EditorOption[EditorOption["suggestSelection"] = 110] = "suggestSelection";
-        EditorOption[EditorOption["tabCompletion"] = 111] = "tabCompletion";
-        EditorOption[EditorOption["tabIndex"] = 112] = "tabIndex";
-        EditorOption[EditorOption["unicodeHighlighting"] = 113] = "unicodeHighlighting";
-        EditorOption[EditorOption["unusualLineTerminators"] = 114] = "unusualLineTerminators";
-        EditorOption[EditorOption["useShadowDOM"] = 115] = "useShadowDOM";
-        EditorOption[EditorOption["useTabStops"] = 116] = "useTabStops";
-        EditorOption[EditorOption["wordSeparators"] = 117] = "wordSeparators";
-        EditorOption[EditorOption["wordWrap"] = 118] = "wordWrap";
-        EditorOption[EditorOption["wordWrapBreakAfterCharacters"] = 119] = "wordWrapBreakAfterCharacters";
-        EditorOption[EditorOption["wordWrapBreakBeforeCharacters"] = 120] = "wordWrapBreakBeforeCharacters";
-        EditorOption[EditorOption["wordWrapColumn"] = 121] = "wordWrapColumn";
-        EditorOption[EditorOption["wordWrapOverride1"] = 122] = "wordWrapOverride1";
-        EditorOption[EditorOption["wordWrapOverride2"] = 123] = "wordWrapOverride2";
-        EditorOption[EditorOption["wrappingIndent"] = 124] = "wrappingIndent";
-        EditorOption[EditorOption["wrappingStrategy"] = 125] = "wrappingStrategy";
-        EditorOption[EditorOption["showDeprecated"] = 126] = "showDeprecated";
-        EditorOption[EditorOption["inlayHints"] = 127] = "inlayHints";
-        EditorOption[EditorOption["editorClassName"] = 128] = "editorClassName";
-        EditorOption[EditorOption["pixelRatio"] = 129] = "pixelRatio";
-        EditorOption[EditorOption["tabFocusMode"] = 130] = "tabFocusMode";
-        EditorOption[EditorOption["layoutInfo"] = 131] = "layoutInfo";
-        EditorOption[EditorOption["wrappingInfo"] = 132] = "wrappingInfo";
+        EditorOption[EditorOption["unfoldOnClickAfterEndOfLine"] = 41] = "unfoldOnClickAfterEndOfLine";
+        EditorOption[EditorOption["fontFamily"] = 42] = "fontFamily";
+        EditorOption[EditorOption["fontInfo"] = 43] = "fontInfo";
+        EditorOption[EditorOption["fontLigatures"] = 44] = "fontLigatures";
+        EditorOption[EditorOption["fontSize"] = 45] = "fontSize";
+        EditorOption[EditorOption["fontWeight"] = 46] = "fontWeight";
+        EditorOption[EditorOption["formatOnPaste"] = 47] = "formatOnPaste";
+        EditorOption[EditorOption["formatOnType"] = 48] = "formatOnType";
+        EditorOption[EditorOption["glyphMargin"] = 49] = "glyphMargin";
+        EditorOption[EditorOption["gotoLocation"] = 50] = "gotoLocation";
+        EditorOption[EditorOption["hideCursorInOverviewRuler"] = 51] = "hideCursorInOverviewRuler";
+        EditorOption[EditorOption["hover"] = 52] = "hover";
+        EditorOption[EditorOption["inDiffEditor"] = 53] = "inDiffEditor";
+        EditorOption[EditorOption["inlineSuggest"] = 54] = "inlineSuggest";
+        EditorOption[EditorOption["letterSpacing"] = 55] = "letterSpacing";
+        EditorOption[EditorOption["lightbulb"] = 56] = "lightbulb";
+        EditorOption[EditorOption["lineDecorationsWidth"] = 57] = "lineDecorationsWidth";
+        EditorOption[EditorOption["lineHeight"] = 58] = "lineHeight";
+        EditorOption[EditorOption["lineNumbers"] = 59] = "lineNumbers";
+        EditorOption[EditorOption["lineNumbersMinChars"] = 60] = "lineNumbersMinChars";
+        EditorOption[EditorOption["linkedEditing"] = 61] = "linkedEditing";
+        EditorOption[EditorOption["links"] = 62] = "links";
+        EditorOption[EditorOption["matchBrackets"] = 63] = "matchBrackets";
+        EditorOption[EditorOption["minimap"] = 64] = "minimap";
+        EditorOption[EditorOption["mouseStyle"] = 65] = "mouseStyle";
+        EditorOption[EditorOption["mouseWheelScrollSensitivity"] = 66] = "mouseWheelScrollSensitivity";
+        EditorOption[EditorOption["mouseWheelZoom"] = 67] = "mouseWheelZoom";
+        EditorOption[EditorOption["multiCursorMergeOverlapping"] = 68] = "multiCursorMergeOverlapping";
+        EditorOption[EditorOption["multiCursorModifier"] = 69] = "multiCursorModifier";
+        EditorOption[EditorOption["multiCursorPaste"] = 70] = "multiCursorPaste";
+        EditorOption[EditorOption["occurrencesHighlight"] = 71] = "occurrencesHighlight";
+        EditorOption[EditorOption["overviewRulerBorder"] = 72] = "overviewRulerBorder";
+        EditorOption[EditorOption["overviewRulerLanes"] = 73] = "overviewRulerLanes";
+        EditorOption[EditorOption["padding"] = 74] = "padding";
+        EditorOption[EditorOption["parameterHints"] = 75] = "parameterHints";
+        EditorOption[EditorOption["peekWidgetDefaultFocus"] = 76] = "peekWidgetDefaultFocus";
+        EditorOption[EditorOption["definitionLinkOpensInPeek"] = 77] = "definitionLinkOpensInPeek";
+        EditorOption[EditorOption["quickSuggestions"] = 78] = "quickSuggestions";
+        EditorOption[EditorOption["quickSuggestionsDelay"] = 79] = "quickSuggestionsDelay";
+        EditorOption[EditorOption["readOnly"] = 80] = "readOnly";
+        EditorOption[EditorOption["renameOnType"] = 81] = "renameOnType";
+        EditorOption[EditorOption["renderControlCharacters"] = 82] = "renderControlCharacters";
+        EditorOption[EditorOption["renderFinalNewline"] = 83] = "renderFinalNewline";
+        EditorOption[EditorOption["renderLineHighlight"] = 84] = "renderLineHighlight";
+        EditorOption[EditorOption["renderLineHighlightOnlyWhenFocus"] = 85] = "renderLineHighlightOnlyWhenFocus";
+        EditorOption[EditorOption["renderValidationDecorations"] = 86] = "renderValidationDecorations";
+        EditorOption[EditorOption["renderWhitespace"] = 87] = "renderWhitespace";
+        EditorOption[EditorOption["revealHorizontalRightPadding"] = 88] = "revealHorizontalRightPadding";
+        EditorOption[EditorOption["roundedSelection"] = 89] = "roundedSelection";
+        EditorOption[EditorOption["rulers"] = 90] = "rulers";
+        EditorOption[EditorOption["scrollbar"] = 91] = "scrollbar";
+        EditorOption[EditorOption["scrollBeyondLastColumn"] = 92] = "scrollBeyondLastColumn";
+        EditorOption[EditorOption["scrollBeyondLastLine"] = 93] = "scrollBeyondLastLine";
+        EditorOption[EditorOption["scrollPredominantAxis"] = 94] = "scrollPredominantAxis";
+        EditorOption[EditorOption["selectionClipboard"] = 95] = "selectionClipboard";
+        EditorOption[EditorOption["selectionHighlight"] = 96] = "selectionHighlight";
+        EditorOption[EditorOption["selectOnLineNumbers"] = 97] = "selectOnLineNumbers";
+        EditorOption[EditorOption["showFoldingControls"] = 98] = "showFoldingControls";
+        EditorOption[EditorOption["showUnused"] = 99] = "showUnused";
+        EditorOption[EditorOption["snippetSuggestions"] = 100] = "snippetSuggestions";
+        EditorOption[EditorOption["smartSelect"] = 101] = "smartSelect";
+        EditorOption[EditorOption["smoothScrolling"] = 102] = "smoothScrolling";
+        EditorOption[EditorOption["stickyTabStops"] = 103] = "stickyTabStops";
+        EditorOption[EditorOption["stopRenderingLineAfter"] = 104] = "stopRenderingLineAfter";
+        EditorOption[EditorOption["suggest"] = 105] = "suggest";
+        EditorOption[EditorOption["suggestFontSize"] = 106] = "suggestFontSize";
+        EditorOption[EditorOption["suggestLineHeight"] = 107] = "suggestLineHeight";
+        EditorOption[EditorOption["suggestOnTriggerCharacters"] = 108] = "suggestOnTriggerCharacters";
+        EditorOption[EditorOption["suggestSelection"] = 109] = "suggestSelection";
+        EditorOption[EditorOption["tabCompletion"] = 110] = "tabCompletion";
+        EditorOption[EditorOption["tabIndex"] = 111] = "tabIndex";
+        EditorOption[EditorOption["unicodeHighlighting"] = 112] = "unicodeHighlighting";
+        EditorOption[EditorOption["unusualLineTerminators"] = 113] = "unusualLineTerminators";
+        EditorOption[EditorOption["useShadowDOM"] = 114] = "useShadowDOM";
+        EditorOption[EditorOption["useTabStops"] = 115] = "useTabStops";
+        EditorOption[EditorOption["wordSeparators"] = 116] = "wordSeparators";
+        EditorOption[EditorOption["wordWrap"] = 117] = "wordWrap";
+        EditorOption[EditorOption["wordWrapBreakAfterCharacters"] = 118] = "wordWrapBreakAfterCharacters";
+        EditorOption[EditorOption["wordWrapBreakBeforeCharacters"] = 119] = "wordWrapBreakBeforeCharacters";
+        EditorOption[EditorOption["wordWrapColumn"] = 120] = "wordWrapColumn";
+        EditorOption[EditorOption["wordWrapOverride1"] = 121] = "wordWrapOverride1";
+        EditorOption[EditorOption["wordWrapOverride2"] = 122] = "wordWrapOverride2";
+        EditorOption[EditorOption["wrappingIndent"] = 123] = "wrappingIndent";
+        EditorOption[EditorOption["wrappingStrategy"] = 124] = "wrappingStrategy";
+        EditorOption[EditorOption["showDeprecated"] = 125] = "showDeprecated";
+        EditorOption[EditorOption["inlayHints"] = 126] = "inlayHints";
+        EditorOption[EditorOption["editorClassName"] = 127] = "editorClassName";
+        EditorOption[EditorOption["pixelRatio"] = 128] = "pixelRatio";
+        EditorOption[EditorOption["tabFocusMode"] = 129] = "tabFocusMode";
+        EditorOption[EditorOption["layoutInfo"] = 130] = "layoutInfo";
+        EditorOption[EditorOption["wrappingInfo"] = 131] = "wrappingInfo";
     })(EditorOption = exports.EditorOption || (exports.EditorOption = {}));
     /**
      * End of line character preference.
@@ -15888,13 +11936,6 @@ define(__m[46/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/
          */
         IndentAction[IndentAction["Outdent"] = 3] = "Outdent";
     })(IndentAction = exports.IndentAction || (exports.IndentAction = {}));
-    var InjectedTextCursorStops;
-    (function (InjectedTextCursorStops) {
-        InjectedTextCursorStops[InjectedTextCursorStops["Both"] = 0] = "Both";
-        InjectedTextCursorStops[InjectedTextCursorStops["Right"] = 1] = "Right";
-        InjectedTextCursorStops[InjectedTextCursorStops["Left"] = 2] = "Left";
-        InjectedTextCursorStops[InjectedTextCursorStops["None"] = 3] = "None";
-    })(InjectedTextCursorStops = exports.InjectedTextCursorStops || (exports.InjectedTextCursorStops = {}));
     var InlayHintKind;
     (function (InlayHintKind) {
         InlayHintKind[InlayHintKind["Other"] = 0] = "Other";
@@ -16223,21 +12264,6 @@ define(__m[46/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/
         OverviewRulerLane[OverviewRulerLane["Right"] = 4] = "Right";
         OverviewRulerLane[OverviewRulerLane["Full"] = 7] = "Full";
     })(OverviewRulerLane = exports.OverviewRulerLane || (exports.OverviewRulerLane = {}));
-    var PositionAffinity;
-    (function (PositionAffinity) {
-        /**
-         * Prefers the left most position.
-        */
-        PositionAffinity[PositionAffinity["Left"] = 0] = "Left";
-        /**
-         * Prefers the right most position.
-        */
-        PositionAffinity[PositionAffinity["Right"] = 1] = "Right";
-        /**
-         * No preference.
-        */
-        PositionAffinity[PositionAffinity["None"] = 2] = "None";
-    })(PositionAffinity = exports.PositionAffinity || (exports.PositionAffinity = {}));
     var RenderLineNumbersType;
     (function (RenderLineNumbersType) {
         RenderLineNumbersType[RenderLineNumbersType["Off"] = 0] = "Off";
@@ -16418,609 +12444,7 @@ define(__m[46/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-
-define(__m[47/*vs/editor/common/tokenizationRegistry*/], __M([0/*require*/,1/*exports*/,4/*vs/base/common/event*/,7/*vs/base/common/lifecycle*/]), function (require, exports, event_1, lifecycle_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.TokenizationRegistry = void 0;
-    class TokenizationRegistry {
-        constructor() {
-            this._map = new Map();
-            this._factories = new Map();
-            this._onDidChange = new event_1.Emitter();
-            this.onDidChange = this._onDidChange.event;
-            this._colorMap = null;
-        }
-        fire(languages) {
-            this._onDidChange.fire({
-                changedLanguages: languages,
-                changedColorMap: false
-            });
-        }
-        register(language, support) {
-            this._map.set(language, support);
-            this.fire([language]);
-            return (0, lifecycle_1.toDisposable)(() => {
-                if (this._map.get(language) !== support) {
-                    return;
-                }
-                this._map.delete(language);
-                this.fire([language]);
-            });
-        }
-        registerFactory(languageId, factory) {
-            var _a;
-            (_a = this._factories.get(languageId)) === null || _a === void 0 ? void 0 : _a.dispose();
-            const myData = new TokenizationSupportFactoryData(this, languageId, factory);
-            this._factories.set(languageId, myData);
-            return (0, lifecycle_1.toDisposable)(() => {
-                const v = this._factories.get(languageId);
-                if (!v || v !== myData) {
-                    return;
-                }
-                this._factories.delete(languageId);
-                v.dispose();
-            });
-        }
-        getOrCreate(languageId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                // check first if the support is already set
-                const tokenizationSupport = this.get(languageId);
-                if (tokenizationSupport) {
-                    return tokenizationSupport;
-                }
-                const factory = this._factories.get(languageId);
-                if (!factory || factory.isResolved) {
-                    // no factory or factory.resolve already finished
-                    return null;
-                }
-                yield factory.resolve();
-                return this.get(languageId);
-            });
-        }
-        get(language) {
-            return (this._map.get(language) || null);
-        }
-        isResolved(languageId) {
-            const tokenizationSupport = this.get(languageId);
-            if (tokenizationSupport) {
-                return true;
-            }
-            const factory = this._factories.get(languageId);
-            if (!factory || factory.isResolved) {
-                return true;
-            }
-            return false;
-        }
-        setColorMap(colorMap) {
-            this._colorMap = colorMap;
-            this._onDidChange.fire({
-                changedLanguages: Array.from(this._map.keys()),
-                changedColorMap: true
-            });
-        }
-        getColorMap() {
-            return this._colorMap;
-        }
-        getDefaultBackground() {
-            if (this._colorMap && this._colorMap.length > 2 /* DefaultBackground */) {
-                return this._colorMap[2 /* DefaultBackground */];
-            }
-            return null;
-        }
-    }
-    exports.TokenizationRegistry = TokenizationRegistry;
-    class TokenizationSupportFactoryData extends lifecycle_1.Disposable {
-        constructor(_registry, _languageId, _factory) {
-            super();
-            this._registry = _registry;
-            this._languageId = _languageId;
-            this._factory = _factory;
-            this._isDisposed = false;
-            this._resolvePromise = null;
-            this._isResolved = false;
-        }
-        get isResolved() {
-            return this._isResolved;
-        }
-        dispose() {
-            this._isDisposed = true;
-            super.dispose();
-        }
-        resolve() {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (!this._resolvePromise) {
-                    this._resolvePromise = this._create();
-                }
-                return this._resolvePromise;
-            });
-        }
-        _create() {
-            return __awaiter(this, void 0, void 0, function* () {
-                const value = yield Promise.resolve(this._factory.createTokenizationSupport());
-                this._isResolved = true;
-                if (value && !this._isDisposed) {
-                    this._register(this._registry.register(this._languageId, value));
-                }
-            });
-        }
-    }
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[48/*vs/editor/common/languages*/], __M([0/*require*/,1/*exports*/,11/*vs/base/common/uri*/,6/*vs/editor/common/core/range*/,41/*vs/editor/common/languageFeatureRegistry*/,47/*vs/editor/common/tokenizationRegistry*/,20/*vs/base/common/codicons*/]), function (require, exports, uri_1, range_1, languageFeatureRegistry_1, tokenizationRegistry_1, codicons_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.TokenizationRegistry = exports.DocumentRangeSemanticTokensProviderRegistry = exports.DocumentSemanticTokensProviderRegistry = exports.FoldingRangeProviderRegistry = exports.SelectionRangeRegistry = exports.ColorProviderRegistry = exports.LinkProviderRegistry = exports.OnTypeFormattingEditProviderRegistry = exports.DocumentRangeFormattingEditProviderRegistry = exports.DocumentFormattingEditProviderRegistry = exports.CodeActionProviderRegistry = exports.InlayHintsProviderRegistry = exports.CodeLensProviderRegistry = exports.TypeDefinitionProviderRegistry = exports.ImplementationProviderRegistry = exports.DeclarationProviderRegistry = exports.DefinitionProviderRegistry = exports.LinkedEditingRangeProviderRegistry = exports.DocumentHighlightProviderRegistry = exports.DocumentSymbolProviderRegistry = exports.InlineValuesProviderRegistry = exports.EvaluatableExpressionProviderRegistry = exports.HoverProviderRegistry = exports.SignatureHelpProviderRegistry = exports.InlineCompletionsProviderRegistry = exports.CompletionProviderRegistry = exports.RenameProviderRegistry = exports.ReferenceProviderRegistry = exports.InlayHintKind = exports.Command = exports.FoldingRangeKind = exports.SymbolKinds = exports.isLocationLink = exports.DocumentHighlightKind = exports.SignatureHelpTriggerKind = exports.InlineCompletionTriggerKind = exports.CompletionItemKinds = exports.EncodedTokenizationResult = exports.TokenizationResult = exports.Token = exports.TokenMetadata = void 0;
-    /**
-     * @internal
-     */
-    class TokenMetadata {
-        static getLanguageId(metadata) {
-            return (metadata & 255 /* LANGUAGEID_MASK */) >>> 0 /* LANGUAGEID_OFFSET */;
-        }
-        static getTokenType(metadata) {
-            return (metadata & 768 /* TOKEN_TYPE_MASK */) >>> 8 /* TOKEN_TYPE_OFFSET */;
-        }
-        static getFontStyle(metadata) {
-            return (metadata & 15360 /* FONT_STYLE_MASK */) >>> 10 /* FONT_STYLE_OFFSET */;
-        }
-        static getForeground(metadata) {
-            return (metadata & 8372224 /* FOREGROUND_MASK */) >>> 14 /* FOREGROUND_OFFSET */;
-        }
-        static getBackground(metadata) {
-            return (metadata & 4286578688 /* BACKGROUND_MASK */) >>> 23 /* BACKGROUND_OFFSET */;
-        }
-        static getClassNameFromMetadata(metadata) {
-            const foreground = this.getForeground(metadata);
-            let className = 'mtk' + foreground;
-            const fontStyle = this.getFontStyle(metadata);
-            if (fontStyle & 1 /* Italic */) {
-                className += ' mtki';
-            }
-            if (fontStyle & 2 /* Bold */) {
-                className += ' mtkb';
-            }
-            if (fontStyle & 4 /* Underline */) {
-                className += ' mtku';
-            }
-            if (fontStyle & 8 /* Strikethrough */) {
-                className += ' mtks';
-            }
-            return className;
-        }
-        static getInlineStyleFromMetadata(metadata, colorMap) {
-            const foreground = this.getForeground(metadata);
-            const fontStyle = this.getFontStyle(metadata);
-            let result = `color: ${colorMap[foreground]};`;
-            if (fontStyle & 1 /* Italic */) {
-                result += 'font-style: italic;';
-            }
-            if (fontStyle & 2 /* Bold */) {
-                result += 'font-weight: bold;';
-            }
-            let textDecoration = '';
-            if (fontStyle & 4 /* Underline */) {
-                textDecoration += ' underline';
-            }
-            if (fontStyle & 8 /* Strikethrough */) {
-                textDecoration += ' line-through';
-            }
-            if (textDecoration) {
-                result += `text-decoration:${textDecoration};`;
-            }
-            return result;
-        }
-        static getPresentationFromMetadata(metadata) {
-            const foreground = this.getForeground(metadata);
-            const fontStyle = this.getFontStyle(metadata);
-            return {
-                foreground: foreground,
-                italic: Boolean(fontStyle & 1 /* Italic */),
-                bold: Boolean(fontStyle & 2 /* Bold */),
-                underline: Boolean(fontStyle & 4 /* Underline */),
-                strikethrough: Boolean(fontStyle & 8 /* Strikethrough */),
-            };
-        }
-    }
-    exports.TokenMetadata = TokenMetadata;
-    class Token {
-        constructor(offset, type, language) {
-            this._tokenBrand = undefined;
-            this.offset = offset;
-            this.type = type;
-            this.language = language;
-        }
-        toString() {
-            return '(' + this.offset + ', ' + this.type + ')';
-        }
-    }
-    exports.Token = Token;
-    /**
-     * @internal
-     */
-    class TokenizationResult {
-        constructor(tokens, endState) {
-            this._tokenizationResultBrand = undefined;
-            this.tokens = tokens;
-            this.endState = endState;
-        }
-    }
-    exports.TokenizationResult = TokenizationResult;
-    /**
-     * @internal
-     */
-    class EncodedTokenizationResult {
-        constructor(tokens, endState) {
-            this._encodedTokenizationResultBrand = undefined;
-            this.tokens = tokens;
-            this.endState = endState;
-        }
-    }
-    exports.EncodedTokenizationResult = EncodedTokenizationResult;
-    /**
-     * @internal
-     */
-    var CompletionItemKinds;
-    (function (CompletionItemKinds) {
-        const byKind = new Map();
-        byKind.set(0 /* Method */, codicons_1.Codicon.symbolMethod);
-        byKind.set(1 /* Function */, codicons_1.Codicon.symbolFunction);
-        byKind.set(2 /* Constructor */, codicons_1.Codicon.symbolConstructor);
-        byKind.set(3 /* Field */, codicons_1.Codicon.symbolField);
-        byKind.set(4 /* Variable */, codicons_1.Codicon.symbolVariable);
-        byKind.set(5 /* Class */, codicons_1.Codicon.symbolClass);
-        byKind.set(6 /* Struct */, codicons_1.Codicon.symbolStruct);
-        byKind.set(7 /* Interface */, codicons_1.Codicon.symbolInterface);
-        byKind.set(8 /* Module */, codicons_1.Codicon.symbolModule);
-        byKind.set(9 /* Property */, codicons_1.Codicon.symbolProperty);
-        byKind.set(10 /* Event */, codicons_1.Codicon.symbolEvent);
-        byKind.set(11 /* Operator */, codicons_1.Codicon.symbolOperator);
-        byKind.set(12 /* Unit */, codicons_1.Codicon.symbolUnit);
-        byKind.set(13 /* Value */, codicons_1.Codicon.symbolValue);
-        byKind.set(15 /* Enum */, codicons_1.Codicon.symbolEnum);
-        byKind.set(14 /* Constant */, codicons_1.Codicon.symbolConstant);
-        byKind.set(15 /* Enum */, codicons_1.Codicon.symbolEnum);
-        byKind.set(16 /* EnumMember */, codicons_1.Codicon.symbolEnumMember);
-        byKind.set(17 /* Keyword */, codicons_1.Codicon.symbolKeyword);
-        byKind.set(27 /* Snippet */, codicons_1.Codicon.symbolSnippet);
-        byKind.set(18 /* Text */, codicons_1.Codicon.symbolText);
-        byKind.set(19 /* Color */, codicons_1.Codicon.symbolColor);
-        byKind.set(20 /* File */, codicons_1.Codicon.symbolFile);
-        byKind.set(21 /* Reference */, codicons_1.Codicon.symbolReference);
-        byKind.set(22 /* Customcolor */, codicons_1.Codicon.symbolCustomColor);
-        byKind.set(23 /* Folder */, codicons_1.Codicon.symbolFolder);
-        byKind.set(24 /* TypeParameter */, codicons_1.Codicon.symbolTypeParameter);
-        byKind.set(25 /* User */, codicons_1.Codicon.account);
-        byKind.set(26 /* Issue */, codicons_1.Codicon.issues);
-        /**
-         * @internal
-         */
-        function toIcon(kind) {
-            let codicon = byKind.get(kind);
-            if (!codicon) {
-                console.info('No codicon found for CompletionItemKind ' + kind);
-                codicon = codicons_1.Codicon.symbolProperty;
-            }
-            return codicon;
-        }
-        CompletionItemKinds.toIcon = toIcon;
-        const data = new Map();
-        data.set('method', 0 /* Method */);
-        data.set('function', 1 /* Function */);
-        data.set('constructor', 2 /* Constructor */);
-        data.set('field', 3 /* Field */);
-        data.set('variable', 4 /* Variable */);
-        data.set('class', 5 /* Class */);
-        data.set('struct', 6 /* Struct */);
-        data.set('interface', 7 /* Interface */);
-        data.set('module', 8 /* Module */);
-        data.set('property', 9 /* Property */);
-        data.set('event', 10 /* Event */);
-        data.set('operator', 11 /* Operator */);
-        data.set('unit', 12 /* Unit */);
-        data.set('value', 13 /* Value */);
-        data.set('constant', 14 /* Constant */);
-        data.set('enum', 15 /* Enum */);
-        data.set('enum-member', 16 /* EnumMember */);
-        data.set('enumMember', 16 /* EnumMember */);
-        data.set('keyword', 17 /* Keyword */);
-        data.set('snippet', 27 /* Snippet */);
-        data.set('text', 18 /* Text */);
-        data.set('color', 19 /* Color */);
-        data.set('file', 20 /* File */);
-        data.set('reference', 21 /* Reference */);
-        data.set('customcolor', 22 /* Customcolor */);
-        data.set('folder', 23 /* Folder */);
-        data.set('type-parameter', 24 /* TypeParameter */);
-        data.set('typeParameter', 24 /* TypeParameter */);
-        data.set('account', 25 /* User */);
-        data.set('issue', 26 /* Issue */);
-        /**
-         * @internal
-         */
-        function fromString(value, strict) {
-            let res = data.get(value);
-            if (typeof res === 'undefined' && !strict) {
-                res = 9 /* Property */;
-            }
-            return res;
-        }
-        CompletionItemKinds.fromString = fromString;
-    })(CompletionItemKinds = exports.CompletionItemKinds || (exports.CompletionItemKinds = {}));
-    /**
-     * How an {@link InlineCompletionsProvider inline completion provider} was triggered.
-     */
-    var InlineCompletionTriggerKind;
-    (function (InlineCompletionTriggerKind) {
-        /**
-         * Completion was triggered automatically while editing.
-         * It is sufficient to return a single completion item in this case.
-         */
-        InlineCompletionTriggerKind[InlineCompletionTriggerKind["Automatic"] = 0] = "Automatic";
-        /**
-         * Completion was triggered explicitly by a user gesture.
-         * Return multiple completion items to enable cycling through them.
-         */
-        InlineCompletionTriggerKind[InlineCompletionTriggerKind["Explicit"] = 1] = "Explicit";
-    })(InlineCompletionTriggerKind = exports.InlineCompletionTriggerKind || (exports.InlineCompletionTriggerKind = {}));
-    var SignatureHelpTriggerKind;
-    (function (SignatureHelpTriggerKind) {
-        SignatureHelpTriggerKind[SignatureHelpTriggerKind["Invoke"] = 1] = "Invoke";
-        SignatureHelpTriggerKind[SignatureHelpTriggerKind["TriggerCharacter"] = 2] = "TriggerCharacter";
-        SignatureHelpTriggerKind[SignatureHelpTriggerKind["ContentChange"] = 3] = "ContentChange";
-    })(SignatureHelpTriggerKind = exports.SignatureHelpTriggerKind || (exports.SignatureHelpTriggerKind = {}));
-    /**
-     * A document highlight kind.
-     */
-    var DocumentHighlightKind;
-    (function (DocumentHighlightKind) {
-        /**
-         * A textual occurrence.
-         */
-        DocumentHighlightKind[DocumentHighlightKind["Text"] = 0] = "Text";
-        /**
-         * Read-access of a symbol, like reading a variable.
-         */
-        DocumentHighlightKind[DocumentHighlightKind["Read"] = 1] = "Read";
-        /**
-         * Write-access of a symbol, like writing to a variable.
-         */
-        DocumentHighlightKind[DocumentHighlightKind["Write"] = 2] = "Write";
-    })(DocumentHighlightKind = exports.DocumentHighlightKind || (exports.DocumentHighlightKind = {}));
-    /**
-     * @internal
-     */
-    function isLocationLink(thing) {
-        return thing
-            && uri_1.URI.isUri(thing.uri)
-            && range_1.Range.isIRange(thing.range)
-            && (range_1.Range.isIRange(thing.originSelectionRange) || range_1.Range.isIRange(thing.targetSelectionRange));
-    }
-    exports.isLocationLink = isLocationLink;
-    /**
-     * @internal
-     */
-    var SymbolKinds;
-    (function (SymbolKinds) {
-        const byKind = new Map();
-        byKind.set(0 /* File */, codicons_1.Codicon.symbolFile);
-        byKind.set(1 /* Module */, codicons_1.Codicon.symbolModule);
-        byKind.set(2 /* Namespace */, codicons_1.Codicon.symbolNamespace);
-        byKind.set(3 /* Package */, codicons_1.Codicon.symbolPackage);
-        byKind.set(4 /* Class */, codicons_1.Codicon.symbolClass);
-        byKind.set(5 /* Method */, codicons_1.Codicon.symbolMethod);
-        byKind.set(6 /* Property */, codicons_1.Codicon.symbolProperty);
-        byKind.set(7 /* Field */, codicons_1.Codicon.symbolField);
-        byKind.set(8 /* Constructor */, codicons_1.Codicon.symbolConstructor);
-        byKind.set(9 /* Enum */, codicons_1.Codicon.symbolEnum);
-        byKind.set(10 /* Interface */, codicons_1.Codicon.symbolInterface);
-        byKind.set(11 /* Function */, codicons_1.Codicon.symbolFunction);
-        byKind.set(12 /* Variable */, codicons_1.Codicon.symbolVariable);
-        byKind.set(13 /* Constant */, codicons_1.Codicon.symbolConstant);
-        byKind.set(14 /* String */, codicons_1.Codicon.symbolString);
-        byKind.set(15 /* Number */, codicons_1.Codicon.symbolNumber);
-        byKind.set(16 /* Boolean */, codicons_1.Codicon.symbolBoolean);
-        byKind.set(17 /* Array */, codicons_1.Codicon.symbolArray);
-        byKind.set(18 /* Object */, codicons_1.Codicon.symbolObject);
-        byKind.set(19 /* Key */, codicons_1.Codicon.symbolKey);
-        byKind.set(20 /* Null */, codicons_1.Codicon.symbolNull);
-        byKind.set(21 /* EnumMember */, codicons_1.Codicon.symbolEnumMember);
-        byKind.set(22 /* Struct */, codicons_1.Codicon.symbolStruct);
-        byKind.set(23 /* Event */, codicons_1.Codicon.symbolEvent);
-        byKind.set(24 /* Operator */, codicons_1.Codicon.symbolOperator);
-        byKind.set(25 /* TypeParameter */, codicons_1.Codicon.symbolTypeParameter);
-        /**
-         * @internal
-         */
-        function toIcon(kind) {
-            let icon = byKind.get(kind);
-            if (!icon) {
-                console.info('No codicon found for SymbolKind ' + kind);
-                icon = codicons_1.Codicon.symbolProperty;
-            }
-            return icon;
-        }
-        SymbolKinds.toIcon = toIcon;
-    })(SymbolKinds = exports.SymbolKinds || (exports.SymbolKinds = {}));
-    class FoldingRangeKind {
-        /**
-         * Creates a new {@link FoldingRangeKind}.
-         *
-         * @param value of the kind.
-         */
-        constructor(value) {
-            this.value = value;
-        }
-    }
-    exports.FoldingRangeKind = FoldingRangeKind;
-    /**
-     * Kind for folding range representing a comment. The value of the kind is 'comment'.
-     */
-    FoldingRangeKind.Comment = new FoldingRangeKind('comment');
-    /**
-     * Kind for folding range representing a import. The value of the kind is 'imports'.
-     */
-    FoldingRangeKind.Imports = new FoldingRangeKind('imports');
-    /**
-     * Kind for folding range representing regions (for example marked by `#region`, `#endregion`).
-     * The value of the kind is 'region'.
-     */
-    FoldingRangeKind.Region = new FoldingRangeKind('region');
-    /**
-     * @internal
-     */
-    var Command;
-    (function (Command) {
-        /**
-         * @internal
-         */
-        function is(obj) {
-            if (!obj || typeof obj !== 'object') {
-                return false;
-            }
-            return typeof obj.id === 'string' &&
-                typeof obj.title === 'string';
-        }
-        Command.is = is;
-    })(Command = exports.Command || (exports.Command = {}));
-    var InlayHintKind;
-    (function (InlayHintKind) {
-        InlayHintKind[InlayHintKind["Other"] = 0] = "Other";
-        InlayHintKind[InlayHintKind["Type"] = 1] = "Type";
-        InlayHintKind[InlayHintKind["Parameter"] = 2] = "Parameter";
-    })(InlayHintKind = exports.InlayHintKind || (exports.InlayHintKind = {}));
-    // --- feature registries ------
-    /**
-     * @internal
-     */
-    exports.ReferenceProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.RenameProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.CompletionProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.InlineCompletionsProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.SignatureHelpProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.HoverProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.EvaluatableExpressionProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.InlineValuesProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DocumentSymbolProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DocumentHighlightProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.LinkedEditingRangeProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DefinitionProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DeclarationProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.ImplementationProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.TypeDefinitionProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.CodeLensProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.InlayHintsProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.CodeActionProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DocumentFormattingEditProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DocumentRangeFormattingEditProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.OnTypeFormattingEditProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.LinkProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.ColorProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.SelectionRangeRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.FoldingRangeProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DocumentSemanticTokensProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.DocumentRangeSemanticTokensProviderRegistry = new languageFeatureRegistry_1.LanguageFeatureRegistry();
-    /**
-     * @internal
-     */
-    exports.TokenizationRegistry = new tokenizationRegistry_1.TokenizationRegistry();
-});
-
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[49/*vs/editor/common/services/editorBaseApi*/], __M([0/*require*/,1/*exports*/,13/*vs/base/common/cancellation*/,4/*vs/base/common/event*/,24/*vs/base/common/keyCodes*/,11/*vs/base/common/uri*/,5/*vs/editor/common/core/position*/,6/*vs/editor/common/core/range*/,34/*vs/editor/common/core/selection*/,48/*vs/editor/common/languages*/,46/*vs/editor/common/standalone/standaloneEnums*/]), function (require, exports, cancellation_1, event_1, keyCodes_1, uri_1, position_1, range_1, selection_1, languages_1, standaloneEnums) {
+define(__m[37/*vs/editor/common/standalone/standaloneBase*/], __M([0/*require*/,1/*exports*/,23/*vs/base/common/cancellation*/,7/*vs/base/common/event*/,19/*vs/base/common/keyCodes*/,13/*vs/base/common/uri*/,4/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/,27/*vs/editor/common/core/selection*/,28/*vs/editor/common/core/token*/,36/*vs/editor/common/standalone/standaloneEnums*/]), function (require, exports, cancellation_1, event_1, keyCodes_1, uri_1, position_1, range_1, selection_1, token_1, standaloneEnums) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createMonacoBaseAPI = exports.KeyMod = void 0;
@@ -17049,7 +12473,7 @@ define(__m[49/*vs/editor/common/services/editorBaseApi*/], __M([0/*require*/,1/*
             MarkerSeverity: standaloneEnums.MarkerSeverity,
             MarkerTag: standaloneEnums.MarkerTag,
             Uri: uri_1.URI,
-            Token: languages_1.Token
+            Token: token_1.Token
         };
     }
     exports.createMonacoBaseAPI = createMonacoBaseAPI;
@@ -17059,16 +12483,364 @@ define(__m[49/*vs/editor/common/services/editorBaseApi*/], __M([0/*require*/,1/*
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+define(__m[38/*vs/editor/common/viewModel/prefixSumComputer*/], __M([0/*require*/,1/*exports*/,15/*vs/base/common/arrays*/,12/*vs/base/common/uint*/]), function (require, exports, arrays_1, uint_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.PrefixSumIndexOfResult = exports.ConstantTimePrefixSumComputer = exports.PrefixSumComputer = void 0;
+    class PrefixSumComputer {
+        constructor(values) {
+            this.values = values;
+            this.prefixSum = new Uint32Array(values.length);
+            this.prefixSumValidIndex = new Int32Array(1);
+            this.prefixSumValidIndex[0] = -1;
+        }
+        insertValues(insertIndex, insertValues) {
+            insertIndex = (0, uint_1.toUint32)(insertIndex);
+            const oldValues = this.values;
+            const oldPrefixSum = this.prefixSum;
+            const insertValuesLen = insertValues.length;
+            if (insertValuesLen === 0) {
+                return false;
+            }
+            this.values = new Uint32Array(oldValues.length + insertValuesLen);
+            this.values.set(oldValues.subarray(0, insertIndex), 0);
+            this.values.set(oldValues.subarray(insertIndex), insertIndex + insertValuesLen);
+            this.values.set(insertValues, insertIndex);
+            if (insertIndex - 1 < this.prefixSumValidIndex[0]) {
+                this.prefixSumValidIndex[0] = insertIndex - 1;
+            }
+            this.prefixSum = new Uint32Array(this.values.length);
+            if (this.prefixSumValidIndex[0] >= 0) {
+                this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
+            }
+            return true;
+        }
+        setValue(index, value) {
+            index = (0, uint_1.toUint32)(index);
+            value = (0, uint_1.toUint32)(value);
+            if (this.values[index] === value) {
+                return false;
+            }
+            this.values[index] = value;
+            if (index - 1 < this.prefixSumValidIndex[0]) {
+                this.prefixSumValidIndex[0] = index - 1;
+            }
+            return true;
+        }
+        removeValues(startIndex, count) {
+            startIndex = (0, uint_1.toUint32)(startIndex);
+            count = (0, uint_1.toUint32)(count);
+            const oldValues = this.values;
+            const oldPrefixSum = this.prefixSum;
+            if (startIndex >= oldValues.length) {
+                return false;
+            }
+            let maxCount = oldValues.length - startIndex;
+            if (count >= maxCount) {
+                count = maxCount;
+            }
+            if (count === 0) {
+                return false;
+            }
+            this.values = new Uint32Array(oldValues.length - count);
+            this.values.set(oldValues.subarray(0, startIndex), 0);
+            this.values.set(oldValues.subarray(startIndex + count), startIndex);
+            this.prefixSum = new Uint32Array(this.values.length);
+            if (startIndex - 1 < this.prefixSumValidIndex[0]) {
+                this.prefixSumValidIndex[0] = startIndex - 1;
+            }
+            if (this.prefixSumValidIndex[0] >= 0) {
+                this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
+            }
+            return true;
+        }
+        getTotalSum() {
+            if (this.values.length === 0) {
+                return 0;
+            }
+            return this._getPrefixSum(this.values.length - 1);
+        }
+        /**
+         * Returns the sum of the first `index + 1` many items.
+         * @returns `SUM(0 <= j <= index, values[j])`.
+         */
+        getPrefixSum(index) {
+            if (index < 0) {
+                return 0;
+            }
+            index = (0, uint_1.toUint32)(index);
+            return this._getPrefixSum(index);
+        }
+        _getPrefixSum(index) {
+            if (index <= this.prefixSumValidIndex[0]) {
+                return this.prefixSum[index];
+            }
+            let startIndex = this.prefixSumValidIndex[0] + 1;
+            if (startIndex === 0) {
+                this.prefixSum[0] = this.values[0];
+                startIndex++;
+            }
+            if (index >= this.values.length) {
+                index = this.values.length - 1;
+            }
+            for (let i = startIndex; i <= index; i++) {
+                this.prefixSum[i] = this.prefixSum[i - 1] + this.values[i];
+            }
+            this.prefixSumValidIndex[0] = Math.max(this.prefixSumValidIndex[0], index);
+            return this.prefixSum[index];
+        }
+        getIndexOf(sum) {
+            sum = Math.floor(sum);
+            // Compute all sums (to get a fully valid prefixSum)
+            this.getTotalSum();
+            let low = 0;
+            let high = this.values.length - 1;
+            let mid = 0;
+            let midStop = 0;
+            let midStart = 0;
+            while (low <= high) {
+                mid = low + ((high - low) / 2) | 0;
+                midStop = this.prefixSum[mid];
+                midStart = midStop - this.values[mid];
+                if (sum < midStart) {
+                    high = mid - 1;
+                }
+                else if (sum >= midStop) {
+                    low = mid + 1;
+                }
+                else {
+                    break;
+                }
+            }
+            return new PrefixSumIndexOfResult(mid, sum - midStart);
+        }
+    }
+    exports.PrefixSumComputer = PrefixSumComputer;
+    /**
+     * {@link getIndexOf} has an amortized runtime complexity of O(1).
+     *
+     * ({@link PrefixSumComputer.getIndexOf} is just  O(log n))
+    */
+    class ConstantTimePrefixSumComputer {
+        constructor(values) {
+            this._values = values;
+            this._isValid = false;
+            this._validEndIndex = -1;
+            this._prefixSum = [];
+            this._indexBySum = [];
+        }
+        /**
+         * @returns SUM(0 <= j < values.length, values[j])
+         */
+        getTotalSum() {
+            this._ensureValid();
+            return this._indexBySum.length;
+        }
+        /**
+         * Returns the sum of the first `count` many items.
+         * @returns `SUM(0 <= j < count, values[j])`.
+         */
+        getPrefixSum(count) {
+            this._ensureValid();
+            if (count === 0) {
+                return 0;
+            }
+            return this._prefixSum[count - 1];
+        }
+        /**
+         * @returns `result`, such that `getPrefixSum(result.index) + result.remainder = sum`
+         */
+        getIndexOf(sum) {
+            this._ensureValid();
+            const idx = this._indexBySum[sum];
+            const viewLinesAbove = idx > 0 ? this._prefixSum[idx - 1] : 0;
+            return new PrefixSumIndexOfResult(idx, sum - viewLinesAbove);
+        }
+        removeValues(start, deleteCount) {
+            this._values.splice(start, deleteCount);
+            this._invalidate(start);
+        }
+        insertValues(insertIndex, insertArr) {
+            this._values = (0, arrays_1.arrayInsert)(this._values, insertIndex, insertArr);
+            this._invalidate(insertIndex);
+        }
+        _invalidate(index) {
+            this._isValid = false;
+            this._validEndIndex = Math.min(this._validEndIndex, index - 1);
+        }
+        _ensureValid() {
+            if (this._isValid) {
+                return;
+            }
+            for (let i = this._validEndIndex + 1, len = this._values.length; i < len; i++) {
+                const value = this._values[i];
+                const sumAbove = i > 0 ? this._prefixSum[i - 1] : 0;
+                this._prefixSum[i] = sumAbove + value;
+                for (let j = 0; j < value; j++) {
+                    this._indexBySum[sumAbove + j] = i;
+                }
+            }
+            // trim things
+            this._prefixSum.length = this._values.length;
+            this._indexBySum.length = this._prefixSum[this._prefixSum.length - 1];
+            // mark as valid
+            this._isValid = true;
+            this._validEndIndex = this._values.length - 1;
+        }
+        setValue(index, value) {
+            if (this._values[index] === value) {
+                // no change
+                return;
+            }
+            this._values[index] = value;
+            this._invalidate(index);
+        }
+    }
+    exports.ConstantTimePrefixSumComputer = ConstantTimePrefixSumComputer;
+    class PrefixSumIndexOfResult {
+        constructor(index, remainder) {
+            this.index = index;
+            this.remainder = remainder;
+            this._prefixSumIndexOfResultBrand = undefined;
+            this.index = index;
+            this.remainder = remainder;
+        }
+    }
+    exports.PrefixSumIndexOfResult = PrefixSumIndexOfResult;
+});
 
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[39/*vs/editor/common/model/mirrorTextModel*/], __M([0/*require*/,1/*exports*/,3/*vs/base/common/strings*/,4/*vs/editor/common/core/position*/,38/*vs/editor/common/viewModel/prefixSumComputer*/]), function (require, exports, strings_1, position_1, prefixSumComputer_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.MirrorTextModel = void 0;
+    class MirrorTextModel {
+        constructor(uri, lines, eol, versionId) {
+            this._uri = uri;
+            this._lines = lines;
+            this._eol = eol;
+            this._versionId = versionId;
+            this._lineStarts = null;
+            this._cachedTextValue = null;
+        }
+        dispose() {
+            this._lines.length = 0;
+        }
+        get version() {
+            return this._versionId;
+        }
+        getText() {
+            if (this._cachedTextValue === null) {
+                this._cachedTextValue = this._lines.join(this._eol);
+            }
+            return this._cachedTextValue;
+        }
+        onEvents(e) {
+            if (e.eol && e.eol !== this._eol) {
+                this._eol = e.eol;
+                this._lineStarts = null;
+            }
+            // Update my lines
+            const changes = e.changes;
+            for (const change of changes) {
+                this._acceptDeleteRange(change.range);
+                this._acceptInsertText(new position_1.Position(change.range.startLineNumber, change.range.startColumn), change.text);
+            }
+            this._versionId = e.versionId;
+            this._cachedTextValue = null;
+        }
+        _ensureLineStarts() {
+            if (!this._lineStarts) {
+                const eolLength = this._eol.length;
+                const linesLength = this._lines.length;
+                const lineStartValues = new Uint32Array(linesLength);
+                for (let i = 0; i < linesLength; i++) {
+                    lineStartValues[i] = this._lines[i].length + eolLength;
+                }
+                this._lineStarts = new prefixSumComputer_1.PrefixSumComputer(lineStartValues);
+            }
+        }
+        /**
+         * All changes to a line's text go through this method
+         */
+        _setLineText(lineIndex, newValue) {
+            this._lines[lineIndex] = newValue;
+            if (this._lineStarts) {
+                // update prefix sum
+                this._lineStarts.setValue(lineIndex, this._lines[lineIndex].length + this._eol.length);
+            }
+        }
+        _acceptDeleteRange(range) {
+            if (range.startLineNumber === range.endLineNumber) {
+                if (range.startColumn === range.endColumn) {
+                    // Nothing to delete
+                    return;
+                }
+                // Delete text on the affected line
+                this._setLineText(range.startLineNumber - 1, this._lines[range.startLineNumber - 1].substring(0, range.startColumn - 1)
+                    + this._lines[range.startLineNumber - 1].substring(range.endColumn - 1));
+                return;
+            }
+            // Take remaining text on last line and append it to remaining text on first line
+            this._setLineText(range.startLineNumber - 1, this._lines[range.startLineNumber - 1].substring(0, range.startColumn - 1)
+                + this._lines[range.endLineNumber - 1].substring(range.endColumn - 1));
+            // Delete middle lines
+            this._lines.splice(range.startLineNumber, range.endLineNumber - range.startLineNumber);
+            if (this._lineStarts) {
+                // update prefix sum
+                this._lineStarts.removeValues(range.startLineNumber, range.endLineNumber - range.startLineNumber);
+            }
+        }
+        _acceptInsertText(position, insertText) {
+            if (insertText.length === 0) {
+                // Nothing to insert
+                return;
+            }
+            let insertLines = (0, strings_1.splitLines)(insertText);
+            if (insertLines.length === 1) {
+                // Inserting text on one line
+                this._setLineText(position.lineNumber - 1, this._lines[position.lineNumber - 1].substring(0, position.column - 1)
+                    + insertLines[0]
+                    + this._lines[position.lineNumber - 1].substring(position.column - 1));
+                return;
+            }
+            // Append overflowing text from first line to the end of text to insert
+            insertLines[insertLines.length - 1] += this._lines[position.lineNumber - 1].substring(position.column - 1);
+            // Delete overflowing text from first line and insert text on first line
+            this._setLineText(position.lineNumber - 1, this._lines[position.lineNumber - 1].substring(0, position.column - 1)
+                + insertLines[0]);
+            // Insert new lines & store lengths
+            let newLengths = new Uint32Array(insertLines.length - 1);
+            for (let i = 1; i < insertLines.length; i++) {
+                this._lines.splice(position.lineNumber + i - 1, 0, insertLines[i]);
+                newLengths[i - 1] = insertLines[i].length + this._eol.length;
+            }
+            if (this._lineStarts) {
+                // update prefix sum
+                this._lineStarts.insertValues(position.lineNumber, newLengths);
+            }
+        }
+    }
+    exports.MirrorTextModel = MirrorTextModel;
+});
 
-
-
-
-
-
-
-
-define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*/,1/*exports*/,14/*vs/base/common/diff/diff*/,3/*vs/base/common/platform*/,11/*vs/base/common/uri*/,5/*vs/editor/common/core/position*/,6/*vs/editor/common/core/range*/,37/*vs/editor/common/diff/diffComputer*/,43/*vs/editor/common/model/mirrorTextModel*/,36/*vs/editor/common/core/wordHelper*/,39/*vs/editor/common/languages/linkComputer*/,40/*vs/editor/common/languages/supports/inplaceReplaceSupport*/,49/*vs/editor/common/services/editorBaseApi*/,9/*vs/base/common/types*/,12/*vs/base/common/stopwatch*/,45/*vs/editor/common/languages/unicodeTextModelHighlighter*/]), function (require, exports, diff_1, platform_1, uri_1, position_1, range_1, diffComputer_1, mirrorTextModel_1, wordHelper_1, linkComputer_1, inplaceReplaceSupport_1, editorBaseApi_1, types, stopwatch_1, unicodeTextModelHighlighter_1) {
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+define(__m[41/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*/,1/*exports*/,11/*vs/base/common/diff/diff*/,2/*vs/base/common/platform*/,13/*vs/base/common/uri*/,4/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/,29/*vs/editor/common/diff/diffComputer*/,39/*vs/editor/common/model/mirrorTextModel*/,32/*vs/editor/common/model/wordHelper*/,33/*vs/editor/common/modes/linkComputer*/,34/*vs/editor/common/modes/supports/inplaceReplaceSupport*/,37/*vs/editor/common/standalone/standaloneBase*/,6/*vs/base/common/types*/,10/*vs/base/common/stopwatch*/,35/*vs/editor/common/modes/unicodeTextModelHighlighter*/]), function (require, exports, diff_1, platform_1, uri_1, position_1, range_1, diffComputer_1, mirrorTextModel_1, wordHelper_1, linkComputer_1, inplaceReplaceSupport_1, standaloneBase_1, types, stopwatch_1, unicodeTextModelHighlighter_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.create = exports.EditorSimpleWorker = exports.MirrorModel = void 0;
@@ -17095,7 +12867,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
             return this._lines[lineNumber - 1];
         }
         getWordAtPosition(position, wordDefinition) {
-            const wordAtText = (0, wordHelper_1.getWordAtText)(position.column, (0, wordHelper_1.ensureValidWordDefinition)(wordDefinition), this._lines[position.lineNumber - 1], 0);
+            let wordAtText = (0, wordHelper_1.getWordAtText)(position.column, (0, wordHelper_1.ensureValidWordDefinition)(wordDefinition), this._lines[position.lineNumber - 1], 0);
             if (wordAtText) {
                 return new range_1.Range(position.lineNumber, wordAtText.startColumn, position.lineNumber, wordAtText.endColumn);
             }
@@ -17132,9 +12904,9 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
             };
         }
         getLineWords(lineNumber, wordDefinition) {
-            const content = this._lines[lineNumber - 1];
-            const ranges = this._wordenize(content, wordDefinition);
-            const words = [];
+            let content = this._lines[lineNumber - 1];
+            let ranges = this._wordenize(content, wordDefinition);
+            let words = [];
             for (const range of ranges) {
                 words.push({
                     word: content.substring(range.start, range.end),
@@ -17162,10 +12934,10 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
             if (range.startLineNumber === range.endLineNumber) {
                 return this._lines[range.startLineNumber - 1].substring(range.startColumn - 1, range.endColumn - 1);
             }
-            const lineEnding = this._eol;
-            const startLineIndex = range.startLineNumber - 1;
-            const endLineIndex = range.endLineNumber - 1;
-            const resultLines = [];
+            let lineEnding = this._eol;
+            let startLineIndex = range.startLineNumber - 1;
+            let endLineIndex = range.endLineNumber - 1;
+            let resultLines = [];
             resultLines.push(this._lines[startLineIndex].substring(range.startColumn - 1));
             for (let i = startLineIndex + 1; i < endLineIndex; i++) {
                 resultLines.push(this._lines[i]);
@@ -17182,8 +12954,8 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
             offset = Math.floor(offset);
             offset = Math.max(0, offset);
             this._ensureLineStarts();
-            const out = this._lineStarts.getIndexOf(offset);
-            const lineLength = this._lines[out.index].length;
+            let out = this._lineStarts.getIndexOf(offset);
+            let lineLength = this._lines[out.index].length;
             // Ensure we return a valid position
             return {
                 lineNumber: 1 + out.index,
@@ -17223,7 +12995,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
                 hasChanged = true;
             }
             else {
-                const maxCharacter = this._lines[lineNumber - 1].length + 1;
+                let maxCharacter = this._lines[lineNumber - 1].length + 1;
                 if (column < 1) {
                     column = 1;
                     hasChanged = true;
@@ -17259,7 +13031,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
             return this._models[uri];
         }
         _getModels() {
-            const all = [];
+            let all = [];
             Object.keys(this._models).forEach((key) => all.push(this._models[key]));
             return all;
         }
@@ -17270,7 +13042,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
             if (!this._models[strURL]) {
                 return;
             }
-            const model = this._models[strURL];
+            let model = this._models[strURL];
             model.onEvents(e);
         }
         acceptRemovedModel(strURL) {
@@ -17342,8 +13114,8 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
                         return range_1.Range.compareRangesUsingStarts(a.range, b.range);
                     }
                     // eol only changes should go to the end
-                    const aRng = a.range ? 0 : 1;
-                    const bRng = b.range ? 0 : 1;
+                    let aRng = a.range ? 0 : 1;
+                    let bRng = b.range ? 0 : 1;
                     return aRng - bRng;
                 });
                 for (let { range, text, eol } of edits) {
@@ -17389,7 +13161,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
         // ---- END minimal edits ---------------------------------------------------------------
         computeLinks(modelUrl) {
             return __awaiter(this, void 0, void 0, function* () {
-                const model = this._getModel(modelUrl);
+                let model = this._getModel(modelUrl);
                 if (!model) {
                     return null;
                 }
@@ -17423,14 +13195,14 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
         //#region -- word ranges --
         computeWordRanges(modelUrl, range, wordDef, wordDefFlags) {
             return __awaiter(this, void 0, void 0, function* () {
-                const model = this._getModel(modelUrl);
+                let model = this._getModel(modelUrl);
                 if (!model) {
                     return Object.create(null);
                 }
                 const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
                 const result = Object.create(null);
                 for (let line = range.startLineNumber; line < range.endLineNumber; line++) {
-                    const words = model.getLineWords(line, wordDefRegExp);
+                    let words = model.getLineWords(line, wordDefRegExp);
                     for (const word of words) {
                         if (!isNaN(Number(word.word))) {
                             continue;
@@ -17454,11 +13226,11 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
         //#endregion
         navigateValueSet(modelUrl, range, up, wordDef, wordDefFlags) {
             return __awaiter(this, void 0, void 0, function* () {
-                const model = this._getModel(modelUrl);
+                let model = this._getModel(modelUrl);
                 if (!model) {
                     return null;
                 }
-                const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+                let wordDefRegExp = new RegExp(wordDef, wordDefFlags);
                 if (range.startColumn === range.endColumn) {
                     range = {
                         startLineNumber: range.startLineNumber,
@@ -17467,13 +13239,13 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
                         endColumn: range.endColumn + 1
                     };
                 }
-                const selectionText = model.getValueInRange(range);
-                const wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
+                let selectionText = model.getValueInRange(range);
+                let wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
                 if (!wordRange) {
                     return null;
                 }
-                const word = model.getValueInRange(wordRange);
-                const result = inplaceReplaceSupport_1.BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
+                let word = model.getValueInRange(wordRange);
+                let result = inplaceReplaceSupport_1.BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
                 return result;
             });
         }
@@ -17483,7 +13255,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
                 return this._host.fhr(method, args);
             };
             const foreignHost = types.createProxyObject(foreignHostMethods, proxyMethodRequest);
-            const ctx = {
+            let ctx = {
                 host: foreignHost,
                 getMirrorModels: () => {
                     return this._getModels();
@@ -17535,7 +13307,7 @@ define(__m[51/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*
     exports.create = create;
     if (typeof importScripts === 'function') {
         // Running in a web worker
-        platform_1.globals.monaco = (0, editorBaseApi_1.createMonacoBaseAPI)();
+        platform_1.globals.monaco = (0, standaloneBase_1.createMonacoBaseAPI)();
     }
 });
 

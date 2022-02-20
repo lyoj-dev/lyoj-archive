@@ -19,13 +19,13 @@
         }
         return rmdir($path);
     } $id=$_GET["id"];
-    deldir("../../../problem/$id/");mkdir("../../../problem/$id");
+    deldir("../../../../problem/$id/");mkdir("../../../../problem/$id");
     $data = explode(",",$_POST["file"]);
     $data = base64_decode($data[1]);
-    $fp=fopen("../../../problem/$id/data.zip","wb");fwrite($fp,$data);
+    $fp=fopen("../../../../problem/$id/data.zip","wb");fwrite($fp,$data);
     fclose($fp); $zip = new ZipArchive();
-    $filePath = realpath("../../../problem/$id/data.zip");
-    $path = realpath("../../../problem/$id/");
+    $filePath = realpath("../../../../problem/$id/data.zip");
+    $path = realpath("../../../../problem/$id/");
     if ($zip->open($filePath) === true) {
         $zip->extractTo($path);
         $zip->close();
@@ -33,7 +33,7 @@
         unlink($filePath);
         exit;
     } unlink($filePath);
-    $files=scandir("../../../problem/$id/");$bracket=array();
+    $files=scandir("../../../../problem/$id/");$bracket=array();
     for ($i=0;$i<count($files);$i++) {
         $name=explode(".",$files[$i])[0];
         $extension=explode(".",$files[$i])[1];
@@ -71,6 +71,6 @@
         }
     } if (count($json["data"])) $min=100/count($json["data"]);$max=count($json["data"])-(100-count($json["data"])*$min);
     for ($i=0;$i<count($json["data"]);$i++) $json["data"][$i]["score"]=($i<=$max?$min:$min+1);
-    $fp=fopen("../../../problem/$id/config.json","wb");fwrite($fp,json_encode($json));fclose($fp);
+    $fp=fopen("../../../../problem/$id/config.json","wb");fwrite($fp,json_encode($json));fclose($fp);
     echo "Upload Successfully! pid: $id";
 ?>

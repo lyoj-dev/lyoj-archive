@@ -1,7 +1,7 @@
 import '../../editor/editor.api.js';
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -10,25 +10,28 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
+var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+var __reExport = (target, module, desc) => {
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
         __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
   }
   return target;
 };
 
-// src/language/typescript/lib/typescriptServicesMetadata.ts
-var typescriptVersion = "4.5.5";
+// src/typescript/lib/typescriptServicesMetadata.ts
+var typescriptVersion = "4.4.4";
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
+__markAsModule(monaco_editor_core_exports);
 __reExport(monaco_editor_core_exports, monaco_editor_core_star);
 import * as monaco_editor_core_star from "../../editor/editor.api.js";
 
-// src/language/typescript/monaco.contribution.ts
-var ModuleKind = /* @__PURE__ */ ((ModuleKind2) => {
+// src/typescript/monaco.contribution.ts
+var ModuleKind;
+(function(ModuleKind2) {
   ModuleKind2[ModuleKind2["None"] = 0] = "None";
   ModuleKind2[ModuleKind2["CommonJS"] = 1] = "CommonJS";
   ModuleKind2[ModuleKind2["AMD"] = 2] = "AMD";
@@ -36,23 +39,23 @@ var ModuleKind = /* @__PURE__ */ ((ModuleKind2) => {
   ModuleKind2[ModuleKind2["System"] = 4] = "System";
   ModuleKind2[ModuleKind2["ES2015"] = 5] = "ES2015";
   ModuleKind2[ModuleKind2["ESNext"] = 99] = "ESNext";
-  return ModuleKind2;
-})(ModuleKind || {});
-var JsxEmit = /* @__PURE__ */ ((JsxEmit2) => {
+})(ModuleKind || (ModuleKind = {}));
+var JsxEmit;
+(function(JsxEmit2) {
   JsxEmit2[JsxEmit2["None"] = 0] = "None";
   JsxEmit2[JsxEmit2["Preserve"] = 1] = "Preserve";
   JsxEmit2[JsxEmit2["React"] = 2] = "React";
   JsxEmit2[JsxEmit2["ReactNative"] = 3] = "ReactNative";
   JsxEmit2[JsxEmit2["ReactJSX"] = 4] = "ReactJSX";
   JsxEmit2[JsxEmit2["ReactJSXDev"] = 5] = "ReactJSXDev";
-  return JsxEmit2;
-})(JsxEmit || {});
-var NewLineKind = /* @__PURE__ */ ((NewLineKind2) => {
+})(JsxEmit || (JsxEmit = {}));
+var NewLineKind;
+(function(NewLineKind2) {
   NewLineKind2[NewLineKind2["CarriageReturnLineFeed"] = 0] = "CarriageReturnLineFeed";
   NewLineKind2[NewLineKind2["LineFeed"] = 1] = "LineFeed";
-  return NewLineKind2;
-})(NewLineKind || {});
-var ScriptTarget = /* @__PURE__ */ ((ScriptTarget2) => {
+})(NewLineKind || (NewLineKind = {}));
+var ScriptTarget;
+(function(ScriptTarget2) {
   ScriptTarget2[ScriptTarget2["ES3"] = 0] = "ES3";
   ScriptTarget2[ScriptTarget2["ES5"] = 1] = "ES5";
   ScriptTarget2[ScriptTarget2["ES2015"] = 2] = "ES2015";
@@ -64,27 +67,18 @@ var ScriptTarget = /* @__PURE__ */ ((ScriptTarget2) => {
   ScriptTarget2[ScriptTarget2["ESNext"] = 99] = "ESNext";
   ScriptTarget2[ScriptTarget2["JSON"] = 100] = "JSON";
   ScriptTarget2[ScriptTarget2["Latest"] = 99] = "Latest";
-  return ScriptTarget2;
-})(ScriptTarget || {});
-var ModuleResolutionKind = /* @__PURE__ */ ((ModuleResolutionKind2) => {
+})(ScriptTarget || (ScriptTarget = {}));
+var ModuleResolutionKind;
+(function(ModuleResolutionKind2) {
   ModuleResolutionKind2[ModuleResolutionKind2["Classic"] = 1] = "Classic";
   ModuleResolutionKind2[ModuleResolutionKind2["NodeJs"] = 2] = "NodeJs";
-  return ModuleResolutionKind2;
-})(ModuleResolutionKind || {});
+})(ModuleResolutionKind || (ModuleResolutionKind = {}));
 var LanguageServiceDefaultsImpl = class {
-  _onDidChange = new monaco_editor_core_exports.Emitter();
-  _onDidExtraLibsChange = new monaco_editor_core_exports.Emitter();
-  _extraLibs;
-  _removedExtraLibs;
-  _eagerModelSync;
-  _compilerOptions;
-  _diagnosticsOptions;
-  _workerOptions;
-  _onDidExtraLibsChangeTimeout;
-  _inlayHintsOptions;
   constructor(compilerOptions, diagnosticsOptions, workerOptions, inlayHintsOptions) {
-    this._extraLibs = /* @__PURE__ */ Object.create(null);
-    this._removedExtraLibs = /* @__PURE__ */ Object.create(null);
+    this._onDidChange = new monaco_editor_core_exports.Emitter();
+    this._onDidExtraLibsChange = new monaco_editor_core_exports.Emitter();
+    this._extraLibs = Object.create(null);
+    this._removedExtraLibs = Object.create(null);
     this._eagerModelSync = false;
     this.setCompilerOptions(compilerOptions);
     this.setDiagnosticsOptions(diagnosticsOptions);
@@ -151,7 +145,7 @@ var LanguageServiceDefaultsImpl = class {
     for (const filePath in this._extraLibs) {
       this._removedExtraLibs[filePath] = this._extraLibs[filePath].version;
     }
-    this._extraLibs = /* @__PURE__ */ Object.create(null);
+    this._extraLibs = Object.create(null);
     if (libs && libs.length > 0) {
       for (const lib of libs) {
         const filePath = lib.filePath || `ts:extralib-${Math.random().toString(36).substring(2, 15)}`;
@@ -181,22 +175,22 @@ var LanguageServiceDefaultsImpl = class {
     return this._compilerOptions;
   }
   setCompilerOptions(options) {
-    this._compilerOptions = options || /* @__PURE__ */ Object.create(null);
+    this._compilerOptions = options || Object.create(null);
     this._onDidChange.fire(void 0);
   }
   getDiagnosticsOptions() {
     return this._diagnosticsOptions;
   }
   setDiagnosticsOptions(options) {
-    this._diagnosticsOptions = options || /* @__PURE__ */ Object.create(null);
+    this._diagnosticsOptions = options || Object.create(null);
     this._onDidChange.fire(void 0);
   }
   setWorkerOptions(options) {
-    this._workerOptions = options || /* @__PURE__ */ Object.create(null);
+    this._workerOptions = options || Object.create(null);
     this._onDidChange.fire(void 0);
   }
   setInlayHintsOptions(options) {
-    this._inlayHintsOptions = options || /* @__PURE__ */ Object.create(null);
+    this._inlayHintsOptions = options || Object.create(null);
     this._onDidChange.fire(void 0);
   }
   setMaximumWorkerIdleTime(value) {
@@ -209,8 +203,8 @@ var LanguageServiceDefaultsImpl = class {
   }
 };
 var typescriptVersion2 = typescriptVersion;
-var typescriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, target: 99 /* Latest */ }, { noSemanticValidation: false, noSyntaxValidation: false, onlyVisible: false }, {}, {});
-var javascriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, allowJs: true, target: 99 /* Latest */ }, { noSemanticValidation: true, noSyntaxValidation: false, onlyVisible: false }, {}, {});
+var typescriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, target: 99 }, { noSemanticValidation: false, noSyntaxValidation: false, onlyVisible: false }, {}, {});
+var javascriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, allowJs: true, target: 99 }, { noSemanticValidation: true, noSyntaxValidation: false, onlyVisible: false }, {}, {});
 var getTypeScriptWorker = () => {
   return getMode().then((mode) => mode.getTypeScriptWorker());
 };

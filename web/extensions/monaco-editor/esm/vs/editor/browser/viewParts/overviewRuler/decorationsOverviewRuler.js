@@ -6,23 +6,23 @@ import { createFastDomNode } from '../../../../base/browser/fastDomNode.js';
 import { Color } from '../../../../base/common/color.js';
 import { ViewPart } from '../../view/viewPart.js';
 import { Position } from '../../../common/core/position.js';
-import { TokenizationRegistry } from '../../../common/languages.js';
-import { editorCursorForeground, editorOverviewRulerBorder, editorOverviewRulerBackground } from '../../../common/core/editorColorRegistry.js';
+import { TokenizationRegistry } from '../../../common/modes.js';
+import { editorCursorForeground, editorOverviewRulerBorder, editorOverviewRulerBackground } from '../../../common/view/editorColorRegistry.js';
 import { OverviewRulerDecorationsGroup } from '../../../common/viewModel/viewModel.js';
 class Settings {
     constructor(config, theme) {
         const options = config.options;
-        this.lineHeight = options.get(59 /* lineHeight */);
-        this.pixelRatio = options.get(129 /* pixelRatio */);
-        this.overviewRulerLanes = options.get(74 /* overviewRulerLanes */);
-        this.renderBorder = options.get(73 /* overviewRulerBorder */);
+        this.lineHeight = options.get(58 /* lineHeight */);
+        this.pixelRatio = options.get(128 /* pixelRatio */);
+        this.overviewRulerLanes = options.get(73 /* overviewRulerLanes */);
+        this.renderBorder = options.get(72 /* overviewRulerBorder */);
         const borderColor = theme.getColor(editorOverviewRulerBorder);
         this.borderColor = borderColor ? borderColor.toString() : null;
-        this.hideCursor = options.get(52 /* hideCursorInOverviewRuler */);
+        this.hideCursor = options.get(51 /* hideCursorInOverviewRuler */);
         const cursorColor = theme.getColor(editorCursorForeground);
         this.cursorColor = cursorColor ? cursorColor.transparent(0.7).toString() : null;
         this.themeType = theme.type;
-        const minimapOpts = options.get(65 /* minimap */);
+        const minimapOpts = options.get(64 /* minimap */);
         const minimapEnabled = minimapOpts.enabled;
         const minimapSide = minimapOpts.side;
         const backgroundColor = minimapEnabled
@@ -34,7 +34,7 @@ class Settings {
         else {
             this.backgroundColor = Color.Format.CSS.formatHex(backgroundColor);
         }
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(130 /* layoutInfo */);
         const position = layoutInfo.overviewRuler;
         this.top = position.top;
         this.right = position.right;
@@ -240,10 +240,8 @@ export class DecorationsOverviewRuler extends ViewPart {
         if (this._settings.overviewRulerLanes === 0) {
             // overview ruler is off
             this._domNode.setBackgroundColor(this._settings.backgroundColor ? this._settings.backgroundColor : '');
-            this._domNode.setDisplay('none');
             return;
         }
-        this._domNode.setDisplay('block');
         const canvasWidth = this._settings.canvasWidth;
         const canvasHeight = this._settings.canvasHeight;
         const lineHeight = this._settings.lineHeight;

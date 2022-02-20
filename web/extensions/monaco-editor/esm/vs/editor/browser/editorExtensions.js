@@ -6,7 +6,7 @@ import * as nls from '../../nls.js';
 import { URI } from '../../base/common/uri.js';
 import { ICodeEditorService } from './services/codeEditorService.js';
 import { Position } from '../common/core/position.js';
-import { IModelService } from '../common/services/model.js';
+import { IModelService } from '../common/services/modelService.js';
 import { ITextModelService } from '../common/services/resolverService.js';
 import { MenuId, MenuRegistry } from '../../platform/actions/common/actions.js';
 import { CommandsRegistry } from '../../platform/commands/common/commands.js';
@@ -143,7 +143,7 @@ export class EditorCommand extends Command {
             runEditorCommand(accessor, editor, args) {
                 const controller = controllerGetter(editor);
                 if (controller) {
-                    this._callback(controller, args);
+                    this._callback(controllerGetter(editor), args);
                 }
             }
         };

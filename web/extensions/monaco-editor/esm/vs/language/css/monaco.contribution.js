@@ -1,7 +1,7 @@
 import '../../editor/editor.api.js';
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -10,10 +10,11 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
+var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+var __reExport = (target, module, desc) => {
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
         __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
   }
   return target;
@@ -21,16 +22,14 @@ var __reExport = (target, module, copyDefault, desc) => {
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
+__markAsModule(monaco_editor_core_exports);
 __reExport(monaco_editor_core_exports, monaco_editor_core_star);
 import * as monaco_editor_core_star from "../../editor/editor.api.js";
 
-// src/language/css/monaco.contribution.ts
+// src/css/monaco.contribution.ts
 var LanguageServiceDefaultsImpl = class {
-  _onDidChange = new monaco_editor_core_exports.Emitter();
-  _options;
-  _modeConfiguration;
-  _languageId;
   constructor(languageId, options, modeConfiguration) {
+    this._onDidChange = new monaco_editor_core_exports.Emitter();
     this._languageId = languageId;
     this.setOptions(options);
     this.setModeConfiguration(modeConfiguration);
@@ -51,14 +50,14 @@ var LanguageServiceDefaultsImpl = class {
     return this._options;
   }
   setOptions(options) {
-    this._options = options || /* @__PURE__ */ Object.create(null);
+    this._options = options || Object.create(null);
     this._onDidChange.fire(this);
   }
   setDiagnosticsOptions(options) {
     this.setOptions(options);
   }
   setModeConfiguration(modeConfiguration) {
-    this._modeConfiguration = modeConfiguration || /* @__PURE__ */ Object.create(null);
+    this._modeConfiguration = modeConfiguration || Object.create(null);
     this._onDidChange.fire(this);
   }
 };

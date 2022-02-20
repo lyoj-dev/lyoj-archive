@@ -326,6 +326,7 @@ export const overviewRulerIncomingContentForeground = registerColor('editorOverv
 export const overviewRulerCommonContentForeground = registerColor('editorOverviewRuler.commonContentForeground', { dark: transparent(mergeCommonHeaderBackground, rulerTransparency), light: transparent(mergeCommonHeaderBackground, rulerTransparency), hc: mergeBorder }, nls.localize('overviewRulerCommonContentForeground', 'Common ancestor overview ruler foreground for inline merge-conflicts.'));
 export const overviewRulerFindMatchForeground = registerColor('editorOverviewRuler.findMatchForeground', { dark: '#d186167e', light: '#d186167e', hc: '#AB5A00' }, nls.localize('overviewRulerFindMatchForeground', 'Overview ruler marker color for find matches. The color must not be opaque so as not to hide underlying decorations.'), true);
 export const overviewRulerSelectionHighlightForeground = registerColor('editorOverviewRuler.selectionHighlightForeground', { dark: '#A0A0A0CC', light: '#A0A0A0CC', hc: '#A0A0A0CC' }, nls.localize('overviewRulerSelectionHighlightForeground', 'Overview ruler marker color for selection highlights. The color must not be opaque so as not to hide underlying decorations.'), true);
+export const overviewRulerUnicodeHighlightForeground = registerColor('editorOverviewRuler.unicodeForeground', { dark: '#d186167e', light: '#d186167e', hc: '#AB5A00' }, nls.localize('overviewRulerUnicodeForeground', 'Overview ruler marker color for highlighted unicode characters. The color must not be opaque so as not to hide underlying decorations.'), true);
 export const minimapFindMatch = registerColor('minimap.findMatchHighlight', { light: '#d18616', dark: '#d18616', hc: '#AB5A00' }, nls.localize('minimapFindMatchHighlight', 'Minimap marker color for find matches.'), true);
 export const minimapSelectionOccurrenceHighlight = registerColor('minimap.selectionOccurrenceHighlight', { light: '#c9c9c9', dark: '#676767', hc: '#ffffff' }, nls.localize('minimapSelectionOccurrenceHighlight', 'Minimap marker color for repeating editor selections.'), true);
 export const minimapSelection = registerColor('minimap.selectionHighlight', { light: '#ADD6FF', dark: '#264F78', hc: '#ffffff' }, nls.localize('minimapSelectionHighlight', 'Minimap marker color for the editor selection.'), true);
@@ -333,6 +334,7 @@ export const minimapError = registerColor('minimap.errorHighlight', { dark: new 
 export const minimapWarning = registerColor('minimap.warningHighlight', { dark: editorWarningForeground, light: editorWarningForeground, hc: editorWarningBorder }, nls.localize('overviewRuleWarning', 'Minimap marker color for warnings.'));
 export const minimapBackground = registerColor('minimap.background', { dark: null, light: null, hc: null }, nls.localize('minimapBackground', "Minimap background color."));
 export const minimapForegroundOpacity = registerColor('minimap.foregroundOpacity', { dark: Color.fromHex('#000f'), light: Color.fromHex('#000f'), hc: Color.fromHex('#000f') }, nls.localize('minimapForegroundOpacity', 'Opacity of foreground elements rendered in the minimap. For example, "#000000c0" will render the elements with 75% opacity.'));
+export const minimapUnicodeHighlight = registerColor('minimap.unicodeHighlight', { light: '#d18616', dark: '#d18616', hc: '#AB5A00' }, nls.localize('minimapUnicodeHighlight', 'Minimap marker color for highlighted unicode characters.'));
 export const minimapSliderBackground = registerColor('minimapSlider.background', { light: transparent(scrollbarSliderBackground, 0.5), dark: transparent(scrollbarSliderBackground, 0.5), hc: transparent(scrollbarSliderBackground, 0.5) }, nls.localize('minimapSliderBackground', "Minimap slider background color."));
 export const minimapSliderHoverBackground = registerColor('minimapSlider.hoverBackground', { light: transparent(scrollbarSliderHoverBackground, 0.5), dark: transparent(scrollbarSliderHoverBackground, 0.5), hc: transparent(scrollbarSliderHoverBackground, 0.5) }, nls.localize('minimapSliderHoverBackground', "Minimap slider background color when hovering."));
 export const minimapSliderActiveBackground = registerColor('minimapSlider.activeBackground', { light: transparent(scrollbarSliderActiveBackground, 0.5), dark: transparent(scrollbarSliderActiveBackground, 0.5), hc: transparent(scrollbarSliderActiveBackground, 0.5) }, nls.localize('minimapSliderActiveBackground', "Minimap slider background color when clicked on."));
@@ -370,7 +372,7 @@ export function executeTransform(transform, theme) {
             return undefined;
         case 5 /* IfDefinedThenElse */:
             return resolveColorValue(theme.defines(transform.if) ? transform.then : transform.else, theme);
-        case 4 /* LessProminent */: {
+        case 4 /* LessProminent */:
             const from = resolveColorValue(transform.value, theme);
             if (!from) {
                 return undefined;
@@ -382,7 +384,6 @@ export function executeTransform(transform, theme) {
             return from.isDarkerThan(backgroundColor)
                 ? Color.getLighterColor(from, backgroundColor, transform.factor).transparent(transform.transparency)
                 : Color.getDarkerColor(from, backgroundColor, transform.factor).transparent(transform.transparency);
-        }
         default:
             throw assertNever(transform);
     }

@@ -175,11 +175,7 @@ export class ListView {
             this.rowsContainer.style.transform = 'translate3d(0px, 0px, 0px)';
         }
         this.disposables.add(Gesture.addTarget(this.rowsContainer));
-        this.scrollable = new Scrollable({
-            forceIntegerValues: true,
-            smoothScrollDuration: getOrDefault(options, o => o.smoothScrolling, false) ? 125 : 0,
-            scheduleAtNextAnimationFrame: cb => scheduleAtNextAnimationFrame(cb)
-        });
+        this.scrollable = new Scrollable(getOrDefault(options, o => o.smoothScrolling, false) ? 125 : 0, cb => scheduleAtNextAnimationFrame(cb));
         this.scrollableElement = this.disposables.add(new SmoothScrollableElement(this.rowsContainer, {
             alwaysConsumeMouseWheel: getOrDefault(options, o => o.alwaysConsumeMouseWheel, DefaultOptions.alwaysConsumeMouseWheel),
             horizontal: 1 /* Auto */,
@@ -267,7 +263,7 @@ export class ListView {
         const removeRange = Range.intersect(previousRenderRange, deleteRange);
         // try to reuse rows, avoid removing them from DOM
         const rowsToDispose = new Map();
-        for (let i = removeRange.end - 1; i >= removeRange.start; i--) {
+        for (let i = removeRange.start; i < removeRange.end; i++) {
             const item = this.items[i];
             item.dragStartDisposable.dispose();
             if (item.row) {

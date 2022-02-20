@@ -374,7 +374,6 @@ export class Dimension {
         return a.width === b.width && a.height === b.height;
     }
 }
-Dimension.None = new Dimension(0, 0);
 export function getTopLeftOffset(element) {
     // Adapted from WinJS.Utilities.getPosition
     // and added borders to the mix
@@ -986,5 +985,11 @@ export class ModifierKeyEmitter extends Emitter {
 }
 export function addMatchMediaChangeListener(query, callback) {
     const mediaQueryList = window.matchMedia(query);
-    mediaQueryList.addEventListener('change', callback);
+    if (typeof mediaQueryList.addEventListener === 'function') {
+        mediaQueryList.addEventListener('change', callback);
+    }
+    else {
+        // Safari 13.x
+        mediaQueryList.addListener(callback);
+    }
 }

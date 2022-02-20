@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 import { TreeError } from './tree.js';
 import { splice, tail2 } from '../../../common/arrays.js';
-import { Delayer, MicrotaskDelay } from '../../../common/async.js';
 import { LcsDiff } from '../../../common/diff/diff.js';
 import { Emitter, EventBufferer } from '../../../common/event.js';
 import { Iterable } from '../../../common/iterator.js';
@@ -33,7 +32,6 @@ export class IndexTreeModel {
         this.onDidChangeRenderNodeCount = this.eventBufferer.wrapEvent(this._onDidChangeRenderNodeCount.event);
         this._onDidSplice = new Emitter();
         this.onDidSplice = this._onDidSplice.event;
-        this.refilterDelayer = new Delayer(MicrotaskDelay);
         this.collapseByDefault = typeof options.collapseByDefault === 'undefined' ? false : options.collapseByDefault;
         this.filter = options.filter;
         this.autoExpandSingleChildren = typeof options.autoExpandSingleChildren === 'undefined' ? false : options.autoExpandSingleChildren;
@@ -180,8 +178,7 @@ export class IndexTreeModel {
         let node = parentNode;
         while (node) {
             if (node.visibility === 2 /* Recurse */) {
-                // delayed to avoid excessive refiltering, see #135941
-                this.refilterDelayer.trigger(() => this.refilter());
+                this.refilter();
                 break;
             }
             node = node.parent;
@@ -306,7 +303,6 @@ export class IndexTreeModel {
         const previousRenderNodeCount = this.root.renderNodeCount;
         const toInsert = this.updateNodeAfterFilterChange(this.root);
         this.list.splice(0, previousRenderNodeCount, toInsert);
-        this.refilterDelayer.cancel();
     }
     createTreeNode(treeElement, parent, parentVisibility, revealed, treeListElements, onDidCreateNode) {
         const node = {

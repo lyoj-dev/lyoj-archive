@@ -42,11 +42,9 @@ export class Checkbox extends Widget {
         this.domNode.setAttribute('aria-label', this._opts.title);
         this.applyStyles();
         this.onclick(this.domNode, (ev) => {
-            if (this.enabled) {
-                this.checked = !this._checked;
-                this._onChange.fire(false);
-                ev.preventDefault();
-            }
+            this.checked = !this._checked;
+            this._onChange.fire(false);
+            ev.preventDefault();
         });
         this.ignoreGesture(this.domNode);
         this.onkeydown(this.domNode, (keyboardEvent) => {
