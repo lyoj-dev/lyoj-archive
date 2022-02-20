@@ -297,7 +297,7 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="document.getElementById('language').onchange=function(){".
         "monaco.editor.setModelLanguage(codeEditor.getModel(),mode[document.getElementById('language').value])};";
         $script.="function submit(){var lang=document.getElementById('language').value,code=codeEditor.getValue();".
-        "console.log(lang);console.log(code);var res=SendAjax(\"".GetAPIUrl("./problem/submit")."\",'POST',{".
+		"console.log(lang);console.log(code);var e=new RegExp(\"\\\\\\\\\",\"g\");code=code.replace(e,\"\\\\\\\\\");e=new RegExp(\"'\",\"g\");code=code.replace(e,\"\\\\'\");var res=SendAjax(\"".GetAPIUrl("./problem/submit")."\",'POST',{".
         "code:code,lang:lang,pid:".$_GET["pid"]."});if (res==null) layui.msg('Submit Failed!'); else {".
         "res=JSON.parse(strip_tags(res));location.href='".GetUrl("status",array("id"=>""))."'+res['data']['id'];}}";
     // }
