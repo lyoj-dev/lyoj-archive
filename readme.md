@@ -1,16 +1,16 @@
 # lyoj
 
-lyoj is the an online judge system that can be built in linux with any architectures.
+lyoj is an online judge system that can be built on linux with any architectures.
 
 ------
 
 ## Features
 
-1. Multi Thread is not supported.
+1. Multi-Thread is not supported.
 2. Use JSON to transfor data.
 3. MySQL/MariaDB is supported.
 4. Use C++ to develop. Loop listening to the database.
-5. Can not be run behind the Bash.
+5. Can be run behind the Bash.
 6. Special Judge in LimonLime is supported, "testlib.h" is not supported.
 7. Costomize Special Judge Template is also supported.
 8. Wait to update......
@@ -68,7 +68,7 @@ root@localhost:~$ judgemgr build
 6. Configure in file "./config.json" & "./web/config.php"
 7. Configure your website, the root folder is "./web/"
 8. Open your website, register an admin account.
-9. GIve your admin account the highest permission in the database.
+9. Give your admin account the highest permission in the database.
 10. Open the main judge service.
 11. Add some problem in the system, and enjoy the online judge.
 
