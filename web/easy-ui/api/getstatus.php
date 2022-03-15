@@ -7,9 +7,8 @@
         exit;
     }
     header("Content-Type:text/html;charset=utf-8");session_start();
-    $result=mysqli_query($conn,"SELECT status FROM waited_judge WHERE id=".$_GET["id"]);
-    if (mysqli_num_rows($result)) {echo mysqli_fetch_assoc($result)["status"];exit;} 
-    $result=mysqli_query($conn,"SELECT result FROM status WHERE id=".$_GET["id"]);
-    if (!mysqli_num_rows($result)) exit;
-    echo json_decode(mysqli_fetch_assoc($result)["result"],true)["result"];
+    $result=mysqli_query($conn,"SELECT * FROM status WHERE id=".$_GET["id"]);
+    $info=mysqli_fetch_assoc($result);
+    if ($info["judged"]==false) {echo $info["status"];exit;} 
+    echo json_decode($info["result"],true)["result"];
 ?>

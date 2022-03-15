@@ -23,5 +23,21 @@ class API_Controller{
     static function error_login_failed():void {
         Error_Controller::Common("Not Login!",-101,true);
     }
+    // 邮箱不存在
+    static function error_email_not_exist(string $email):void {
+        Error_Controller::Common("Connot found user \"$email\"",-626,true);
+    }
+    // 用户名或密码错误
+    static function error_passwd_wrong():void {
+        Error_Controller::Common("Username or password is incorrect!",-629,true);
+    }
+    // 服务器错误
+    static function error_system_crashed():void {
+        Error_Controller::Common("System Error!",-500,true);
+    }
+    // 盐值过期
+    static function error_salt_timed_out():void {
+        Error_Controller::Common("Salt value timed out! Please try again!",-658,true);
+    }
 }
 ?>

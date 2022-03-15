@@ -1,12 +1,22 @@
+// Compile Parameters: 
+// For Linux: g++ judge.cpp -o /usr/bin/judge -lmysqlclient -ljsoncpp -pthread
+// For Windows: g++ judge.cpp -o judge.exe -lpsapi -ljson -lmysql -pthread
+
 #include<bits/stdc++.h>
+#ifdef __linux__
 #include<unistd.h>
 #include<stdlib.h>
 #include<sys/resource.h>
 #include<sys/wait.h>
-#include<mysql/mysql.h>
 #include<jsoncpp/json/json.h>
-#include"mysqld.h"
+#elif _WIN32
+#include<Windows.h>
+#include<psapi.h>
+#include<json/json.h>
+#endif
+#include<mysql/mysql.h>
 using namespace std;
+typedef vector<map<string,string> > mysqld;
 
 // ****************************************************
 // Class Name: None
@@ -15,8 +25,8 @@ using namespace std;
 // ****************************************************
 
 // Convert String to Integer
-int StringToInt(string x) {
-    int res=0;
+long long StringToInt(string x) {
+    long long res=0;
     for (int i=0;i<x.size();i++) 
 	res*=10,res+=x[i]-'0';
     return res;
@@ -48,19 +58,44 @@ string str_replace(const char* from,const char* to,const char* source) {
 // Get The Absolute Path
 string getpath(const char* path) {
 	char res[100010]="";
+	#ifdef __linux__
 	if(realpath(path,res)) return res;
+	#elif _WIN32
+	if (_fullpath(res,path,100010)) return res;
+	#endif
 	else return "/";
 }
 
 // System Function Advanced Mode
+string garbage="";
+#ifdef __linux__
 int system2(const char* cmd,string& res) {
-    FILE *stream,*wstream;
+    FILE *stream;
     char buf[1024*1024]; 
     memset(buf,'\0',sizeof(buf));
     stream=popen(("sudo "+string(cmd)+" 2>&1").c_str(),"r");
     int k=fread(buf,sizeof(char),sizeof(buf),stream);
-	res=string(buf);
-    return pclose(stream);
+	res=string(buf); int ret=pclose(stream);
+	return ret;
+}
+#elif _WIN32
+int system2(const char* cmd,string& res) {
+    FILE *stream; char buf[1024*1024]; 
+    memset(buf,'\0',sizeof(buf));
+    stream=_popen((string(cmd)+" 2>&1").c_str(),"r");
+    int k=fread(buf,sizeof(char),sizeof(buf),stream);
+    res=buf; int ret=_pclose(stream);
+	return ret;
+}
+#endif
+
+// Update Program Work Directory
+void __chdir(const char* path) {
+	#ifdef __linux__
+	int retc=chdir(path);
+	#elif _WIN32
+	int retc=SetCurrentDirectory(path);
+	#endif
 }
 
 
@@ -76,31 +111,91 @@ int system2(const char* cmd,string& res) {
 ofstream infoout,errorout;
 
 // Format System Time
-string getTime() {
-	time_t timep;time(&timep);
+string getTime(long long times=-1) {
+	time_t timep;
+	if (times==-1) time(&timep);
+	else timep=times;
     char tmp[1024]="";
-    strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S",localtime(&timep));
+    strftime(tmp,sizeof(tmp),"%Y-%m-%d %H:%M:%S",localtime(&timep));
     return tmp;
 }
 
 // Output Program Info
-void return_info(const char* info,bool no_header=false) {
+void return_info(const char* info,string name="main-server") {
+	#ifdef __linux__
 	infoout.open("/var/log/judge/info.log",ios::app);
-	infoout<<(!no_header?getTime()+" [Info] "+info:info)<<endl;
-	cout<<(!no_header?getTime()+" [Info] "+info:info)<<endl;
+	#elif _WIN32
+	infoout.open("C://judge/log/info.log",ios::app);
+	#endif
+	string in=info;
+	while (in.find("\n")!=string::npos) {
+		infoout<<getTime()+" [Info] ["+name+"] "+in.substr(0,in.find("\n"))<<endl;
+		cout<<getTime()+" [Info] ["+name+"] "+in.substr(0,in.find("\n"))<<endl;
+		in=in.substr(in.find("\n")+1);
+	}
+	infoout<<getTime()+" [Info] ["+name+"] "+in<<endl;
+	cout<<getTime()+" [Info] ["+name+"] "+in<<endl;
 	infoout.close();
 	return;
 }
 
 // Output Program Error
-void return_error(const char* error,bool killed=true) {
+void return_error(const char* error,bool killed=true,string name="main-server") {
+	#ifdef __linux__
 	errorout.open("/var/log/judge/error.log",ios::app);
-	errorout<<getTime()<<" [Error] "<<error<<endl<<endl;
-	cout<<getTime()<<" [Error] "<<error<<endl<<endl;
+	#elif _WIN32
+	errorout.open("C://judge/log/error.log",ios::app);
+	#endif
+	errorout<<getTime()+" [Error] ["+name+"] "+error<<endl;
+	cout<<getTime()+" [Error] ["+name+"] "+error<<endl;
 	errorout.close();
 	if (killed) exit(0);
 }
 
+// Get Millisecond
+time_t clock2() {
+	return chrono::duration_cast<chrono::milliseconds>
+	(chrono::system_clock::now().time_since_epoch()).count();
+}
+
+
+
+
+// ****************************************************
+// Class Name: MySQL Query Function
+// Class Module: Main
+// Class Features: Query MySQL Database
+// ****************************************************
+
+// Connect MySQL Database 
+MYSQL mysqli_connect(const char* host,const char* user,const char* passwd,const char* db,int port,string name="main-server") {
+	MYSQL mysql,*res1; res1=mysql_init(&mysql); if (res1==NULL) 
+		return_error("Failed to initialize MYSQL structure!",true,name);
+	bool res2=mysql_real_connect(&mysql,host,user,passwd,db,port,nullptr,0); if (!res2) 
+		return_error(mysql_error(&mysql),true,name);
+	return mysql;
+}
+
+// Query Database
+mysqld mysqli_query(MYSQL conn,const char* sql,string name="main-server") {
+	mysqld res; map<string,string> tmp;
+	bool res1=mysql_query(&conn,sql);
+	if (res1){return_error(mysql_error(&conn),false,name); return res;}
+	MYSQL_RES* res2=mysql_store_result(&conn);
+	if (!res2){return_error(mysql_error(&conn),false,name); return res;}
+	vector<string> field; MYSQL_FIELD* fd; MYSQL_ROW row;
+	for (int i=0;fd=mysql_fetch_field(res2);i++) field.push_back(fd->name);
+	while (row=mysql_fetch_row(res2)) {
+		for (int i=0;i<field.size();i++) tmp[field[i]]=row[i];
+		res.push_back(tmp);
+	} mysql_free_result(res2);
+	return res;
+}
+
+// Execute Database
+void mysqli_execute(MYSQL conn,const char* sql,string name="main-server") {
+	if (mysql_query(&conn,sql)) return_error(mysql_error(&conn),false,name);
+}
 
 
 
@@ -114,6 +209,9 @@ void return_error(const char* error,bool killed=true) {
 int runtime_error_state=0;
 int runtime_error_reason=0;
 
+// For linux: 
+
+#ifdef __linux__
 // Signal Processor
 void handler(int sig) {
     if (sig==SIGCHLD) {
@@ -159,7 +257,6 @@ int memory_limit,bool special_judge=false) {
 	char* argv[1010]={NULL};char* command=const_cast<char*>(cmd);
 	int idnow=-1;argv[++idnow]=strtok(command," ");
 	while (argv[idnow]!=NULL) argv[++idnow]=strtok(NULL," ");
-	cout<<string(argv[0])<<" "<<string(argv[1])<<endl;
 	times=memory=0;signal(SIGCHLD,handler);
 	pid_t executive=fork();
     if(executive<0) {
@@ -171,7 +268,7 @@ int memory_limit,bool special_judge=false) {
 		exit(0);
 	}
     else{ 
-		time_t st=clock();pid_t ret2=-1;
+		time_t st=clock2();pid_t ret2=-1;
 		int status=0;
 		while (1) { 
 			if (kill(executive,0)!=0) {
@@ -186,7 +283,7 @@ int memory_limit,bool special_judge=false) {
 				return 0;
 			}
 			int mem=get_proc_mem(executive);
-			if (mem!=0) times=(clock()-st)*1000.0/CLOCKS_PER_SEC,memory=mem;
+			if (mem!=0) times=clock2()-st,memory=mem;
 			if (mem>memory_limit) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
@@ -203,6 +300,63 @@ int memory_limit,bool special_judge=false) {
     } 
 	return 0;
 }
+
+// For Windows:
+
+#elif _WIN32
+// Resource Monitor
+unsigned int get_proc_mem(HANDLE hProcess) {
+	PROCESS_MEMORY_COUNTERS mem;
+	GetProcessMemoryInfo(hProcess,&mem,sizeof(mem));
+	return mem.PeakWorkingSetSize/1024.0;
+}
+
+// The Main Judger
+int run_code(const char* cmd,int& times,int& memory,int time_limit,
+int memory_limit,bool special_judge=false) {
+	STARTUPINFO si; PROCESS_INFORMATION pi;
+	ZeroMemory(&si,sizeof(si)); si.cb=sizeof(si);
+	ZeroMemory(&pi,sizeof(pi));
+	char* command=const_cast<char*>(cmd);
+	bool retc=CreateProcess(NULL,command,NULL,NULL,false,0,NULL,NULL,&si,&pi);
+    if(!retc) {
+	    return_error("Failed to execute program!");
+        return 1;
+    } 
+	time_t st=clock2(); 
+	HANDLE hProcess=OpenProcess(PROCESS_QUERY_INFORMATION,true,pi.dwProcessId);
+	while (1) {
+		DWORD exit_code=0;
+		GetExitCodeProcess(hProcess,&exit_code);
+		runtime_error_state=exit_code;
+		if (exit_code!=STILL_ACTIVE) {
+			if (runtime_error_state) {
+				if (!special_judge) return_info("Time usage: 0ms, memory usage: 0kb");
+				else return_info("SPJ Time usage: 0ms, memory usage: 0kb");
+				times=0;memory=0;
+				return 4;
+			}
+			if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
+			else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
+			return 0;
+		} times=clock2()-st,memory=get_proc_mem(hProcess);
+		if (memory>memory_limit) {
+			if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
+			else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
+			TerminateProcess(hProcess,0);
+			return 3;
+		}
+		if (times>time_limit) {
+			if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
+			else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
+			TerminateProcess(hProcess,0);
+			return 2;
+		} 
+	}
+	CloseHandle(hProcess);
+    return 0;
+}
+#endif
 
 // Signal Analyst
 string analysis_reason(int reason) {
@@ -276,6 +430,56 @@ string analysis_reason(int reason) {
 
 
 
+// ****************************************************
+// Class Name: Other Thread
+// Class Module: Main
+// Class Features: Open more thread to achieve more features
+// ****************************************************
+
+// Basic Variables
+Json::FastWriter writer;
+Json::Value cache;
+
+// Heart Beating Upload Thread
+void* heart_beating(void* arg) {
+	string id=*(string*)arg;
+	MYSQL conn;
+    conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+						cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+						cache["mysql-port"].asInt(),"heart-server");
+	return_info("Listening to the database...","heart-server");
+	while(1) {
+		#ifdef __linux__
+		sleep(1);
+		#elif _WIN32
+		Sleep(1000);
+		#endif
+		mysqli_execute(conn,("UPDATE judger SET heartbeat="+to_string(time(0))+" WHERE id='"+id+"'").c_str(),"heart-server");
+		return_info("Upload heart beating successfully!","heart-server");
+	}
+}
+
+// Crontab Monitor Thread
+void RunCrontab(mysqld cron,string name,bool strong);
+void* crontab_monitor(void* arg) {
+	MYSQL conn; mysqld res;
+    conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+						cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+						cache["mysql-port"].asInt(),"crontab-server");
+	return_info("Listening to the database...","crontab-server");
+	while(1) {
+		res=mysqli_query(conn,"SELECT * FROM crontab","crontab-server");
+		if (res.size()==0) continue;
+		#ifdef __linux__
+		usleep(10000);
+		#elif _WIN32
+		Sleep(10);
+		#endif
+		RunCrontab(res,"crontab-server",false);
+	} 
+}
+
+
 
 // ****************************************************
 // Class Name: Main Features
@@ -283,51 +487,222 @@ string analysis_reason(int reason) {
 // Class Features: The Main Function
 // ****************************************************
 
-// Basic Variables
-Json::FastWriter writer;
-		
+// Get System Information
+string GetSystemInfo2() {
+	#ifdef __linux__
+	return "linux";
+	#elif _WIN32
+	return "Windows";
+	#endif
+}
+
+// Register a New Judge Id
+void RegisterJudgeId() {
+	return_info("Registering a new judge id automatically...");
+	char id[129]=""; srand(time(0)); 
+	for (int i=0;i<128;i++) {
+		int type=rand()%3;
+		if (type==0) id[i]=rand()%10+'0';
+		else if (type==1) id[i]=rand()%26+'a';
+		else if (type==2) id[i]=rand()%26+'A';
+	}
+	return_info(("Register finished! The judge id: "+string(id)).c_str());
+	cache["id"]=id;
+}
+
+// Write Configure into Cache File
+void WriteConfigCache(Json::Value config) {
+	cache["mysql-server"]=config["mysql"]["server"];
+	cache["mysql-user"]=config["mysql"]["user"];
+	cache["mysql-passwd"]=config["mysql"]["passwd"];
+	cache["mysql-database"]=config["mysql"]["database"];
+	cache["mysql-port"]=config["mysql"]["port"];
+	cache["heart-thread"]=true;
+	cache["crontab-thread"]=true;
+}
+
+// Run Scheduled Tasks
+void RunCrontab(mysqld cron,string name,bool strong=false) {
+	MYSQL conn;
+	conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+						cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+						cache["mysql-port"].asInt(),name);
+	for (int i=0;i<cron.size();i++) {
+		if (strong||clock2()/1000-StringToInt(cron[i]["lasttime"])>=StringToInt(cron[i]["duration"])) {
+			return_info(("Running crontab id #"+cron[i]["id"]).c_str(),name);
+			string result="";
+			int ret=system2(cron[i]["command"].c_str(),result);
+			return_info(result.c_str(),name);
+			mysqli_execute(conn,("UPDATE crontab SET lasttime="+to_string(clock2()/1000)+" WHERE id="+cron[i]["id"]).c_str(),name);
+			return_info(("Run crontab id #"+cron[i]["id"]+" finished!").c_str(),name);
+			return_info(("Next execute time: "+getTime(StringToInt(cron[i]["duration"])+clock2()/1000)).c_str(),name);
+		} 
+	} mysql_close(&conn);
+}
+
+// Analyse Parameters
+void AnalyseArgv(int argc,char** argv,Json::Value config) {
+	map<string,string> param; // cout<<argc<<endl;
+	for (int i=1;i<argc;i++) {
+		string option=argv[i]; 
+		if (option.size()<2) continue;
+		if (option[0]!=option[1]||option[0]!='-') continue;
+		option=option.substr(2);
+		string header="",value="";
+		if (option.find("=")==string::npos) header=option;
+		else header=option.substr(0,option.find("=")),value=option.find("=")==option.size()-1?"":option.substr(option.find("=")+1);
+		param.insert(make_pair(header,value));
+	} 
+	if (param.find("help")!=param.end()) {
+		#ifdef __linux__
+		cout<<"Usage: judge [options]"<<endl;
+		#elif _WIN32
+		cout<<"Usage: judge.exe [options]"<<endl;
+		#endif
+		cout<<"Sample judge program for lyoj, version "<<config["version"].asString()<<endl;
+		cout<<endl;
+		cout<<"Options:"<<endl;
+		cout<<"    --reload-config=<config>         Reload config from file. "<<endl;
+		#ifdef __linux__
+		cout<<"                                     Default value is '/etc/judge/config.json'."<<endl;
+		#elif _WIN32
+		cout<<"                                     Default value is 'C:/judge/config.json'."<<endl;
+		#endif
+		cout<<"    --mysql-server=<address>         Set MySQL/MariaDB server address to connect."<<endl;
+		cout<<"                                     Default Value is '"+cache["mysql-server"].asString()+"'."<<endl;
+		cout<<"    --mysql-user=<user>              Set login user for MySQL/MariaDB server."<<endl;
+		cout<<"                                     Default value is '"+cache["mysql-user"].asString()+"'."<<endl;
+		cout<<"    --mysql-passwd=<password>        Set login password for MySQL/MariaDB server."<<endl;
+		cout<<"                                     Default value is '"+cache["mysql-passwd"].asString()+"'."<<endl;
+		cout<<"    --mysql-database=<database>      Set login database for MySQL/MariaDB server."<<endl;
+		cout<<"                                     Default value is '"+cache["mysql-database"].asString()+"'."<<endl;
+		cout<<"    --mysql-port=<port>              Set MySQL/MariaDB server port to connect."<<endl;
+		cout<<"                                     Default value is '"+cache["mysql-port"].asString()+"'."<<endl;
+		cout<<"    --register-id                    Register a new judge id for this machine."<<endl;
+		cout<<"    --run-crontab=<id|'all'>         Run scheduled task right now and refresh crontab."<<endl;
+		cout<<"    --show-crontab                   Show all scheduled task."<<endl;
+		cout<<"    --disable-heart                  Stop to run heart beating thread."<<endl;
+		cout<<"    --enable-heart                   Start to run heart beating thread."<<endl;
+		cout<<"                                     Default state: "<<(cache["heart-thread"].asBool()?"enable":"disable")<<endl;
+		cout<<"    --disable-crontab                Stop to run crontab thread."<<endl;
+		cout<<"    --enable-crontab                 Start to run crontab thread."<<endl;
+		cout<<"                                     Default state: "<<(cache["crontab-thread"].asBool()?"enable":"disable")<<endl;
+		cout<<"    --help                           Show help information."<<endl;
+		exit(0);
+	} 
+	if (param.find("reload-config")!=param.end()) {
+		#ifdef __linux__
+		ifstream fin(param["reload-config"]==""?"/etc/judge/config.json":param["reload-config"]);
+		#elif _WIN32
+		ifstream fin(param["reload-config"]==""?"C:/judge/config.json":param["reload-config"]);
+		#endif
+		if (!fin) return_error("Failed to open config file.");
+		Json::Value config; Json::Reader reader;
+		if (!reader.parse(fin,config,false)) return_error("Failed to parse json object in config file");
+		WriteConfigCache(config);
+	}
+	if (param.find("mysql-server")!=param.end()) cache["mysql-server"]=param["mysql-server"];
+	if (param.find("mysql-user")!=param.end()) cache["mysql-user"]=param["mysql-user"];
+	if (param.find("mysql-passwd")!=param.end()) cache["mysql-passwd"]=param["mysql-passwd"];
+	if (param.find("mysql-database")!=param.end()) cache["mysql-database"]=param["mysql-database"];
+	if (param.find("mysql-port")!=param.end()) cache["mysql-port"]=param["mysql-port"];
+	if (param.find("register-id")!=param.end()) RegisterJudgeId();
+	if (param.find("disable-heart")!=param.end()) cache["heart-thread"]=false;
+	if (param.find("enable-heart")!=param.end()) cache["heart-thread"]=true;
+	if (param.find("disable-crontab")!=param.end()) cache["crontab-thread"]=false;
+	if (param.find("enable-crontab")!=param.end()) cache["crontab-thread"]=true;
+	if (param.find("show-crontab")!=param.end()) {
+		cout<<"All crontabs: "<<endl;
+		MYSQL conn; mysqld res;
+		conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+							cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+							cache["mysql-port"].asInt());
+		res=mysqli_query(conn,"SELECT * FROM crontab");
+		for (int i=0;i<res.size();i++) {
+			cout<<"["<<res[i]["id"]<<"] ["<<getTime(StringToInt(res[i]["lasttime"])+StringToInt(res[i]["duration"]))
+				<<"] "<<res[i]["command"]<<endl;
+		} exit(0);
+	}
+	if (param.find("run-crontab")!=param.end()) {
+		if (param["run-crontab"]=="") param["run-crontab"]="all";
+		MYSQL conn; mysqld res;
+		conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+							cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+							cache["mysql-port"].asInt());
+		if (param["run-crontab"]=="all") res=mysqli_query(conn,"SELECT * FROM crontab");
+		else res=mysqli_query(conn,("SELECT * FROM crontab WHERE id="+param["run-crontab"]).c_str());
+		RunCrontab(res,"main-server",true);
+	}
+}
+
+Json::Value config,judge; Json::Reader reader;
 // Main Function
-int main() {
+int main(int argc,char** argv) {
 	// Creating Daemon Processor
 	// if(daemon(1,0)<0) return_error("Failed to create daemon process.");
 	// system("ls");
 
 	// Updating Working Directory
+	#ifdef __linux__
 	int res=chdir("/etc/judge");
+	#elif _WIN32
+	int res=SetCurrentDirectory("C://judge");
+	#endif
 	
 	// Reading Judger Configure
 	ifstream fin("./config.json");
 	if (!fin) return_error("Failed to open config file.");
-	Json::Value config;Json::Reader reader;
 	if (!reader.parse(fin,config,false)) return_error("Failed to parse json object in config file");
+	fin.close(); fin.open("./config.cache");
+	if (fin) reader.parse(fin,cache,false);
+	else WriteConfigCache(config);
+	fin.close(); AnalyseArgv(argc,argv,config);
+	if (cache["id"].asString().size()!=128) RegisterJudgeId();
+	ofstream fout("./config.cache");
+	string cache_string=writer.write(cache);
+	fout<<cache_string<<endl; fout.close();
 	
 	// Connecting to the Database 
-    mysqld conn,result,row;
-    conn=mysqli_connect(config["mysql"]["server"].asString().c_str(),config["mysql"]["user"].asString().c_str(),
-						config["mysql"]["passwd"].asString().c_str(),config["mysql"]["database"].asString().c_str(),
-						config["mysql"]["port"].asInt());
-    if (!conn) return_error(("Failed to connect database: "+mysqli_error(conn)).c_str());
-	return_info("Listening to the database...");return_info("",true);
+	MYSQL conn; mysqld result;
+    conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+						cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+						cache["mysql-port"].asInt());
+    result=mysqli_query(conn,("SELECT * FROM judger WHERE id='"+cache["id"].asString()+"'").c_str());
+    if (result.size()==0) {
+    	return_info("Couldn't find judge info on the database!");
+    	return_info("Registering this judger on the database...");
+    	string conf=writer.write(config);
+    	conf=str_replace("'","\\'",conf.c_str());
+    	mysqli_execute(conn,("INSERT INTO judger (id,config,name,lasttime) VALUES ('"
+					+cache["id"].asString()+"','"+conf+"','"+GetSystemInfo2()+"',0)").c_str());
+	}
+	pthread_t th1,th2; string judgeid=cache["id"].asString();
+	if (cache["heart-thread"].asBool()) pthread_create(&th1,NULL,heart_beating,&judgeid);
+	if (cache["crontab-thread"].asBool()) pthread_create(&th2,NULL,crontab_monitor,NULL);
+	return_info("Listening to the database...");
 	
+    conn=mysqli_connect(cache["mysql-server"].asString().c_str(),cache["mysql-user"].asString().c_str(),
+						cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
+						cache["mysql-port"].asInt());
 	// The Main Processor to Monitor the Database
     while (1) {
-    	
     	// Querying Waited Judge Program
-        result=mysqli_query(conn,"SELECT * FROM waited_judge");
-		if (mysqli_num_rows(result)==0) {
-			// If didn't find any program, continue monitor.
-    		mysql_free_result(result.res);
-			continue;
-		}
+    	#ifdef __linux__
+    	usleep(100000);
+    	#elif _WIN32
+    	Sleep(100);
+    	#endif
+        mysqld ress=mysqli_query(conn,"SELECT * FROM status WHERE judged=0");
+		if (ress.size()==0) continue;
 		
 		// re-Reading Judger Configure
 		ifstream fin("./config.json");
 		if (!fin) return_error("Failed to open config file.");
-		Json::Value judge;Json::Reader reader;
 		if (!reader.parse(fin,judge,false)) return_error("Failed to parse json object in config file");	
 		
 		// Judging Submitted Program
-		while (row=mysqli_fetch_assoc(result)) {
+//		cout<<result.res<<endl;
+		for (int i=0;i<ress.size();i++) {
 			
 			// ****************************************************
 			// Class Name: Data Gainer
@@ -336,10 +711,15 @@ int main() {
 			// ****************************************************
 			
 			// Gain Data from Queried Result
-			int pid=StringToInt(row["pid"]),uid=StringToInt(row["uid"]),id=StringToInt(row["id"]),lang=StringToInt(row["lang"]);
-			string code=row["code"],ideinfo=row["ideinfo"];
-			int retc=system("rm ./tmp/* -r");
-			retc=chdir("./tmp/");			
+			int pid=StringToInt(ress[i]["pid"]),uid=StringToInt(ress[i]["uid"]),
+				id=StringToInt(ress[i]["id"]),lang=StringToInt(ress[i]["lang"]);
+			string code=ress[i]["code"],ideinfo=ress[i]["ideinfo"];
+			#ifdef __linux__ 
+			int retc=system("sudo rm ./tmp/* -r");
+			#elif _WIN32
+			int retc=system("del /F /Q tmp");
+			#endif
+			__chdir("./tmp/");
 			
 			
 			// ****************************************************
@@ -370,10 +750,10 @@ int main() {
 			// ****************************************************
 			
 			// Update Judging State
-			mysqli_query(conn,("UPDATE waited_judge SET status='Compiling...' WHERE id="+to_string(id)).c_str());
+			mysqli_execute(conn,("UPDATE status SET status='Compiling...' WHERE id="+to_string(id)).c_str());
 			
 			// Compiling Code
-			time_t st=clock();int retcode; string info_string="";
+			time_t st=clock2();int retcode; string info_string="";
 			if (judge["lang"][lang]["type"].asInt()!=1) {
 				return_info(("Compiling code from status id #"+IntToString(id)).c_str());
 				retcode=system2(judge["lang"][lang]["command"].asString().c_str(),info_string);
@@ -385,20 +765,20 @@ int main() {
 					return_info(("Compiler return error code "+to_string(retcode)).c_str());
 					res["result"]="Compile Error";
 					res["output"]="Compile Error";
-					res["compile_info"]=res["info"]=info_string;return_info("",true);
+					res["compile_info"]=info_string;
+					return_info(info_string.c_str());
 					
 					// Insert Data to the Database
-					mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-					("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-					IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-					"',"+to_string(clock())+")").c_str());
-					mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
-					retc=chdir("../");
+					mysqli_execute(conn,("UPDATE status SET result='"+
+					str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+					"judged=1,status='"+res["result"].asString()+"' "+
+					"WHERE id='"+to_string(id)+"'").c_str());
+					__chdir("../");
 					continue;
 				}
-				return_info(("Compile finished, use "+to_string((clock()-st))+"ms").c_str());
+				return_info(("Compile finished, use "+to_string((clock2()-st))+"ms").c_str());
 			}
-			retc=chdir("../");
+			__chdir("../");
 					
 					
 					
@@ -421,11 +801,10 @@ int main() {
 				res["result"]="No Test Data";
 				
 				// Insert Data to the Database
-				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-				"',"+to_string(clock())+")").c_str());
-				mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
+				mysqli_execute(conn,("UPDATE status SET result='"+
+				str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+				"judged=1,status='"+res["result"].asString()+"' "+
+				"WHERE id='"+to_string(id)+"'").c_str());
 				continue;
 			}
 			
@@ -437,11 +816,10 @@ int main() {
 				cout<<endl;
 				
 				// Insert Data to the Database
-				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-				"',"+to_string(clock())+")").c_str());
-				mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
+				mysqli_execute(conn,("UPDATE status SET result='"+
+				str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+				"judged=1,status='"+res["result"].asString()+"' "+
+				"WHERE id='"+to_string(id)+"'").c_str());
 				continue;
 			}
 
@@ -455,28 +833,28 @@ int main() {
 			// ****************************************************
 			
 			// Compiling Special Judger
-			return_info(("Compiling special judge from status id #"+IntToString(id)).c_str());
-			int state=0;Json::Value info,res;st=clock();string spj_path;
+			int state=0;Json::Value info,res;st=clock2();string spj_path;
 			
 			if (!pid) ;
 			// New Special Judger
 			else if (val["spj"]["type"].asInt()==0) {
-				int res=chdir(("./problem/"+to_string(pid)).c_str()); string info_string2="";
+				return_info(("Compiling special judge from status id #"+IntToString(id)).c_str());
+				__chdir(("./problem/"+to_string(pid)).c_str()); string info_string2="";
 				retcode=system2((val["spj"]["compile_cmd"].asString()).c_str(),info_string2);
 				if (retcode) {
 					Json::Value res;
 					return_info("Error compile special judge!");
 					res["result"]="Compile Error";
-					res["compile_info"]=res["info"]="In SPJ:\n"+info_string2;return_info("",true);
-					mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-					("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-					IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-					"',"+to_string(clock())+")").c_str());
-					mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
+					res["compile_info"]="In SPJ:\n"+info_string2;
+					mysqli_execute(conn,("UPDATE status SET result='"+
+					str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+					"judged=1,status='"+res["result"].asString()+"' "+
+					"WHERE id='"+to_string(id)+"'").c_str());
 					continue;
 				}
-				res=chdir("../../");
+				__chdir("../../");
 				spj_path="./problem/"+to_string(pid)+"/"+val["spj"]["exec_path"].asString();
+				return_info(("Compile finished, use "+to_string((clock2()-st))+"ms").c_str());
 			} 
 			
 			// Invaild Special Judger Configure
@@ -484,21 +862,24 @@ int main() {
 				return_error(("Failed to analyse special judge type in problem config file #"+IntToString(pid)).c_str(),false);
 				Json::Value res;
 				res["result"]="Compile Error";
-				res["info"]=res["compile_info"]="Invaild special judge type!";
-				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-				"',"+to_string(clock())+")").c_str());
-				mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
+				res["compile_info"]="Invaild special judge type!";
+				mysqli_execute(conn,("UPDATE status SET result='"+
+				str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+				"judged=1,status='"+res["result"].asString()+"' "+
+				"WHERE id='"+to_string(id)+"'").c_str());
 				continue;
 			} 
 			
 			// Exist Special Judger Template
 			else spj_path=judge["spj"][val["spj"]["type"].asInt()-1]["path"].asString();
-			return_info(("Compile finished, use "+to_string((clock()-st))+"ms").c_str());
-
+			
 			// Copy Special Judger to the Temporary Directory
-			int ret=system(("cp "+spj_path+" ./tmp/spj").c_str());
+			#ifdef __linux__
+			int ret=system(("cp \""+spj_path+"\" \"./tmp/spj\"").c_str());
+			#elif _WIN32
+			while (spj_path.find("/")!=string::npos) spj_path.replace(spj_path.find("/"),1,"\\");
+			int ret=system2(("copy \""+spj_path+"\" \".\\tmp\\spj.exe\" /Y").c_str(),garbage);
+			#endif
 
 
 
@@ -511,15 +892,15 @@ int main() {
 			
 			// Solve the Remote IDE Function
 			if (pid==0) {
-			    mysqli_query(conn,("UPDATE waited_judge SET status='Running...' WHERE id="+to_string(id)).c_str());
+			    mysqli_execute(conn,("UPDATE status SET status='Running...' WHERE id="+to_string(id)).c_str());
 				ofstream fout("./tmp/test.in");
 				Json::Value ide;int t,m;
 				reader.parse(ideinfo,ide);
 				fout<<ide["input"].asString();fout.close();
-				int ret=chdir("./tmp");
-				ret=run_code(judge["lang"][lang]["exec_command"].asString().c_str(),
+				__chdir("./tmp");
+				int ret=run_code(judge["lang"][lang]["exec_command"].asString().c_str(),
 				t,m,ide["t"].asInt(),ide["m"].asInt());
-				int retc=chdir("../");
+				__chdir("../");
 				if (ret) switch (ret) {
 					case 2: res["result"]="Time Limited Exceeded",res["info"]="Time Limited Exceeded";break;
 					case 3: res["result"]="Memory Limited Exceeded",res["info"]="Memory Limited Exceeded";break;
@@ -540,15 +921,10 @@ int main() {
 					}	
 				} res["time"]=t,res["memory"]=m;
 				res["compile_info"]=info_string;
-				mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-				"',"+to_string(clock())+")").c_str());cout<<"INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-				("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-				IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-				"',"+to_string(clock())+")"<<endl;
-				mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
-				return_info("",true);
+				mysqli_execute(conn,("UPDATE status SET result='"+
+				str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+				"judged=1,status='"+res["result"].asString()+"' "+
+				"WHERE id='"+to_string(id)+"'").c_str());
 				continue;
 			}
 
@@ -558,29 +934,36 @@ int main() {
 				Json::Value single;
 				
 				// Update Judging State
-				mysqli_query(conn,("UPDATE waited_judge SET status='Running on Test "+to_string(i+1)+"...' WHERE id="+to_string(id)).c_str());
+				mysqli_execute(conn,("UPDATE status SET status='Running on Test "+to_string(i+1)+"...' WHERE id="+to_string(id)).c_str());
 				
 				// Copy Test Data
-				if (system(("cp './problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()+"' '"+
-				"./tmp/"+val["input"].asString()+"'").c_str())) {
+				#ifdef __linux__
+				int retc=system2(("cp \"./problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()+"\" \""+
+				"./tmp/"+val["input"].asString()+"\"").c_str(),garbage);
+				#elif _WIN32
+				int retc=system2(("copy \"problem\\"+IntToString(pid)+"\\"+val["data"][i]["input"].asString()+"\" \""+
+				"tmp\\"+val["input"].asString()+"\" /Y").c_str(),garbage);
+				#endif
+				if (retc) {
 					return_error(("Failed to copy input file in problem #"+IntToString(pid)).c_str(),false);
 					return_error(("Error file name: "+val["data"][i]["input"].asString()+"/"+
 					val["data"][i]["output"].asString()).c_str(),false);
+					return_error(garbage.c_str(),false);
+					return_error(to_string(retc).c_str(),false);
 					continue;
 				}
 				
 				// Remove Exist Output File
-				int res=system(("rm ./tmp/"+val["output"].asString()).c_str());
-				res=system(("touch ./tmp/"+val["output"].asString()).c_str());
+				ofstream tmpout(("./tmp/"+val["output"].asString()).c_str()); tmpout.close();
 				
 				// Update Working Directory
-				res=chdir("./tmp/");
+				__chdir("./tmp/");
 				int t=0,m=0,ret;
 				ret=run_code(judge["lang"][lang]["exec_command"].asString().c_str()
 				,t,m,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt());
 				
 				// Update Working Directory
-				res=chdir("../");
+				__chdir("../");
 				
 				// When Exited Abnormally
 				if (ret) {
@@ -610,26 +993,33 @@ int main() {
 				sum_t+=t,max_m=max(max_m,m);
 				
 				// Remove Exist Garbase
-				ofstream tmpout("./tmp/score.txt");tmpout.close();
+				tmpout.open("./tmp/score.txt");tmpout.close();
 				tmpout.open("./tmp/info.txt");
 				
 				// Gain the Absolute Path for some File
 				string inputpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()).c_str());
 				string outputpath=getpath(("./tmp/"+val["output"].asString()).c_str());
 				string answerpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["output"].asString()).c_str());
-				string resultpath=getpath("./tmp")+"/score.txt",infopath=getpath("./tmp")+"/info.txt";int spjt,spjm;
+				string resultpath=getpath("./tmp/score.txt"),infopath=getpath("./tmp/info.txt");int spjt,spjm;
 				
 				// Update Working Directory
-				res=chdir("./tmp");
+				__chdir("./tmp");
 				
 				// Running Special Judger
+				#ifdef __linux__
 				ret=run_code(("./spj "+inputpath+" "+outputpath+" "+answerpath+" "+
 				val["data"][i]["score"].asString()+" "+resultpath+" "+infopath+" "+
 				val["spj"]["exec_param"].asString()).c_str(),
 				spjt,spjm,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),true);
+				#elif _WIN32
+				ret=run_code(("spj.exe "+inputpath+" "+outputpath+" "+answerpath+" "+
+				val["data"][i]["score"].asString()+" "+resultpath+" "+infopath+" "+
+				val["spj"]["exec_param"].asString()).c_str(),
+				spjt,spjm,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),true);
+				#endif
 				
 				// Update Working Directory
-				res=chdir("../");
+				__chdir("../");
 				
 				// When SPJ Exited Abnormally
 				if (ret) {
@@ -655,7 +1045,8 @@ int main() {
 				}
 				
 				// Read Score and Judger Info
-				int gain_score=0;ifstream scorein("./tmp/score.txt");scorein>>gain_score;scorein.close();
+				int gain_score=0;ifstream scorein("./tmp/score.txt");
+				scorein>>gain_score;scorein.close();
 				string spj_info="";ifstream infoin("./tmp/info.txt");
 				while (!infoin.eof()) {
 					string input;getline(infoin,input);
@@ -693,17 +1084,15 @@ int main() {
 			
 			// Full the JSON Object
 			res["info"]=info;res["time"]=sum_t;res["memory"]=max_m;
-			return_info("",true);
 			
 			// Upload data to the database.
-			mysqli_query(conn,("INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-			("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-			IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-			"',"+to_string(clock())+")").c_str());cout<<"INSERT INTO status (id,pid,uid,code,lang,result,time) VALUES \
-			("+IntToString(id)+","+IntToString(pid)+","+IntToString(uid)+",'"+code+"',"+
-			IntToString(lang)+",'"+str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+
-			"',"+to_string(clock())+")"<<endl;
-			mysqli_query(conn,("DELETE FROM waited_judge WHERE id="+IntToString(id)).c_str());
-		}
+			mysqli_execute(conn,("UPDATE status SET result='"+
+			str_replace("'","\\'",str_replace("\\","\\\\",writer.write(res).c_str()).c_str())+"',"+
+			"judged=1,status='"+res["result"].asString()+"'"+
+			"WHERE id="+to_string(id)).c_str());
+		} 
+		// if (NULL!=result.res) mysql_free_result(result.res);
+		// result.res=NULL;
+		continue;
     }
 }

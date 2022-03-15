@@ -198,7 +198,8 @@
         var output = new MarkdownPalettes("#output");
         var hint = new MarkdownPalettes("#hint");
         var json = SendAjax("./api/problem/info.php?id="+id,"GET",null);
-        var arr = JSON.parse(strip_tags(json,null));
+        json=json.substr(22);
+	var arr = JSON.parse(json);
         console.log(arr);var cs=0;
         document.getElementById("name").value=arr["title"];
         bg.content=arr["background"];

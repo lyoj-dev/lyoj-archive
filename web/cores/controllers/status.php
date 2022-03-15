@@ -34,7 +34,7 @@ class Status_Controller{
      * @return array|null
      */
     static function ListJudgedStatus():array|null {
-        return self::$db->Query("SELECT * FROM status");
+        return self::$db->Query("SELECT * FROM status WHERE judged=1");
     }
     
     /**
@@ -42,7 +42,7 @@ class Status_Controller{
      * @return array|null
      */
     static function ListJudgingStatus():array|null {
-        return self::$db->Query("SELECT * FROM waited_judge");
+        return self::$db->Query("SELECT * FROM status WHERE judged=0");
     }
 
     /**
@@ -54,9 +54,9 @@ class Status_Controller{
      * @return int
      */
     static function Submit(string $lang,string $code,int $uid,int $pid):int {
-        $sid=count(self::ListJudgedStatus())+count(self::ListJudgingStatus())+1;
-        self::$db->Execute("INSERT INTO waited_judge (id,uid,pid,lang,code,time,status,ideinfo) VALUES 
-        ($sid,$uid,$pid,$lang,'$code',".time().",'Waiting...','NULL')"); return $sid;
+        $sid=count(self::$db->Query("SELECT id FROM status"))+1;
+        self::$db->Execute("INSERT INTO status (id,uid,pid,lang,code,result,time,status,ideinfo,judged) VALUES 
+        ($sid,$uid,$pid,$lang,'$code','',".time().",'Waiting...','NULL',0)"); return $sid;
     }
 
     /**
@@ -65,9 +65,9 @@ class Status_Controller{
      * @return array|null
      */
     static function GetJudgeStatusById(int $id):string|null {
-        $array=self::$db->Query("SELECT status FROM waited_judge WHERE id=$id");
-        if ($array!=null) return $array[0]["status"];
         $array=self::$db->Query("SELECT result FROM status WHERE id=$id");
+        if ($array==null) return null;
+        if ($array[0]["judged"]==false) return $array[0]["status"];
         $json=json_decode($array[0]["result"],true);
         return $json["result"];
     }
@@ -79,7 +79,20 @@ class Status_Controller{
      */
     static function GetJudgeResultById(int $id):array|null {
         $array=self::$db->Query("SELECT result FROM status WHERE id=$id");
+        if ($array==null) return null;
+        if ($array[0]["judged"]==false) return null;
         return json_decode($array[0]["result"],true);
+    }
+
+    /**
+     * 根据测评id获取测评信息 GetJudgeInfoById
+     * @param int $id 测评id
+     * @return array|null
+     */
+    static function GetJudgeInfoById(int $id):array|null {
+        $array=self::$db->Query("SELECT * FROM status WHERE id=$id");
+        if ($array==null) return null;
+        return $array[0];
     }
 }
 ?>

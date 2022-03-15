@@ -49,8 +49,8 @@ function GetRealUrl(string $path,array|null $param):string {
  */
 function GetAPIUrl(string $path):string {
     $config=GetConfig();
-    if (!$config["web"]["absolute_path"]) $res="./api/";
-    else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/api/";
+    if (!$config["web"]["absolute_path"]) $res="./api";
+    else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/api";
     $res.=$path.".php"; return $res;
 }
 

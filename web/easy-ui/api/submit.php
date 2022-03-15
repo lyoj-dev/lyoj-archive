@@ -14,11 +14,8 @@
     $result=mysqli_query($conn,"SELECT * FROM status");
     if (!$result) {echo "Failed to query database! ".mysqli_error($conn);exit;}
     $sum=mysqli_num_rows($result);
-    $result=mysqli_query($conn,"SELECT * FROM waited_judge");
-    if (!$result) {echo "Failed to query database! ".mysqli_error($conn);exit;}
-    $sum+=mysqli_num_rows($result);
-    $sql="INSERT INTO waited_judge (id,uid,pid,lang,code,time,status,ideinfo) VALUES 
-    (".($sum+1).",$uid,$pid,$lang,'$code',".time().",'Waiting...','')";
+    $sql="INSERT INTO status (id,uid,pid,lang,code,result,time,status,ideinfo,judged) VALUES 
+    (".($sum+1).",$uid,$pid,$lang,'$code','NULL',".time().",'Waiting...','NULL',0)";
     if (!$conn->query($sql)) {echo "Failed to insert data! ".mysqli_error($conn);exit;}
     echo $sum+1;exit;
 ?>

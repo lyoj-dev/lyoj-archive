@@ -6,7 +6,7 @@
  * @return string
  */
 function GetUrl(string $path,array|null $param):string {
-    $config=GetConfig(); $res="";
+    $config=GetConfig(false); $res="";
     if (!$config["web"]["absolute_path"]) $res="./";
     else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/";
     $res.=(!$config["web"]["url_rewrite"]?"index.php?path=$path&":"$path?");
@@ -16,7 +16,7 @@ function GetUrl(string $path,array|null $param):string {
 
 /**
  * 绝对URL获取函数 GetRealUrl
- * @param string $path  文件相对路径
+ * @param string $path 文件相对路径
  * @param array|null $param 新页面中所有GET的参数
  * @return string
  */
@@ -32,23 +32,31 @@ function GetRealUrl(string $path,array|null $param):string {
 
 /**
  * API URL获取函数 GetAPIUrl
- * @param string $path
+ * @param string $path API路径
+ * @param array|null $param=null 新页面中所有GET的参数
  */
-function GetAPIUrl(string $path):string {
+function GetAPIUrl(string $path,array|null $param=null):string {
     $config=GetConfig();
-    if (!$config["web"]["absolute_path"]) $res="./api/";
-    else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/api/";
-    $res.=$path.".php"; return $res;
+    if (!$config["web"]["absolute_path"]) $res="./api";
+    else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/api";
+    $res.=$path.".php"; $fir=true;
+    foreach($param as $key=>$value) {
+        if ($fir) $res.="?";
+        else $res.="&"; $fir=false;
+        $res.="$key=$value";
+    } return $res;
 }
 
 /**
  * 程序配置获取函数 GetConfig
+ * @param bool $merge 是否合并所有配置
  * @return array
  */
-function GetConfig():array {
+function GetConfig(bool $merge=true):array {
     require_once "./config.php";
     global $config;
-    return $config;
+    if (!$merge) return $config;
+    else return array_merge($config,$config["controllers"][$_GET["path"]]["configs"]);
 }
 
 /**
@@ -94,12 +102,34 @@ function FindExist2(string $name,array $arr,bool $allow_empty=true):bool {
     return true;
 }
 
+/**
+ * 文件存在性检查函数 FindFileExist
+ * @param string $path 文件路径
+ * @return void
+ */
+function FindFileExist(string $path):void {
+    if (!file_exists($path)) {
+        echo Error_Controller::Common
+        ("File '$path' expected, but it was not found!");
+        exit;
+    }
+}
+
+/**
+ * 文件存在性检查函数 FindFileExist2
+ * @param string $path 文件路径
+ * @return bool
+ */
+function FindFileExist2(string $path):bool {
+    return file_exists($path);
+}
+
 /** 
  * 配置检查函数 CheckConfig
  * @return void
  */
 function ConfigCheck():void {
-    $config=GetConfig();
+    $config=GetConfig(false);
 
     // Common Config Check 
     FindExist("/skip_config_check",$config,"config");
@@ -116,6 +146,10 @@ function ConfigCheck():void {
     FindExist("/web/icon",$config,"config");
     FindExist("/web/logo",$config,"config");
     FindExist("/web/url_rewrite",$config,"config");
+    FindExist("/web/rsa_private_key",$config,"config");
+    FindFileExist($config["web"]["rsa_private_key"]);
+    FindExist("/web/rsa_public_key",$config,"config");
+    FindFileExist($config["web"]["rsa_public_key"]);
     FindExist("/web/menu/left",$config,"config");
     if ($config["web"]["menu"]["left"]!=null) {
         for ($i=0;$i<count($config["web"]["menu"]["left"]);$i++) {
@@ -172,7 +206,7 @@ function ConfigCheck():void {
  * @return void
  */
 function ParamCheck():void {
-    $config=GetConfig();
+    $config=GetConfig(false);
 
     FindExist("/web/default_path",$config,"config");
     if (!array_key_exists("path",$_GET)) $_GET["path"]=$config["web"]["default_path"];
@@ -290,7 +324,7 @@ class Application {
     /**
      * CSS样式插入函数2 InsertIntoStyle
      * @param array $name CSS样式名
-     * @param array|null @property CSS样式属性
+     * @param array|null $property CSS样式属性
      * @return void
      */
     static function InsertIntoStyle(array $name,array|null $property):void {
@@ -303,7 +337,8 @@ class Application {
      * @return void
      */
     static function run(array $param):void {
-        $config=GetConfig(); ParamCheck(); $path=$_GET["path"];
+        $config=GetConfig(false); ParamCheck(); $path=$_GET["path"];
+        $param=$_GET; unset($param["path"]);
         self::$body=""; self::$html="";
         self::SetDefaultHtml($path,$param);
         self::SetDefaultHeader($path,$param);
@@ -313,9 +348,10 @@ class Application {
             require_once $config["controllers"][$path]["require"][$i];
         $ret_body="";$ret_html="";
         $config["controllers"][$path]["entrance_function"]($param,$ret_html,$ret_body,self::$others);
-        self::InsertIntoBody(InsertTags("main",null,$ret_body));
+        self::InsertIntoBody(InsertTags("main",array("id"=>"main"),$ret_body));
         self::InsertIntoHtml($ret_html);
         self::SetDefaultFooter($path,$param);
+        if ($path!="login") setcookie("history",GetUrl($path,$param),time()+30*24*60*60);
         self::Output();
     }
 
@@ -330,7 +366,8 @@ class Application {
         $title=$config["controllers"][$path]["title"]." - ".$config["web"]["title"];
         self::InsertIntoHtml(InsertTags("title",null,$title));
         self::InsertIntoHtml(InsertSingleTag("link",array("rel"=>"shortcut icon","href"=>GetRealUrl($config["web"]["icon"],null))));
-        self::InsertIntoHtml(InsertTags("script",null,"var require={paths:{vs:'./easy-ui/monaco-editor/min/vs'}};"));
+        self::InsertIntoHtml(InsertTags("script",null,"var require={paths:{vs:'./easy-ui/monaco-editor/min/vs'}};".
+        "var ketax_config={delimiters:[{left:\"$$\",right:\"$$\",display:true},{left:\"$\",right:\"$\",display:false},]}"));
         foreach($config["extensions"]["js"] as $value) self::InsertScript($value);
         foreach($config["extensions"]["css"] as $value) self::InsertCssScript($value);
         self::InsertIntoStyleCode(
@@ -405,6 +442,29 @@ class Application {
             array("button:hover"),array(
                 "background-color"=>"rgb(27,116,221)",
                 "color"=>"white",
+                "border-color"=>"rgb(27,116,221)"
+            )
+        ); self::InsertIntoStyle(
+            array("input"),array(
+                "height"=>"30px",
+                "line-height"=>"30px",
+                "border"=>"1px solid",
+                "border-color"=>"rgb(213,216,218)",
+                "color"=>"rgb(27,116,221)",
+                "padding-left"=>"15px",
+                "padding-right"=>"15px",
+                "border-radius"=>"3px",
+                "font-weight"=>"500",
+                "font-size"=>"13px",
+                "background-color"=>"white",
+                "transition"=>"border-color 0.5s",    
+                "outline"=>"none",
+                "flex-grow"=>"2000"
+            )
+        ); self::InsertIntoStyle(
+            array("input:hover"),array(
+                // "background-color"=>"rgb(27,116,221)",
+                // "color"=>"white",
                 "border-color"=>"rgb(27,116,221)"
             )
         ); self::InsertIntoHtml(InsertTags("script",null,"function SendAjax(url,method,data) {".

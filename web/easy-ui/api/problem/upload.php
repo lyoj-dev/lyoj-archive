@@ -69,7 +69,7 @@
             );
             $json["data"][]=$array;
         }
-    } if (count($json["data"])) $min=100/count($json["data"]);$max=count($json["data"])-(100-count($json["data"])*$min);
+    } if (count($json["data"])) $min=intval(100/count($json["data"]));$max=count($json["data"])-(100-count($json["data"])*$min);
     for ($i=0;$i<count($json["data"]);$i++) $json["data"][$i]["score"]=($i<=$max?$min:$min+1);
     $fp=fopen("../../../../problem/$id/config.json","wb");fwrite($fp,json_encode($json));fclose($fp);
     echo "Upload Successfully! pid: $id";

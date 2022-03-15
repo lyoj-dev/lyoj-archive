@@ -19,7 +19,7 @@ class Database_Controller {
         ); if (!self::$conn) {
             echo Error_Controller::Common("Failed to connect database",-500,self::$api_mode);
             exit;
-        }
+        } 
         return;
     } 
 
@@ -35,6 +35,7 @@ class Database_Controller {
             echo Error_Controller::Common("Failed to query database: ".mysqli_error(self::$conn),-400,self::$api_mode);
             exit;
         } $ret=array(); 
+        if ($result===true) return null;
         while ($row=mysqli_fetch_assoc($result)) 
             $ret[]=$row;
         return $ret;
