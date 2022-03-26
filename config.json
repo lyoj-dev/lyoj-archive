@@ -4,7 +4,7 @@
         "title":"LYOJ | LittleYang Online Judge",
         "absolute_path":false,
         "protocol":"http",
-        "domain":"127.0.0.1:4433",
+        "domain":"",
         "icon":"./favicon.ico",
         "logo":"./header.jpg",
         "default_path":"index",
@@ -12,6 +12,7 @@
         "rsa_private_key":"/etc/judge/web/rsa_private_key.pem",
         "rsa_public_key":"/etc/judge/web/rsa_public_key.pem",
         "cookie_time":2592000,
+        "timezone":"Asia/Chongqing",
         "menu":{
             "left":[
                 {
@@ -32,7 +33,7 @@
                     "title":"Status",
                     "path":"status",
                     "param":{
-
+                        "page":"1"
                     }
                 },
                 {
@@ -86,7 +87,10 @@
                     "My Email":"mailto:littleyang0531@outlook.com"
                 }
             }
-        ]
+        ],
+        "font":{
+            "Exo 2":"./font/exo2.woff2"
+        }
     },
     "controllers": {
         "index":{
@@ -98,9 +102,9 @@
             "require_param":{
                 
             },
-            "require_config":[],
+            "require_config":["announcement_content"],
             "configs":{
-
+                "announcement_content":"/etc/judge/announcement.md"
             }
         },
         "error":{
@@ -128,6 +132,7 @@
                 "./cores/controllers/tags.php",
                 "./cores/controllers/user.php",
                 "./cores/controllers/error.php",
+                "./cores/controllers/contest.php",
                 "./cores/guipages/problem.php"
             ],
             "require_param":{
@@ -148,20 +153,23 @@
                 "./cores/controllers/status.php",
                 "./cores/controllers/user.php",
                 "./cores/controllers/problem.php",
+                "./cores/controllers/contest.php",
                 "./cores/guipages/status.php"
             ],
             "require_param":{
 
             },
-            "require_config":[],
+            "require_config":["number_of_pages"],
             "configs":{
-
+                "number_of_pages":10
             }
         },
         "login":{
             "title":"Login",
             "entrance_function":"run",
             "require":[
+                "./cores/controllers/database.php",
+                "./cores/controllers/user.php",
                 "./cores/guipages/login.php"
             ],
             "require_param":{
@@ -176,6 +184,15 @@
             "title":"Register",
             "entrance_function":"run",
             "require":[
+                "./cores/controllers/database.php",
+                "./extensions/PHPMailer/Exception.php",
+                "./extensions/PHPMailer/OAuthTokenProvider.php",
+                "./extensions/PHPMailer/OAuth.php",
+                "./extensions/PHPMailer/PHPMailer.php",
+                "./extensions/PHPMailer/POP3.php",
+                "./extensions/PHPMailer/SMTP.php",
+                "./cores/controllers/email.php",
+                "./cores/controllers/user.php",
                 "./cores/guipages/register.php"
             ],
             "require_param":{
@@ -183,18 +200,36 @@
             },
             "require_config":[],
             "configs":{
-                
+                "email_content":"/etc/judge/email.html",
+                "email_host":"",
+                "email_name":"",
+                "email_password":"",
+                "email_protocol":"",
+                "email_port":,
+                "email_from":""
             }
         },
         "contest":{
             "title":"Contest",
             "entrance_function":"run",
             "require":[
+                "./cores/controllers/database.php",
+                "./cores/controllers/contest.php",
+                "./cores/controllers/tags.php",
+                "./cores/controllers/user.php",
+                "./cores/controllers/problem.php",
+                "./cores/controllers/status.php",
                 "./cores/guipages/contest.php"
             ],
-            "require_param":{},
-            "require_config":[],
-            "configs":{}
+            "require_param":{
+                "page":1
+            },
+            "require_config":["number_of_pages","ranking_number","status_number"],
+            "configs":{
+                "number_of_pages":10,
+                "ranking_number":10,
+                "status_number":10
+            }
         }
     },
     "extensions":{
@@ -215,6 +250,8 @@
             "monaco-editor-loader.js":"./extensions/monaco-editor/min/vs/loader.js",
             "monaco-editor-lang-pack":"./extensions/monaco-editor/min/vs/editor/editor.main.nls.zh-cn.js",
             "monaco-editor-main.js":"./extensions/monaco-editor/min/vs/editor/editor.main.js",
+            "markdown.js":"./extensions/markdown.js/markdown.js",
+            "markdown.min.js":"./extensions/markdown.js/markdown.min.js",
             "layui.js":"./extensions/layui/layui.js",
             "highlight.min.js":"./extensions/highlight.js/highlight.min.js",
             "clipboard.js":"./extensions/clipboard.js"
@@ -268,11 +305,19 @@
     "require_code":[
         "./cores/controllers/api.php",
         "./cores/controllers/database.php",
+        "./extensions/PHPMailer/Exception.php",
+        "./extensions/PHPMailer/OAuthTokenProvider.php",
+        "./extensions/PHPMailer/OAuth.php",
+        "./extensions/PHPMailer/PHPMailer.php",
+        "./extensions/PHPMailer/POP3.php",
+        "./extensions/PHPMailer/SMTP.php",
+        "./cores/controllers/email.php",
         "./cores/controllers/user.php",
         "./cores/controllers/problem.php",
         "./cores/controllers/status.php",
         "./cores/controllers/tags.php",
-        "./cores/controllers/error.php"
+        "./cores/controllers/error.php",
+        "./cores/controllers/contest.php"
     ],
     "skip_config_check":["error"],
     "version":"1.0.0-dev",
@@ -551,12 +596,12 @@
         "source_path":"main.php",
         "exec_command":"/usr/bin/php7.4 main.php"
     },{
-        "name":"php8.2 (php8.2 amd64)",
+        "name":"php8.1 (php8.1 amd64)",
         "type":1,
         "mode":"php",
         "highlight-mode":"php",
         "source_path":"main.php",
-        "exec_command":"/usr/bin/php8.2 main.php"
+        "exec_command":"/usr/bin/php8.1 main.php"
     },{
         "name":"Python2 (python2 amd64)",
         "type":1,
