@@ -6,7 +6,7 @@ class Database_Controller {
      * 数据库初始化函数(不可调用) __construct
      */
     function __construct() {
-        $config=GetConfig();
+        $config=GetConfig(false);
         mysqli_report(MYSQLI_REPORT_OFF);
         $url=$_SERVER['REQUEST_URI'];
         $path=explode("/",$url);
@@ -32,7 +32,7 @@ class Database_Controller {
         if ($sql==null) return null;
         $result=self::$conn->query($sql);
         if (!$result) {
-            echo Error_Controller::Common("Failed to query database: ".mysqli_error(self::$conn),-400,self::$api_mode);
+            echo Error_Controller::Common("Failed to query database: ".mysqli_error(self::$conn)." in sentence '$sql'",-400,self::$api_mode);
             exit;
         } $ret=array(); 
         if ($result===true) return null;

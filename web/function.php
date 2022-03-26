@@ -31,6 +31,20 @@ function GetRealUrl(string $path,array|null $param):string {
 }
 
 /**
+ * HTTP URL获取函数 GetHTTPUrl
+ * @param string $path  $_GET["path"]里的值
+ * @param array|null $param 新页面中所有GET的参数
+ * @return string
+ */
+function GetHTTPUrl(string $path,array|null $param):string {
+    $config=GetConfig(); $res="";
+    $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/";
+    $res.=(!$config["web"]["url_rewrite"]?"index.php?path=$path&":"$path?");
+    if ($param!=null) foreach ($param as $key=>$value) $res.="$key=$value&";
+    return substr($res,0,strlen($res)-1);
+}
+
+/**
  * API URL获取函数 GetAPIUrl
  * @param string $path API路径
  * @param array|null $param=null 新页面中所有GET的参数
@@ -53,8 +67,10 @@ function GetAPIUrl(string $path,array|null $param=null):string {
  * @return array
  */
 function GetConfig(bool $merge=true):array {
-    require_once "./config.php";
     global $config;
+    $fp=fopen("/etc/judge/config.json","r");
+    $json=fread($fp,filesize("/etc/judge/config.json"));
+    $config=json_decode($json,true);
     if (!$merge) return $config;
     else return array_merge($config,$config["controllers"][$_GET["path"]]["configs"]);
 }
@@ -151,6 +167,7 @@ function ConfigCheck():void {
     FindExist("/web/rsa_public_key",$config,"config");
     FindFileExist($config["web"]["rsa_public_key"]);
     FindExist("/web/menu/left",$config,"config");
+    FindExist("/web/timezone",$config,"config");
     if ($config["web"]["menu"]["left"]!=null) {
         for ($i=0;$i<count($config["web"]["menu"]["left"]);$i++) {
             FindExist("/web/menu/left/$i/title",$config,"config");
@@ -285,8 +302,9 @@ function InsertInlineCssStyle(array|null $property):string {
  * @return void
  */
 function md2html(string $md,string $id):string {
-    $config=GetConfig();
+    $config=GetConfig(); $md=str_replace("\\","\\\\",$md);
     $md=str_replace("\n","\\n",$md); $md=str_replace("'","\\'",$md);
+    // return "document.getElementById(\"$id\").innerHTML=markdown.toHTML('$md');";
     return "editormd.markdownToHTML('$id',{markdown:'$md',".
     "emoji:true,codeFold:true,tex:true,taskList:true,flowChart:true,sequenceDiagram:true});";
 }
@@ -342,6 +360,7 @@ class Application {
         self::$body=""; self::$html="";
         self::SetDefaultHtml($path,$param);
         self::SetDefaultHeader($path,$param);
+        date_default_timezone_set($config["web"]["timezone"]);
         self::$others["window_onload"]="";
         if ($config["controllers"][$path]["require"]!=null) 
         for ($i=0;$i<count($config["controllers"][$path]["require"]);$i++)
@@ -351,7 +370,7 @@ class Application {
         self::InsertIntoBody(InsertTags("main",array("id"=>"main"),$ret_body));
         self::InsertIntoHtml($ret_html);
         self::SetDefaultFooter($path,$param);
-        if ($path!="login") setcookie("history",GetUrl($path,$param),time()+30*24*60*60);
+        if ($path!="login"&&$path!="register") setcookie("history",GetUrl($path,$param),time()+30*24*60*60);
         self::Output();
     }
 
@@ -428,6 +447,7 @@ class Application {
                 "color"=>"rgb(27,116,221)",
                 "margin-top"=>"10px",
                 "margin-bottom"=>"10px",
+                "margin-right"=>"5px",
                 "padding-left"=>"20px",
                 "padding-right"=>"20px",
                 "border-radius"=>"3px",
@@ -467,7 +487,12 @@ class Application {
                 // "color"=>"white",
                 "border-color"=>"rgb(27,116,221)"
             )
-        ); self::InsertIntoHtml(InsertTags("script",null,"function SendAjax(url,method,data) {".
+        ); foreach ($config["web"]["font"] as $key=>$value) {
+            self::InsertIntoStyle(array("@font-face"),array(
+                "font-family"=>"'$key'",
+                "src"=>"url('".$value."')"
+            ));
+        } self::InsertIntoHtml(InsertTags("script",null,"function SendAjax(url,method,data) {".
             "var res;$.ajax({url:url,type:method,data:data,async:false,success:function(message) {".
             "console.log(message);res=message;},error:function(jqXHR,textStatus,errorThrown){".
             "console.log(jqXHR.responseText);console.log(jqXHR.status);console.log(jqXHR.readyState);".
@@ -488,6 +513,9 @@ class Application {
      * @return void
      */
     static function SetDefaultHeader(string $path,array $param):void {
+        require_once "./cores/controllers/database.php";
+        require_once "./cores/controllers/user.php";
+        $login_controller=new Login_Controller;
         $config=GetConfig();
         self::InsertIntoStyle(
             array(".menu"),array(
@@ -511,24 +539,29 @@ class Application {
                 "cursor"=>"pointer",
                 "text-align"=>"center",
                 "transition"=>"border-color 0.5s",
-                "z-index"=>2000
+                "z-index"=>2000,
+                "margin-left"=>"5px"
             )
         ); self::InsertIntoStyle(
             array(".menu-item:hover"),array(
                 "border-color"=>"orange"
             )
         ); $content="";
-        $content.=InsertTags("div",null,
+        $content.=InsertTags("div",array("class"=>"flex",
+        "onclick"=>"location.href='".GetUrl("index",null)."'"),
             InsertSingleTag("img",array(
                 "src"=>GetRealUrl($config["web"]["logo"],null),
                 "style"=>InsertInlineCssStyle(array(
-                    "width"=>"53px",
-                    "height"=>"53px",
+                    "height"=>"32px",
                     "cursor"=>"pointer",
-                )),
-                "onclick"=>"location.href='".GetUrl("index",null)."'"
-            )
-        ));
+                    "margin-top"=>"3px"
+                ))
+            )).InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
+                "font-family"=>"'Exo 2'",
+                "line-height"=>"32px",
+                "cursor"=>"pointer"
+            ))),"&nbsp;&nbsp;".$config["web"]["name"])
+        );
         if ($config["web"]["menu"]["left"]!=null) 
         for($i=0;$i<count($config["web"]["menu"]["left"]);$i++)
             $content.=InsertTags("div",array("class"=>"menu-item"),
@@ -545,19 +578,44 @@ class Application {
         $content_left=InsertTags("div",array("style"=>InsertInlineCssStyle(array(
             "display"=>"flex"
         ))),$content); $content="";
-        if ($config["web"]["menu"]["right"]!=null) 
-        for($i=0;$i<count($config["web"]["menu"]["right"]);$i++)
-            $content.=InsertTags("div",array("class"=>"menu-item"),
-                InsertTags("p",array(
-                    "onclick"=>"location.href='".
-                    GetUrl($config["web"]["menu"]["right"][$i]["path"],
-                        $config["web"]["menu"]["right"][$i]["param"]
-                    )."'",
-                    "style"=>InsertInlineCssStyle(array(
-                        "line-height"=>"50px"
-                    ))
-                ),$config["web"]["menu"]["right"][$i]["title"])
-            );
+        if ($config["web"]["menu"]["right"]!=null) {
+            $uid=$login_controller->CheckLogin();
+            if (!$uid) for($i=0;$i<count($config["web"]["menu"]["right"]);$i++)
+                $content.=InsertTags("div",array("class"=>"menu-item"),
+                    InsertTags("p",array(
+                        "onclick"=>"location.href='".
+                        GetUrl($config["web"]["menu"]["right"][$i]["path"],
+                            $config["web"]["menu"]["right"][$i]["param"]
+                        )."'",
+                        "style"=>InsertInlineCssStyle(array(
+                            "line-height"=>"50px"
+                        ))
+                    ),$config["web"]["menu"]["right"][$i]["title"])
+                );
+            else {
+                $user_controller=new User_Controller;
+                $user=$user_controller->GetWholeUserInfo($uid);
+                $content.=InsertTags("div",array("class"=>"menu-item",
+                "style"=>InsertInlineCssStyle(array("width"=>"auto","min-width"=>"70px"))),
+                    InsertTags("p",array(
+                        "onclick"=>"location.href='".
+                        GetUrl("user",array("id"=>$uid))."'",
+                        "style"=>InsertInlineCssStyle(array(
+                            "line-height"=>"50px"
+                        ))
+                    ),$user["name"])
+                );
+                $content.=InsertTags("div",array("class"=>"menu-item"),
+                    InsertTags("p",array(
+                        "onclick"=>"location.href='".
+                        GetUrl("login",array("logout"=>1))."'",
+                        "style"=>InsertInlineCssStyle(array(
+                            "line-height"=>"50px"
+                        ))
+                    ),"Logout")
+                );
+            }
+        }
         $content=$content_left.InsertTags("div",array("style"=>InsertInlineCssStyle(array(
             "display"=>"flex"
         ))),$content);
@@ -574,7 +632,7 @@ class Application {
             "box-shadow"=>"0 0.375rem 1.375rem rgb(175 194 201 / 50%)",
             "opacity"=>0,
             "position"=>"relative",
-            "top"=>"25px"
+            "top"=>"50px"
         ));
     }
 
@@ -629,8 +687,10 @@ class Application {
         self::InsertIntoBody(InsertTags("div",array("class"=>"copyright"),InsertTags("p",null,$content)));
         self::InsertIntoBody(InsertTags("div",array("style"=>InsertInlineCssStyle(array("display"=>"none")),"id"=>"md2html"),""));
         self::InsertIntoBody(InsertTags("script",null,"var default_main=document.getElementsByClassName('default_main');".
+        "setTimeout(function(){window.scrollTo(0,0);},10);".
+        "setTimeout(function(){window.scrollTo(0,0);},100);".
         "for (var i=0;i<default_main.length;i++) for (var j=1;j<=100;j++)".
-        "setTimeout(function(div,j){div.style.opacity=j/100.0;div.style.top=(25.0-j/4.0)+'px';},5*j+i*100,default_main[i],j);"));
+        "setTimeout(function(div,j){div.style.opacity=j/100.0;div.style.top=(50+50*Math.cos(Math.PI/200*j+Math.PI/2))+'px';},5*j+i*100,default_main[i],j);"));
     }
 
     /**

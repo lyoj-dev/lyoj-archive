@@ -22,6 +22,7 @@
     $data = explode(",",$_POST["file"]);
     $data = base64_decode($data[1]);
     $fp=fopen("../../../problem/$id/data.zip","wb");fwrite($fp,$data);
+    exit;
     fclose($fp); $zip = new ZipArchive();
     $filePath = realpath("../../../problem/$id/data.zip");
     $path = realpath("../../../problem/$id/");

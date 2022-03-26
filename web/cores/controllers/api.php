@@ -1,5 +1,9 @@
 <?php
 class API_Controller{
+    function __construct() {
+        error_reporting(E_ERROR);
+	ini_set("display_errors","Off");
+    }	    
     /**
      * api输出函数 output
      * @param array $param 输出参数
@@ -35,9 +39,25 @@ class API_Controller{
     static function error_system_crashed():void {
         Error_Controller::Common("System Error!",-500,true);
     }
+    // 邮箱未验证
+    static function error_email_not_verify(string $email):void {
+        Error_Controller::Common("Email '$email' not verify!",-113,true);
+    }
     // 盐值过期
     static function error_salt_timed_out():void {
         Error_Controller::Common("Salt value timed out! Please try again!",-658,true);
+    }
+    // 邮箱已注册
+    static function error_email_used(string $email):void {
+        Error_Controller::Common("Email '$email' have been used!",-652,true);
+    }
+    // 用户名已注册
+    static function error_username_used(string $name):void {
+        Error_Controller::Common("Username '$name' have been used!",-652,true);
+    }
+    // 比赛未找到
+    static function error_contest_not_found($id):void {
+        Error_Controller::Common("Contest id $id not found!",-404,true);
     }
 }
 ?>

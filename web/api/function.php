@@ -28,6 +28,20 @@ function GetUrl(string $path,array|null $param):string {
 }
 
 /**
+ * HTTP URL获取函数 GetHTTPUrl
+ * @param string $path  $_GET["path"]里的值
+ * @param array|null $param 新页面中所有GET的参数
+ * @return string
+ */
+function GetHTTPUrl(string $path,array|null $param):string {
+    $config=GetConfig(); $res="";
+    $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/";
+    $res.=(!$config["web"]["url_rewrite"]?"index.php?path=$path&":"$path?");
+    if ($param!=null) foreach ($param as $key=>$value) $res.="$key=$value&";
+    return substr($res,0,strlen($res)-1);
+}
+
+/**
  * 绝对URL获取函数 GetRealUrl
  * @param string $path  文件相对路径
  * @param array|null $param 新页面中所有GET的参数
@@ -56,11 +70,16 @@ function GetAPIUrl(string $path):string {
 
 /**
  * 程序配置获取函数 GetConfig
+ * @param bool $merge=true 是否合并所有配置
  * @return array
  */
-function GetConfig():array {
+function GetConfig(bool $merge=true):array {
     require_once "../../config.php";
     global $config;
+    if ($merge) foreach ($config["controllers"] as $key=>$value) {
+        $config=array_merge($config,$config["controllers"][$key]["configs"]);
+        // print_r($config["controllers"][$key]["configs"]);
+    } // exit;
     return $config;
 }
 ?>

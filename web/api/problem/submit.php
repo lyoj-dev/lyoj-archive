@@ -7,7 +7,7 @@
     $user_controller=new User_Controller;
     $problem_controller=new Problem_Controller;
     $config=GetConfig();
-    if (!$login_controller->CheckLogin()) $api_controller->error_not_login();
+    if (!$login_controller->CheckLogin()) $api_controller->error_login_failed();
     $uid=$login_controller->GetLoginID(); 
     $pid=$_POST["pid"]; $lang=$_POST["lang"]; $code=$_POST["code"];
     $sid=$status_controller->Submit($lang,$code,$uid,$pid);

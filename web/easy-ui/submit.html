@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>代码提交 - LYOJ | LittleYang OnlineJudge</title>
+    <script src="./jQuery.js"></script>
+    <script> 
+        var require = { paths: { vs: './monaco-editor/min/vs' } };
+    </script>
+    <script src="./monaco-editor/min/vs/loader.js"></script>
+    <script async="async" type="text/javascript" src="./monaco-editor/min/vs/editor/editor.main.nls.zh-cn.js"></script>
+    <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
+    <link rel="stylesheet" type="text/css" href="./UI-Icon-master/icon.css">
+</head>
+<body>
+    <style>
+        body {
+            width:60%;
+            margin:auto;
+        }
+
+        #code {
+            font-family:monospace;
+            tab-size:32px;
+        }
+
+        @font-face {
+            font-family:hahaha;
+            src:url(./font.woff2) format("woff2");
+        }
+        .testdata {
+            display:flex;
+            display:-webkit-flex;
+            width:calc(100% - 30px);
+            border:1px solid;
+            border-color:rgba(0,0,0,0.1);
+            border-top:0px;
+            padding:10px 0px 10px 0px;
+            padding-left:30px;
+            color:rgb(167,167,167);
+            font-weight:700;
+            font-family:hahaha;
+            transition:color 0.1s;
+            font-size:15px;
+        }
+        .testdata-top {
+            border:1px solid;
+            border-color:rgba(0,0,0,0.1);
+            border-radius:5px 5px 0px 0px;
+        }
+        .testdata-bottom {
+            border-radius:0px 0px 5px 5px;
+        }
+
+        .id {
+            width:10px;
+            flex-grow:200;
+        }
+        .state {
+            display:inline-block;
+            width:10px;
+            flex-grow:300;
+            color:rgb(167,167,167);
+            transition:color 0.1s;
+        }
+        .score {
+            width:10px;
+            flex-grow:200;
+        }
+        .time {
+            width:10px;
+            flex-grow:200;
+        }
+        .memory {
+            width:10px;
+            flex-grow:200;
+        }
+
+        .accepted:hover {
+            color:black;
+        }
+        .accepted:hover > .state {
+            color:rgb(36,140,36);
+        }
+        .wrong-answer:hover {
+            color:black;
+        }
+        .wrong-answer:hover > .state {
+            color:rgb(255,0,0);
+        }
+        .time-limited-exceeded:hover {
+            color:black;
+        }
+        .time-limited-exceeded:hover > .state {
+            color:rgb(244,164,96);
+        }
+        .memory-limited-exceeded:hover {
+            color:black;
+        }
+        .memory-limited-exceeded:hover > .state {
+            color:rgb(244,164,96);
+        }
+        .runtime-error:hover {
+            color:black;
+        }
+        .runtime-error:hover > .state {
+            color:rgb(153,50,204);
+        }
+
+        #compile-info {
+            font-family: monospace;
+        }
+
+        p {
+            display:flex;
+            display:-webkit-flex;
+            align-items:center;
+        }
+        p > input[type="text"] {
+            flex-grow:1000;
+            margin-left:10px;
+            outline:none;
+            padding-left:10px;
+            height:25px;
+            border:gray 1px solid;
+        }
+
+        p > input[type="file"] {
+            margin-left:10px;
+            outline:none;
+        }
+        p > input[type="text"]:focus {
+            border-color:rgb(64, 158, 255);
+        }
+        textarea {
+            width:100%;
+            height:100px;
+            resize:vertical;
+            outline:none;
+        }
+        textarea:focus {
+            border-color:rgb(64, 158, 255);
+        }
+        button {
+            width:80px;
+            height:30px;
+            margin-top:10px;
+            margin-bottom:30px;
+            background-color:rgb(52, 152, 219);
+            border-color:rgb(52, 152, 219);
+            color:white;
+            border:1px solid;
+            border-radius:5px;
+            cursor:pointer;
+            transition:background-color 0.2s;
+        }
+        button:hover {
+            background-color:rgb(88, 188, 255)
+        }
+    </style>
+    <center><h2>代码提交</h2></center>
+    <p>选择语言: <select id="lang" style="margin-left:20px;">
+
+    </select></p>
+    <p>用户id: <input id="uid" type="text" placeholder="User id ..."/></p>
+    <div id="code" style="height:400px"></div>
+    <!-- <textarea id="code"></textarea> -->
+    <center><button onclick=submit()>提交</button></center>
+    <div id="res"></div>
+    <div id="compile-info"></div>
+    <div id="chart" style="width:100%;margin:auto;"></div>
+    <script>
+        var $_GET = (function(){
+            var url = window.document.location.href.toString();
+            var u = url.split("?");
+            if(typeof(u[1]) == "string"){
+                u = u[1].split("&");
+                var get = {};
+                for(var i in u){
+                    var j = u[i].split("=");
+                    get[j[0]] = j[1];
+                }
+                return get;
+            } else {
+                return {};
+            }
+        })();
+        function strip_tags(str, allow){
+            allow = (((allow || '') + '').toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
+
+            var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+            var commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+            return str.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+                return allow.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 :'';
+            });
+        }
+        if ($_GET["pid"]==undefined) {
+            alert("Expected parameter 'pid', but not found!");
+            window.history.back(-1);
+        }
+        var config=SendAjax("./api/problem/config.php");
+        var confarr=JSON.parse(strip_tags(config));
+        for (var i=0;i<confarr["lang"].length;i++) {
+            var res="<option value="+i; 
+            if (i==confarr["default-lang"]) res+=" selected";
+            res+=">"+confarr["lang"][i]["name"]+"</option>";
+            document.getElementById("lang").innerHTML+=res;
+        }
+        var editor;
+        $(document).ready(function() {
+            setTimeout(function(){
+                editor=monaco.editor.create(document.getElementById('code'), {
+                    "language":"cpp",
+                });
+            },1000);
+        });
+        function SendAjax(url,method,data) {
+            var res;
+            $.ajax({
+                url:url,
+                type:method,
+                data:data,
+                async:false,
+                success:function(message) {
+                    console.log(message);
+                    res=message;
+                },
+                error:function(jqXHR,textStatus,errorThrown)
+                {
+                    console.log(jqXHR.responseText);
+                    console.log(jqXHR.status);
+                    console.log(jqXHR.readyState);
+                    console.log(jqXHR.statusText);
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                    res=null;
+                }
+            });
+            return res;
+        }
+        var id;
+        function submit() {
+            var pid=$_GET["pid"];
+            var uid=document.getElementById("uid").value;
+            var code=editor.getValue();
+            var lang=document.getElementById("lang").value;
+            var data={pid:pid,uid:uid,code:code,lang:lang};
+            id=SendAjax("./api/submit.php","POST",{pid:pid,uid:uid,code:code,lang:lang});
+            getstatus();
+        }
+        function update(cont) {
+            var res=SendAjax("./api/getstate.php?id="+id,"GET",null);
+            var obj=JSON.parse(res);
+            var xxx3=new RegExp("<","g");
+            obj["compile_info"]=obj["compile_info"].replace(xxx3,"&lt;");
+            var xxx4=new RegExp(">","g");
+            obj["compile_info"]=obj["compile_info"].replace(xxx3,"&gt;");
+            var xxx=new RegExp("\n","g");
+            obj["compile_info"]=obj["compile_info"].replace(xxx,"<br>");
+            var xxx2=new RegExp(" ","g");
+            obj["compile_info"]=obj["compile_info"].replace(xxx2,"&nbsp");
+            document.getElementById("compile-info").innerHTML=obj["compile_info"];
+            if (obj.hasOwnProperty("info")==false) return false;
+            if (obj["info"]==null) return false;
+	    if (cont) return false;
+            var icon;switch(obj["info"][0]["state"]) {
+                case "Accepted":icon="check";break;
+                case "Wrong Answer":icon="x";break;
+                case "Time Limited Exceeded":icon="clock";break;
+                case "Memory Limited Exceeded":icon="microchip";break;
+                case "Runtime Error":icon="bomb";break;
+            };
+            var classname;switch(obj["info"][0]["state"]) {
+                case "Accepted":classname="accepted";break;
+                case "Wrong Answer":classname="wrong-answer";break;
+                case "Time Limited Exceeded":classname="time-limited-exceeded";break;
+                case "Memory Limited Exceeded":classname="memory-limited-exceeded";break;
+                case "Runtime Error":classname="runtime-error";break;
+            };
+            document.getElementById("chart").innerHTML+="<div class='testdata testdata-top "+classname+"'>"
+            +"<div class='id'>测试点#1</div>"
+            +"<div class='state'><i class='"+icon+" icon'></i>"+obj["info"][0]["state"]+"</div>"
+            +"<div class='score'>得分: "+obj["info"][0]["score"]+"</div>"
+            +"<div class='time'>用时: "+obj["info"][0]["time"]+"ms</div>"
+            +"<div class='memory'>内存: "+Math.floor(obj["info"][0]["memory"]/1024)+"MiB</div>"
+            +"</div>";
+            for (var i=1;i<obj["info"].length-1;i++) {
+                var icon;switch(obj["info"][i]["state"]) {
+                    case "Accepted":icon="check";break;
+                    case "Wrong Answer":icon="x";break;
+                    case "Time Limited Exceeded":icon="clock";break;
+                    case "Memory Limited Exceeded":icon="microchip";break;
+                    case "Runtime Error":icon="bomb";break;
+                };
+                var classname;switch(obj["info"][i]["state"]) {
+                    case "Accepted":classname="accepted";break;
+                    case "Wrong Answer":classname="wrong-answer";break;
+                    case "Time Limited Exceeded":classname="time-limited-exceeded";break;
+                    case "Memory Limited Exceeded":classname="memory-limited-exceeded";break;
+                    case "Runtime Error":classname="runtime-error";break;
+                };
+                document.getElementById("chart").innerHTML+="<div class='testdata "+classname+"'>"
+                +"<div class='id'>测试点#"+(i+1)+"</div>"
+                +"<div class='state'><i class='"+icon+" icon'></i>"+obj["info"][i]["state"]+"</div>"
+                +"<div class='score'>得分: "+obj["info"][i]["score"]+"</div>"
+                +"<div class='time'>用时: "+obj["info"][i]["time"]+"ms</div>"
+                +"<div class='memory'>内存: "+Math.floor(obj["info"][i]["memory"]/1024)+"MiB</div>"
+                +"</div>";
+            }
+            switch(obj["info"][obj["info"].length-1]["state"]) {
+                case "Accepted":icon="check";break;
+                case "Wrong Answer":icon="x";break;
+                case "Time Limited Exceeded":icon="clock";break;
+                case "Memory Limited Exceeded":icon="microchip";break;
+                case "Runtime Error":icon="bomb";break;
+            };
+            switch(obj["info"][obj["info"].length-1]["state"]) {
+                case "Accepted":classname="accepted";break;
+                case "Wrong Answer":classname="wrong-answer";break;
+                case "Time Limited Exceeded":classname="time-limited-exceeded";break;
+                case "Memory Limited Exceeded":classname="memory-limited-exceeded";break;
+                case "Runtime Error":classname="runtime-error";break;
+            };
+            document.getElementById("chart").innerHTML+="<div class='testdata testdata-bottom "+classname+"'>"
+            +"<div class='id'>测试点#"+(obj["info"].length)+"</div>"
+            +"<div class='state'><i class='"+icon+" icon'></i>"+obj["info"][obj["info"].length-1]["state"]+"</div>"
+            +"<div class='score'>得分: "+obj["info"][obj["info"].length-1]["score"]+"</div>"
+            +"<div class='time'>用时: "+obj["info"][obj["info"].length-1]["time"]+"ms</div>"
+            +"<div class='memory'>内存: "+Math.floor(obj["info"][obj["info"].length-1]["memory"]/1024)+"MiB</div>"
+            +"</div>";
+        }
+        function getstatus() {
+            document.getElementById("chart").innerHTML="";
+            document.getElementById("compile-info").innerHTML="";
+            var pid=setInterval(function(){
+                console.log(id);
+                var res=SendAjax("./api/getstatus.php?id="+id,"GET");
+                document.getElementById("res").innerHTML=res;
+                if (res=="Accepted"||res=="Wrong Answer"||
+                    res=="Time Limited Exceeded"||res=="Memory Limited Exceeded"||
+                    res=="Runtime Error"||res=="No Test Data"||res=="Compile Error"||
+                    res=="Unknown Error"||res=="Partially Correct") {
+                    clearInterval(pid);update(res=="Compile Error");
+                }
+            },500);
+        }
+    </script>
+</body>

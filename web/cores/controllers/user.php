@@ -8,9 +8,9 @@ class Login_Controller {
 
     /**
      * 核验登录态 CheckLogin
-     * @return bool
+     * @return int
      */
-    static function CheckLogin():bool {
+    static function CheckLogin():int {
         $config=GetConfig();
         $uid=$_COOKIE["DedeUserID"];
         if (md5($uid)!=$_COOKIE["DedeUserID__ckMd5"]) return false;
@@ -19,7 +19,7 @@ class Login_Controller {
         if (!count($arr)) return false;
         $arr=self::$db->Query("SELECT * FROM logindata WHERE uid=$uid AND csrf='$csrf_token' AND sessdata='$sessdata'");
         if (!count($arr)) return false;
-        for ($i=0;$i<count($arr);$i++) if (time()-$arr[$i]["time"]<=$config["web"]["cookie_time"]) return true;
+        for ($i=0;$i<count($arr);$i++) if (time()-$arr[$i]["time"]<=$config["web"]["cookie_time"]) return $uid;
         return false;
     }
 
@@ -73,7 +73,7 @@ class Login_Controller {
      * 用户密码登录并返回用户id UserLoginPasswd
      * @param string $email 用户邮箱
      * @param string $passwd 用户密码
-     * @param $cookie 返回cookie数据
+     * @param &$cookie 返回cookie数据
      * @return int
      */
     function UserLoginPasswd(string $email,string $passwd,&$cookie):int {
@@ -89,12 +89,55 @@ class Login_Controller {
         $csrf_token=bin2hex(openssl_random_pseudo_bytes(10));
         $sessdata=bin2hex(openssl_random_pseudo_bytes(10));
         self::$db->Query("INSERT INTO logindata (uid,csrf,sessdata,time) VALUES ($uid,'$csrf_token','$sessdata',".time().")");
+        if ($array[0]["verify"]!=1) return -3;
         if ($array[0]["passwd"].$array[0]["salt"]==$pass) {
             if (time()-$array[0]["salttime"]>20) return -2;
             $cookie=array("DedeUserID"=>$uid,"DedeUserID__ckMd5"=>md5($uid),
             "CSRF_TOKEN"=>$csrf_token,"SESSDATA"=>$sessdata);
             return $uid;
         } else return 0;
+    }
+
+    /**
+     * 注册用户 UserRegister
+     * @param string $name 用户名
+     * @param string $email 用户邮箱
+     * @param string $passwd 用户密码
+     * @return int
+     */
+    function UserRegister(string $name,string $email,string $passwd):int {
+        $private_key=self::UserLoginPrivateKey();
+        if ($private_key==null) return -1;
+        $uuid=self::$user_controller->GetEmailId($email);
+        if ($uuid) return -2; $pass=null;
+        $user=self::$db->Query("SELECT id FROM user WHERE name='$name'");
+        if (count($user)) return -3;
+        $user=self::$db->Query("SELECT id FROM user"); $uid=count($user)+1;
+        $pass=openssl_private_decrypt(base64_decode($passwd),$pass,$private_key)?$pass:null;
+        $code=bin2hex(openssl_random_pseudo_bytes(50));
+        self::$db->Execute("INSERT INTO user (id,name,passwd,email,permission,verify,verify_code) VALUES ($uid,'$name','$pass','$email',1,0,'$code')");
+        $config=GetConfig(); 
+        $fp=fopen($config["email_content"],"r");
+        $content=fread($fp,filesize($config["email_content"]));
+        $link=GetHTTPUrl("register",array("uid"=>$uid,"code"=>$code));
+        $content=str_replace("\$\$name$$",$name,$content);
+        $content=str_replace("\$\$email$$",$email,$content);
+        $content=str_replace("\$\$link$$",$link,$content);
+        Email_Controller::SendEmail(array($email),"Email verify in ".$config["web"]["name"],$content);
+        return $uid;
+    }
+
+    /**
+     * 用户邮箱验证 UserEmailVerify
+     * @param string $id 用户id代码
+     * @param string $code 邮箱代码
+     * @return void
+     */
+    function UserEmailVerify(string $id,string $code):void {
+        $array=self::$db->Query("SELECT * FROM user WHERE id=$id");
+        if (count($array)==0) Error_Controller::Common("User ID $id is not exist!");
+        if ($array[0]["verify_code"]!=$code) Error_Controller::Common("User and code is not matched!");
+        self::$db->Execute("UPDATE user SET verify=true WHERE id=$id"); 
     }
 }
 

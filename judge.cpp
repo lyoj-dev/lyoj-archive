@@ -127,7 +127,7 @@ void return_info(const char* info,string name="main-server") {
 	#elif _WIN32
 	infoout.open("C://judge/log/info.log",ios::app);
 	#endif
-	string in=info;
+	string in=string(info);
 	while (in.find("\n")!=string::npos) {
 		infoout<<getTime()+" [Info] ["+name+"] "+in.substr(0,in.find("\n"))<<endl;
 		cout<<getTime()+" [Info] ["+name+"] "+in.substr(0,in.find("\n"))<<endl;
@@ -208,6 +208,7 @@ void mysqli_execute(MYSQL conn,const char* sql,string name="main-server") {
 // Basic Variables
 int runtime_error_state=0;
 int runtime_error_reason=0;
+int process_pid=0;
 
 // For linux: 
 
@@ -216,7 +217,7 @@ int runtime_error_reason=0;
 void handler(int sig) {
     if (sig==SIGCHLD) {
         int status;
-        pid_t pid=waitpid(-1, &status, WNOHANG);
+        pid_t pid=waitpid(process_pid,&status,WNOHANG);
 		if (pid>0) {
 			if (!WIFEXITED(status)) {
 				runtime_error_state=1;
@@ -229,26 +230,31 @@ void handler(int sig) {
 
 // Resource Monitor
 unsigned int get_proc_mem(unsigned int pid){
-	char file_name[64]={0};
-	FILE *fd;
-	char line_buff[512]={0};
+	char file_name[64]={0}; errno=0;
+	char* line_buff;
 	sprintf(file_name,"/proc/%d/status",pid);
-	fd=fopen(file_name,"r");
-	if(nullptr==fd){
-		return 0;
-	}
-	char name[64];
-	int vmrss;
-	for (int i=0; ;i++){
-		if (kill(pid,0)!=0) return 0;
-		char* res=fgets(line_buff,sizeof(line_buff),fd);
+	ifstream fin(string(file_name).c_str());
+	if (!fin) return 0;
+	stringstream tmp; 
+	tmp<<fin.rdbuf();
+	string buffer=tmp.str();
+	fin.close(); 
+	char name[64]; int vmrss;
+	line_buff=strtok(const_cast<char*>(buffer.c_str()),"\n");
+	while(line_buff!=NULL){
+		// cout<<line_buff<<1<<endl;
 		sscanf(line_buff,"%s",name);
+		if ((string)name=="State:") {
+			char state[64]="";
+			sscanf(line_buff,"%s %s",name,state); // cout<<state<<endl;
+			if (string(state)=="Z") return 0;
+			// return vmrss;
+		}
 		if ((string)name=="VmRSS:") {
 			sscanf(line_buff,"%s %d",name,&vmrss);
-			fclose(fd);
 			return vmrss;
-		}
-	}
+		} line_buff=strtok(NULL,"\n");
+	} return 0;
 }
 
 // The Main Judger
@@ -257,8 +263,8 @@ int memory_limit,bool special_judge=false) {
 	char* argv[1010]={NULL};char* command=const_cast<char*>(cmd);
 	int idnow=-1;argv[++idnow]=strtok(command," ");
 	while (argv[idnow]!=NULL) argv[++idnow]=strtok(NULL," ");
-	times=memory=0;signal(SIGCHLD,handler);
-	pid_t executive=fork();
+	times=memory=0; pid_t executive=fork(); process_pid=executive;
+	signal(SIGCHLD,handler);
     if(executive<0) {
 	    return_error("Failed to execute program!");
         return 1;
@@ -281,8 +287,7 @@ int memory_limit,bool special_judge=false) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				return 0;
-			}
-			int mem=get_proc_mem(executive);
+			} int mem=get_proc_mem(executive);
 			if (mem!=0) times=clock2()-st,memory=mem;
 			if (mem>memory_limit) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
@@ -635,8 +640,8 @@ void AnalyseArgv(int argc,char** argv,Json::Value config) {
 	}
 }
 
-Json::Value config,judge; Json::Reader reader;
 // Main Function
+Json::Value config; Json::Reader reader;
 int main(int argc,char** argv) {
 	// Creating Daemon Processor
 	// if(daemon(1,0)<0) return_error("Failed to create daemon process.");
@@ -692,17 +697,14 @@ int main(int argc,char** argv) {
     	#elif _WIN32
     	Sleep(100);
     	#endif
-        mysqld ress=mysqli_query(conn,"SELECT * FROM status WHERE judged=0");
+        mysqld ress=mysqli_query(conn,"SELECT * FROM status WHERE judged=0 LIMIT 1");
 		if (ress.size()==0) continue;
 		
-		// re-Reading Judger Configure
-		ifstream fin("./config.json");
-		if (!fin) return_error("Failed to open config file.");
-		if (!reader.parse(fin,judge,false)) return_error("Failed to parse json object in config file");	
+		Json::Value judge=config;
 		
 		// Judging Submitted Program
 //		cout<<result.res<<endl;
-		for (int i=0;i<ress.size();i++) {
+		for (int gdfszfd=0;gdfszfd<ress.size();gdfszfd++) {
 			
 			// ****************************************************
 			// Class Name: Data Gainer
@@ -711,9 +713,9 @@ int main(int argc,char** argv) {
 			// ****************************************************
 			
 			// Gain Data from Queried Result
-			int pid=StringToInt(ress[i]["pid"]),uid=StringToInt(ress[i]["uid"]),
-				id=StringToInt(ress[i]["id"]),lang=StringToInt(ress[i]["lang"]);
-			string code=ress[i]["code"],ideinfo=ress[i]["ideinfo"];
+			int pid=StringToInt(ress[gdfszfd]["pid"]),uid=StringToInt(ress[gdfszfd]["uid"]),
+				id=StringToInt(ress[gdfszfd]["id"]),lang=StringToInt(ress[gdfszfd]["lang"]);
+			string code=ress[gdfszfd]["code"],ideinfo=ress[gdfszfd]["ideinfo"];
 			#ifdef __linux__ 
 			int retc=system("sudo rm ./tmp/* -r");
 			#elif _WIN32

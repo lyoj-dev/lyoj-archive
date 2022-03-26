@@ -1,4 +1,6 @@
 <?php
+    error_reporting(E_ERROR);
+    ini_set("display_errors","Off");
     require_once "../../config.php";
     require_once "../function.php";
     global $config;

@@ -1,7 +1,25 @@
 <?php
 function run(array $param,string& $html,string& $body):void {
-    $config=GetConfig();
-    $login.=InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
+    if (array_key_exists("logout",$param)) {
+        setcookie("DedeUserID","",time()-1);
+        setcookie("DedeUserID__ckMd5","",time()-1);
+        setcookie("CSRF_TOKEN","",time()-1);
+        setcookie("SESSDATA","",time()-1);
+        $script="alert('Success!');";
+        $script.="window.location.href=\"".($param["return"]!=""?$param["return"]:$_COOKIE["history"])."\";";
+        $body.=InsertTags("script",null,$script);
+        return;
+    } $config=GetConfig();
+    $login_controller=new Login_Controller;
+    if ($login_controller->CheckLogin()) {
+        $user_controller=new User_Controller;
+        $info=$user_controller->GetWholeUserInfo($login_controller->CheckLogin());
+        $script="alert(\"Have sign in as account '".$info["name"]."'\");";
+        $script.="window.location.href=\"".($param["return"]!=""?$param["return"]:$_COOKIE["history"])."\";";
+        $body.=InsertTags("script",null,$script);
+        return;
+    }
+    $login=InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
         "padding-right"=>"20px",
         "margin-bottom"=>"20px"
     ))),"Sign In");

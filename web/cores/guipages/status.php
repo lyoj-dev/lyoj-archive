@@ -5,6 +5,7 @@ function GetFormatStatus(string $status,bool $full,string $style):string {
         switch($status) {
             case "Compiling...":$icon="spinner";break;
             case "Accepted":$icon="check";break;
+            case "Submitted":$icon="check";break;
             case "Wrong Answer":$icon="x";break;
             case "Time Limited Exceeded":$icon="clock";break;
             case "Memory Limited Exceeded":$icon="microchip";break;
@@ -14,6 +15,7 @@ function GetFormatStatus(string $status,bool $full,string $style):string {
         }; switch($status) {
             case "Compiling...":$name="compiling";break;
             case "Accepted":$name="accepted";break;
+            case "Submitted":$name="accepted";break;
             case "Wrong Answer":$name="wrong-answer";break;
             case "Time Limited Exceeded":$name="time-limited-exceeded";break;
             case "Memory Limited Exceeded":$name="memory-limited-exceeded";break;
@@ -31,7 +33,7 @@ function InitStatus():string {
     $ret.=InsertCssStyle(array(".accepted:hover"),array("color"=>"rgb(36,140,36)"));
     $ret.=InsertCssStyle(array(".wrong-answer:hover"),array("color"=>"rgb(255,0,0)"));
     $ret.=InsertCssStyle(array(".time-limited-exceeded:hover"),array("color"=>"rgb(244,164,96);"));
-    $ret.=InsertCssStyle(array(".memory-limited-exceeded:hover"),array("color"=>"gb(244,164,96);"));
+    $ret.=InsertCssStyle(array(".memory-limited-exceeded:hover"),array("color"=>"rgb(244,164,96);"));
     $ret.=InsertCssStyle(array(".runtime-error:hover"),array("color"=>"rgb(153,50,204);"));
     $ret.=InsertCssStyle(array(".compiling:hover"),array("color"=>"#6cf"));
     $ret.=InsertCssStyle(array(".compile-error:hover"),array("color"=>"rgb(0,68,136)"));
@@ -39,7 +41,7 @@ function InitStatus():string {
     $ret.=InsertCssStyle(array(".accepted-full"),array("color"=>"rgb(36,140,36)"));
     $ret.=InsertCssStyle(array(".wrong-answer-full"),array("color"=>"rgb(255,0,0)"));
     $ret.=InsertCssStyle(array(".time-limited-exceeded-full"),array("color"=>"rgb(244,164,96);"));
-    $ret.=InsertCssStyle(array(".memory-limited-exceeded-full"),array("color"=>"gb(244,164,96);"));
+    $ret.=InsertCssStyle(array(".memory-limited-exceeded-full"),array("color"=>"rgb(244,164,96);"));
     $ret.=InsertCssStyle(array(".runtime-error-full"),array("color"=>"rgb(153,50,204);"));
     $ret.=InsertCssStyle(array(".compiling-full"),array("color"=>"#6cf"));
     $ret.=InsertCssStyle(array(".compile-error-full"),array("color"=>"rgb(0,68,136)"));
@@ -86,7 +88,114 @@ function run(array $param,string &$html,string &$body):void {
     if (FindExist2("/id",$param)) {
         info_run($param,$html,$body);
         return;
-    }
+    } $page=$param["page"]; $config=GetConfig();
+    if (!FindExist2("/uid",$param)) $param["uid"]=0;
+    if (!FindExist2("/pid",$param)) $param["pid"]=0;
+    $status_controller=new Status_Controller; 
+    $problem_controller=new Problem_Controller;
+    $user_controller=new User_Controller;
+    $sum=0; $array=$status_controller->GetJudgeInfo(
+        ($page-1)*$config["number_of_pages"]+1,
+        $page*$config["number_of_pages"],
+        $param["uid"],$param["pid"],$sum
+    ); $page_num=intval(($sum-1)/$config["number_of_pages"])+1;
+    if ($page<=0) $page=1;
+    if ($page>$page_num) $page=$page_num;
+    $search_box=InsertTags("p",array("class"=>"flex"),"UID Filter:&nbsp;".
+    InsertSingleTag("input",array("id"=>"uid","placeholder"=>"Input user ID here..","value"=>$param["uid"]==0?"":$param["uid"])));
+    $search_box.=InsertTags("p",array("class"=>"flex"),"Problem Filter:&nbsp;".
+    InsertSingleTag("input",array("id"=>"pid","placeholder"=>"Input problem ID here..","value"=>$param["pid"]==0?"":$param["pid"])).
+    InsertTags("button",array("onclick"=>"search()","style"=>InsertInlineCssStyle(array(
+        "height"=>"33px",
+        "margin-left"=>"10px"
+    ))),"Search"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "padding-top"=>"15px",
+        "padding-left"=>"20px",
+        "margin-bottom"=>"20px",
+        "padding-bottom"=>"5px",
+        "box-shadow"=>"0 0.375rem 1.375rem rgb(175 194 201 / 50%)",
+        "padding-right"=>"20px",
+        "width"=>"calc(100% - 20px)"
+    ))),$search_box);
+    $array=$status_controller->GetJudgeInfo(
+        ($page-1)*$config["number_of_pages"]+1,
+        $page*$config["number_of_pages"],
+        $param["uid"],$param["pid"],$sum
+    ); $style=InitStatus();
+    for ($i=0;$i<count($array);$i++) {
+        $info=$array[$i];
+        $userinfo=$user_controller->GetWholeUserInfo($info["uid"]);
+        $probleminfo=$problem_controller->ListProblemByPid($info["pid"],true);
+        $header=InsertTags("p",array(
+            "style"=>InsertInlineCssStyle(array("width"=>"10%","cursor"=>"pointer")),
+            "onclick"=>"window.open('".GetUrl("status",array("id"=>$info["id"]))."')"
+        ),"#".$info["id"]);
+        $header.=InsertTags("p",array(
+            "style"=>InsertInlineCssStyle(array("width"=>"15%","cursor"=>"pointer")),
+            "onclick"=>"window.open('".GetUrl("user",array("id"=>$userinfo["id"]))."')"
+        ),$userinfo["name"]);
+        $header.=InsertTags("p",array(
+            "style"=>InsertInlineCssStyle(array("width"=>"45%","cursor"=>"pointer")),
+            "onclick"=>"window.open('".GetUrl("problem",array(
+                "pid"=>$probleminfo["id"]
+            ))."')"
+        ),$probleminfo["name"]);
+        $header.=InsertTags("div",array("id"=>"whole-status"),GetFormatStatus($info["status"],true,""));
+        $body.=InsertTags("div",array("class"=>"default_main flex","style"=>InsertInlineCssStyle(array(
+            "width"=>"calc( 100% - 10px )",
+            "min-height"=>"50px",
+            "background-color"=>"white",
+            "padding-left"=>"30px",
+            "margin-bottom"=>"20px",
+            "align-items"=>"center"
+        ))),$header);
+    } $content=""; $style.=InsertCssStyle(array(".pages"),array(
+        "height"=>"30px",
+        "line-height"=>"30px",
+        "border"=>"1px solid",
+        "border-color"=>"rgb(213,216,218)",
+        "color"=>"rgb(27,116,221)",
+        "margin-top"=>"10px",
+        "margin-bottom"=>"10px",
+        "padding-left"=>"20px",
+        "padding-right"=>"20px",
+        "border-radius"=>"3px",
+        "font-weight"=>"500",
+        "font-size"=>"13px",
+        "background-color"=>"white",
+        "cursor"=>"pointer",
+        "transition"=>"background-color 0.5s,color 0.5s,border-color 0.5s"
+    )).InsertCssStyle(array(".banned"),array(
+        "color"=>"rgb(137,182,234)"
+    )).InsertCssStyle(array(".pages:not(.banned):hover"),array(
+        "background-color"=>"rgb(27,116,221)",
+        "color"=>"white",
+        "border-color"=>"rgb(27,116,221)"
+    )); if ($page==1)
+    $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+    else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("status",array("page"=>$page-1,"uid"=>$param["uid"],"pid"=>$param["pid"]))."'"),InsertTags("p",null,"Previous"));
+    if ($page==$page_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
+    else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("status",array("page"=>$page+1,"uid"=>$param["uid"],"pid"=>$param["pid"]))."'"),InsertTags("p",null,"Next"));
+    $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
+        "justify-content"=>"center"
+    ))),$content);
+    $body.=InsertTags("style",null,$style);
+    $script="function search(){";
+    $script.="var uid=document.getElementById('uid').value;";
+    $script.="var pid=document.getElementById('pid').value;";
+    $script.="uid=(uid=='')?0:uid; pid=(pid=='')?0:pid;";
+    $script.="location.href='".GetUrl("status",array("page"=>1))."&uid='+uid+'&pid='+pid;";
+    $script.="}";
+    $script.="$(\"#uid\").keypress(function(event){";
+    $script.="var keynum=(event.keyCode?event.keyCode:event.which);  ";
+    $script.="if(keynum=='13') search();";
+    $script.="});";
+    $script.="$(\"#pid\").keypress(function(event){";
+    $script.="var keynum=(event.keyCode?event.keyCode:event.which);  ";
+    $script.="if(keynum=='13') search();";
+    $script.="});";
+    $body.=InsertTags("script",null,$script);
 }
 
 function info_run(array $param,string &$html,string &$body):void {
@@ -97,16 +206,22 @@ function info_run(array $param,string &$html,string &$body):void {
     $problem_controller=new Problem_Controller;
     $login_controller=new Login_Controller;
     $info=$status_controller->GetJudgeInfoById($param["id"]);
+    if ($info==null||count($info)==0) Error_Controller::Common("Known status id ".$param["id"]);
     $userinfo=$user_controller->GetWholeUserInfo($info["uid"]);
-    $probleminfo=$problem_controller->ListProblemByPid($info["pid"],$info["pid"]);
+    $probleminfo=$problem_controller->ListProblemByPid($info["pid"],true);
     $header=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".$info["id"]);
-    $header.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"15%"))),$userinfo["name"]);
+    $header.=InsertTags("p",array(
+        "style"=>InsertInlineCssStyle(array("width"=>"15%","cursor"=>"pointer")),
+        "onclick"=>"window.open('".GetUrl("user",array(
+            "id"=>$userinfo["id"]
+        ))."')"
+    ),$userinfo["name"]);
     $header.=InsertTags("p",array(
         "style"=>InsertInlineCssStyle(array("width"=>"45%","cursor"=>"pointer")),
         "onclick"=>"window.open('".GetUrl("problem",array(
-            "pid"=>$probleminfo[0]["id"]
+            "pid"=>$probleminfo["id"]
         ))."')"
-    ),$probleminfo[0]["name"]); $tags_content="";
+    ),$probleminfo["name"]); $tags_content="";
     $header.=InsertTags("div",array("id"=>"whole-status"),GetFormatStatus($info["status"],true,""));
     $body.=InsertTags("div",array("class"=>"default_main flex","style"=>InsertInlineCssStyle(array(
         "width"=>"calc( 100% - 10px )",
@@ -116,7 +231,8 @@ function info_run(array $param,string &$html,string &$body):void {
         "margin-bottom"=>"20px",
         "align-items"=>"center"
     ))),$header);
-    if ($login_controller->CheckLogin()==$info["uid"]) {
+    $uid=$login_controller->CheckLogin();
+    if ($uid==$info["uid"]||($uid!=0&&$user_controller->GetWholeUserInfo($uid)["permission"]>=2)) {
         $code=InsertTags("textarea",array("id"=>"code","style"=>InsertInlineCssStyle(array(
             "position"=>"absolute",
             "left"=>"-1000px",
@@ -154,6 +270,7 @@ function info_run(array $param,string &$html,string &$body):void {
         ))),"copy")).$code);
     }
     $json=json_decode($info["result"],true); 
+    // echo $info["result"]; exit;
     if (JudgeStatus($info["status"])) {
         if (array_key_exists("compile_info",$json)&&$json["compile_info"]!="") {
             $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
@@ -175,7 +292,7 @@ function info_run(array $param,string &$html,string &$body):void {
                 "border"=>"1px solid",
                 "border-color"=>"#e8e8e8",
                 "border-radius"=>"5px"
-            ))),$json["compile_info"])));
+            ))),htmlentities($json["compile_info"]))));
         }
     }
     if (JudgeStatus($info["status"])&&$info["status"]!="Compile Error") {
@@ -186,7 +303,7 @@ function info_run(array $param,string &$html,string &$body):void {
             $test.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Memory: ".
             ($json["info"][$i]["memory"]>1024?intval($json["info"][$i]["memory"]/1024)."MB":$json["info"][$i]["memory"]."KB"));
             $test.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Time: ".$json["info"][$i]["time"]."ms");
-            $body.=InsertTags("div",array("class"=>"default_main flex testcase","onclick"=>"testinfo('".str_replace("\n","",str_replace("'","\\'",$json["info"][$i]["info"]))."')"),$test);    
+            $body.=InsertTags("div",array("class"=>"default_main flex testcase","onclick"=>"testinfo('".str_replace(" ","&nbsp",(str_replace("\n","",str_replace("'","\\'",$json["info"][$i]["info"]))))."')"),$test);    
         }
     } 
 
@@ -199,6 +316,7 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="function JudgeStatus(status){";
         $script.="switch(status) {";
         $script.="case \"Accepted\":return true;break;";
+        $script.="case \"Submitted\":return true;break;";
         $script.="case \"Wrong Answer\":return true;break;";
         $script.="case \"Compile Error\":return true;break;";
         $script.="case \"Time Limited Exceeded\":return true;break;";
@@ -212,6 +330,7 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="switch(status) {";
         $script.="case \"Compiling...\":icon=\"spinner\";break;";
         $script.="case \"Accepted\":icon=\"check\";break;";
+        $script.="case \"Submitted\":icon=\"check\";break;";
         $script.="case \"Wrong Answer\":icon=\"x\";break;";
         $script.="case \"Time Limited Exceeded\":icon=\"clock\";break;";
         $script.="case \"Memory Limited Exceeded\":icon=\"microchip\";break;";
@@ -221,6 +340,7 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="}; switch(status) {";
         $script.="case \"Compiling...\":name=\"compiling\";break;";
         $script.="case \"Accepted\":name=\"accepted\";break;";
+        $script.="case \"Submitted\":name=\"accepted\";break;";
         $script.="case \"Wrong Answer\":name=\"wrong-answer\";break;";
         $script.="case \"Time Limited Exceeded\":name=\"time-limited-exceeded\";break;";
         $script.="case \"Memory Limited Exceeded\":name=\"memory-limited-exceeded\";break;";
@@ -235,7 +355,7 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
         $script.="var eid=setInterval(function(){";
         $script.="var info=SendAjax(\"".GetAPIUrl("/status/info",array("id"=>$param["id"]))."\",\"GET\",null);";
-        $script.="console.log(strip_tags_pre(info));";
+        $script.="if (info==null) {alert('Fetch status failed!'); clearInterval(eid); return false;}";
         $script.="if (JSON.parse(strip_tags_pre(info))[\"code\"]!=0) {clearInterval(eid); return false;}";
         $script.="var json=JSON.parse(strip_tags_pre(info))[\"data\"];";
         $script.="document.getElementById('whole-status').innerHTML=GetFormatStatus(json[\"status\"],true);";

@@ -19,13 +19,17 @@ function run(array $param,string &$html,string &$body):void {
     ); $pages_num=($num+$config["number_of_pages"]-1)/$config["number_of_pages"];
     $pages_num=intval($pages_num);
     if ($page<=0||$page>$pages_num) $page=1; 
-    $search_box=InsertSingleTag("input",array("id"=>"key","placeholder"=>"Searching something...","value"=>$param["key"])).
+    $problem_list=$problem_controller->ListProblemByNumber(
+        ($page-1)*$config["number_of_pages"]+1,
+        $page*$config["number_of_pages"],
+        $_GET["key"],$t,$d,$num
+    ); $search_box=InsertSingleTag("input",array("id"=>"key","placeholder"=>"Searching something...","value"=>$param["key"])).
     InsertTags("button",array("onclick"=>"search()","style"=>InsertInlineCssStyle(array(
         "margin-left"=>"10px",
         "height"=>"33px"
     ))),"Search");
     $search_box=InsertTags("div",array("class"=>"flex"),$search_box);
-    $tags=$tags_controller->ListTag();
+    $tags=$tags_controller->ListProblemTag();
     $tag_box=""; for ($i=0;$i<count($tags);$i++)
         $tag_box.=InsertTags("div",array("class"=>"problem-tags".(array_search($tags[$i],$t)===false?" unsubmitted":"")
         ,"id"=>"tag-".$tags[$i],"onclick"=>"addTag('".$tags[$i]."')"),$tags[$i]);
@@ -92,7 +96,7 @@ function run(array $param,string &$html,string &$body):void {
                 "pid"=>$problem_list[$i]["id"]
             ))."')"
         ),$problem_list[$i]["name"]); $tags_content="";
-        $tags=$tags_controller->ListTagsByPid($problem_list[$i]["id"]);
+        $tags=$tags_controller->ListProblemTagsByPid($problem_list[$i]["id"]);
         if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags"),$tags[$j]["tagname"]);
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$tags_content);
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"15%","text-align"=>"center"))),
@@ -131,8 +135,7 @@ function run(array $param,string &$html,string &$body):void {
     )); if ($page==1)
     $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
     else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("problem",array("page"=>$page-1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'"),InsertTags("p",null,"Previous"));
-    if ($page==$pages_num)
-    $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
+    if ($page==$pages_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
     else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("problem",array("page"=>$page+1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'"),InsertTags("p",null,"Next"));
     $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
         "justify-content"=>"center"
@@ -166,7 +169,8 @@ function info_run(array $param,string &$html,string &$body):void {
     $config=GetConfig();
     $problem_controller=new Problem_Controller;    
     $login_controller=new Login_Controller;
-    $info=$problem_controller->ListProblemByPid($param["pid"],$param["pid"])[0];
+    $info=$problem_controller->ListProblemByPid($param["pid"]);
+    if ($info==null||count($info)==0) Error_Controller::Common("Known problem id ".$param["id"]);
     foreach($info as $key => $value) if ($key!="cases") $info[$key]=str_replace("\\","\\\\",$value);
     $fp=fopen("../problem/".$info["id"]."/config.json","r");
     $conf=fread($fp,filesize("../problem/".$info["id"]."/config.json"));
@@ -276,7 +280,8 @@ function info_run(array $param,string &$html,string &$body):void {
         $res.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
             "padding-left"=>"20px",
             "padding-right"=>"20px",
-            "margin-top"=>"10px"
+            "margin-top"=>"10px",
+            "align-items"=>"baseline"
         ))),$tmp);
     }
     $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
