@@ -56,7 +56,7 @@
 
 对于 Ubuntu/NOI Linux 2/Debian 用户，您只需要输入 `sudo apt install mariadb-server mariadb-client nginx g++ libmysqlclient-dev libjsoncpp-dev -y` 就能安装除 PHP8.0+ 以外的必要软件包。至于 PHP8.0+，在每个版本发布时的 Release 界面都有着已经配置好了的 PHP8.0+，下载对应系统版本的压缩包，解压后开箱即用。
 
-对于 CentOS 用户，很抱歉由于软件源比较古老，除 nginx 以外的所有软件包都无法符合能够正常运行的最低版本要求，需要您自行更换非官方软件包或自行编译所有必要软件包。
+对于 CentOS 用户，很抱歉由于软件源比较古老，除 nginx 以外的所有软件包都无法符合能够正常运行的最低版本要求，需要您自行更换非官方软件源或自行编译所有必要软件包。
 
 可选软件包: Python2，Python3，openjdk8，openjdk11，openjdk13，openjdk16，openjdk17，PHP7.4，fpc。
 
