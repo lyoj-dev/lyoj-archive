@@ -21,22 +21,30 @@ class Problem_Controller {
      */
     static function ListProblemByPid(int $pid,bool $strong=false):array|null {
         $array=self::$db->Query("SELECT * FROM problem WHERE id=$pid"); $res=array(); $array=$array[0]; 
-        if ($strong) return $array;
+        $uid=self::$login_controller->CheckLogin();
         if ($array["contest"]!=0) {
             $contest=self::$contest_controller->GetContest($array["contest"],$array["contest"]);
             $endtime=$contest[0]["starttime"]+$contest[0]["duration"];
+            $tmp=count(self::$db->Query("SELECT id FROM status WHERE ".
+            "uid=$uid AND pid=$pid AND time>=".$contest[0]["starttime"]." AND time<=$endtime"));
+            if ($tmp>0) $array["accepted"]=1;
+            else $array["accepted"]=0;
             if ($endtime<time()) return $array; 
-        } if ($array["contest"]==0&&!$array["banned"]&&!$array["hidden"]) return $array; 
+        } if ($strong) return $array;
+        if ($array["contest"]==0&&!$array["banned"]&&!$array["hidden"]) return $array; 
         $uid=self::$login_controller->CheckLogin();
-        if (!$uid) Error_Controller::Common("You don't have enough permission to view this problem!");
+        if (!$uid) Error_Controller::Common("Permission denied");
         $uinfo=self::$user_controller->GetWholeUserInfo($uid);
         if ($uinfo["permission"]>1) return $array;
-        if ($array["banned"]||$array["hidden"]) Error_Controller::Common("You don't have enough permission to view this problem!");
-        if ($array["contest"]!=$_GET["contest"]) Error_Controller::Common("You don't have enough permission to view this problem!");
+        if ($array["banned"]||$array["hidden"]) Error_Controller::Common("Permission denied");
+        if ($array["contest"]!=$_GET["contest"]) Error_Controller::Common("Permission denied");
         if (self::$contest_controller->JudgeSignup($array["contest"])==false) 
-        Error_Controller::Common("You don't have enough permission to view this problem!");
+        Error_Controller::Common("Permission denied");
         $info=self::$contest_controller->GetContest($array["contest"]);
-        if ($info["starttime"]>time()) Error_Controller::Common("You don't have enough permission to view this problem!");
+        if ($info["starttime"]>time()) Error_Controller::Common("Permission denied");
+        $tmp=count(self::$db->Query("SELECT id FROM status WHERE uid=$uid AND pid=$pid"));
+        if ($tmp>0) $array["accepted"]=1;
+        else $array["accepted"]=0;
         return $array;
     }
 
@@ -48,7 +56,6 @@ class Problem_Controller {
      */
     static function ListProblemByNumber(float $l=1,float $r=1e18,string $key="",array|null $tag,array|null $diff,float& $num):array|null {
         $diffs=" AND ("; for ($i=0;$i<count($diff);$i++) $diffs.=($i!=0?"OR ":"")."difficult=".$diff[$i]." "; $diffs.=")"; 
-        // echo "SELECT * FROM problem WHERE ".($key!=""?"name LIKE '$key' AND ":"")."banned=0 AND hidden=0".(count($diff)!=0?$diffs:""); exit;
         $array=self::$db->Query("SELECT * FROM problem WHERE ".($key!=""?"name LIKE '%$key%' AND ":"")."banned=0 AND hidden=0".(count($diff)?$diffs:""));
         for ($i=0;$i<count($array);$i++) {
             if ($array[$i]["contest"]==0) continue;
@@ -59,20 +66,31 @@ class Problem_Controller {
         if ($tag==null) {
             $res2=array();
             for ($i=$l-1;$i<count($array)&&$i<$r;$i++) $res2[]=$array[$i];
-            $num=count($array); return $res2;
+            $num=count($array); 
+            $login_controller=new Login_Controller;
+            $uid=$login_controller->CheckLogin();
+            for ($i=0;$i<count($res2);$i++) {
+                $tmp=self::$db->Query("SELECT id FROM status WHERE pid=".$res2[$i]["id"]." AND uid=$uid AND status='Accepted'");
+                if (count($tmp)>0) $res2[$i]["accepted"]=1;
+                else $res2[$i]["accepted"]=0;
+            } 
+            return $res2;
         }
-        $tags=" WHERE ("; for ($i=0;$i<count($tag);$i++) $tags.=($i!=0?"OR ":"")."tagname='".$tag[$i]."' "; $tags.=")"; 
-        // echo "SELECT pid FROM tags WHERE pid<=$r AND pid>=$l".(count($tag)?$tags:""); exit;
+        $tags=" WHERE ("; for ($i=0;$i<count($tag);$i++) $tags.=($i!=0?"OR ":"")."tagname='".$tag[$i]."' "; $tags.=") AND type='problem'"; 
         $array2=self::$db->Query("SELECT id FROM tags".(count($tag)?$tags:""));
-        // echo count($array); exit;
         $a=array(); for ($i=0;$i<count($array2);$i++) $a[]=$array2[$i]["id"];
-        // print_r($a); exit;
         $res=array(); for ($i=0;$i<count($array);$i++) {
             if (array_search($array[$i]["id"],$a)===false) ;
             else $res[]=$array[$i];
         } $res2=array(); $num=count($res);
         for ($i=$l-1;$i<count($res)&&$i<$r;$i++) $res2[]=$res[$i];
-        return $res2;
+        $login_controller=new Login_Controller;
+        $uid=$login_controller->CheckLogin();
+        for ($i=0;$i<count($res2);$i++) {
+            $tmp=self::$db->Query("SELECT id FROM status WHERE pid=".$res2[$i]["id"]." AND uid=$uid AND status='Accepted'");
+            if (count($tmp)>0) $res2[$i]["accepted"]=1;
+            else $res2[$i]["accepted"]=0;
+        } return $res2;
     }
 
     /**

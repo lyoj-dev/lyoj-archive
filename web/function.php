@@ -1,7 +1,7 @@
 <?php
 /**
  * URL获取函数 GetUrl
- * @param string $path  $_GET["path"]里的值
+ * @param string $path $_GET["path"]里的值
  * @param array|null $param 新页面中所有GET的参数
  * @return string
  */
@@ -9,7 +9,11 @@ function GetUrl(string $path,array|null $param):string {
     $config=GetConfig(false); $res="";
     if (!$config["web"]["absolute_path"]) $res="./";
     else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/";
-    $res.=(!$config["web"]["url_rewrite"]?"index.php?path=$path&":"$path?");
+    $re_path=$path; if ($config["web"]["url_rewrite"]==true) {
+        $tmp=$config["controllers"][$path]["rewrite_param"]; $ok=true;
+        for ($i=0;$tmp!=null&&$i<count($tmp);$i++) if (!array_key_exists($tmp[$i],$param)) $ok=false;
+        if ($ok) for ($i=0;$tmp!=null&&$i<count($tmp);$i++){$re_path.="/".$param[$tmp[$i]];unset($param[$tmp[$i]]);}
+    } $res.=(!$config["web"]["url_rewrite"]?"index.php?path=$path&":"$re_path?");
     if ($param!=null) foreach ($param as $key=>$value) $res.="$key=$value&";
     return substr($res,0,strlen($res)-1);
 }
@@ -23,10 +27,8 @@ function GetUrl(string $path,array|null $param):string {
 function GetRealUrl(string $path,array|null $param):string {
     $config=GetConfig();
     if (!$config["web"]["absolute_path"]) $res="./";
-    else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/";
-    $res.=$path."?"; 
-    if ($param!=null) 
-    foreach ($param as $key=>$value) $res.="$key=$value&";
+    else $res=$config["web"]["protocol"]."://".$config["web"]["domain"]."/"; $res.=$path."?"; 
+    if ($param!=null) foreach ($param as $key=>$value) $res.="$key=$value&";
     return substr($res,0,strlen($res)-1);
 }
 
@@ -84,7 +86,7 @@ function GetConfig(bool $merge=true):array {
  * @return void
  */
 function FindExist(string $name,array $arr,string $arr_name,bool $allow_empty=true):void {
-    $path=explode("/",$name); $arrnow=$arr; $fullpath="";
+    $path=explode("//",$name); $arrnow=$arr; $fullpath="";
     for ($i=1;$i<count($path);$i++) 
         $fullpath.="[".(is_numeric($path[$i])?$path[$i]:"\"".$path[$i]."\"")."]";
     for ($i=1;$i<count($path);$i++) {
@@ -108,7 +110,7 @@ function FindExist(string $name,array $arr,string $arr_name,bool $allow_empty=tr
  * @return bool
  */
 function FindExist2(string $name,array $arr,bool $allow_empty=true):bool {
-    $path=explode("/",$name); $arrnow=$arr; $fullpath="";
+    $path=explode("//",$name); $arrnow=$arr; $fullpath="";
     for ($i=1;$i<count($path);$i++) 
         $fullpath.="[".(is_numeric($path[$i])?$path[$i]:"\"".$path[$i]."\"")."]";
     for ($i=1;$i<count($path);$i++) {
@@ -148,74 +150,75 @@ function ConfigCheck():void {
     $config=GetConfig(false);
 
     // Common Config Check 
-    FindExist("/skip_config_check",$config,"config");
-    FindExist("/version",$config,"config");
-    FindExist("/extensions/js",$config,"config");
-    FindExist("/extensions/css",$config,"config");
+    FindExist("//skip_config_check",$config,"config");
+    FindExist("//version",$config,"config");
+    FindExist("//extensions//js",$config,"config");
+    FindExist("//extensions//css",$config,"config");
 
     // Web Information Check
-    FindExist("/web/name",$config,"config");
-    FindExist("/web/title",$config,"config");
-    FindExist("/web/absolute_path",$config,"config");
-    FindExist("/web/protocol",$config,"config");
-    FindExist("/web/domain",$config,"config");
-    FindExist("/web/icon",$config,"config");
-    FindExist("/web/logo",$config,"config");
-    FindExist("/web/url_rewrite",$config,"config");
-    FindExist("/web/rsa_private_key",$config,"config");
+    FindExist("//web//name",$config,"config");
+    FindExist("//web//title",$config,"config");
+    FindExist("//web//absolute_path",$config,"config");
+    FindExist("//web//protocol",$config,"config");
+    FindExist("//web//domain",$config,"config");
+    FindExist("//web//icon",$config,"config");
+    FindExist("//web//logo",$config,"config");
+    FindExist("//web//url_rewrite",$config,"config");
+    FindExist("//web//rsa_private_key",$config,"config");
     FindFileExist($config["web"]["rsa_private_key"]);
-    FindExist("/web/rsa_public_key",$config,"config");
+    FindExist("//web//rsa_public_key",$config,"config");
     FindFileExist($config["web"]["rsa_public_key"]);
-    FindExist("/web/menu/left",$config,"config");
-    FindExist("/web/timezone",$config,"config");
+    FindExist("//web//menu//left",$config,"config");
+    FindExist("//web//timezone",$config,"config");
     if ($config["web"]["menu"]["left"]!=null) {
         for ($i=0;$i<count($config["web"]["menu"]["left"]);$i++) {
-            FindExist("/web/menu/left/$i/title",$config,"config");
-            FindExist("/web/menu/left/$i/path",$config,"config");
-            FindExist("/web/menu/left/$i/param",$config,"config");
+            FindExist("//web//menu//left//$i//title",$config,"config");
+            FindExist("//web//menu//left//$i//path",$config,"config");
+            FindExist("//web//menu//left//$i//param",$config,"config");
         }
     }
-    FindExist("/web/menu/right",$config,"config");
+    FindExist("//web//menu//right",$config,"config");
     if ($config["web"]["menu"]["right"]!=null) {
         for ($i=0;$i<count($config["web"]["menu"]["right"]);$i++) {
-            FindExist("/web/menu/right/$i/title",$config,"config");
-            FindExist("/web/menu/right/$i/path",$config,"config");
-            FindExist("/web/menu/right/$i/param",$config,"config");
+            FindExist("//web//menu//right//$i//title",$config,"config");
+            FindExist("//web//menu//right//$i//path",$config,"config");
+            FindExist("//web//menu//right//$i//param",$config,"config");
         }
     }
-    FindExist("/web/footer",$config,"config");
+    FindExist("//web//footer",$config,"config");
     if ($config["web"]["footer"]!=null) {
         for ($i=0;$i<count($config["web"]["footer"]);$i++) {
-            FindExist("/web/footer/$i/title",$config,"config");
-            FindExist("/web/footer/$i/url",$config,"config");
+            FindExist("//web//footer//$i//title",$config,"config");
+            FindExist("//web//footer//$i//url",$config,"config");
         }
     }
 
     // Controller Format Check
     foreach($config["controllers"] as $key=>$controller) {
-        FindExist("/controllers/$key/title",$config,"config");
-        FindExist("/controllers/$key/entrance_function",$config,"config");
-        FindExist("/controllers/$key/require",$config,"config");
-        FindExist("/controllers/$key/require_param",$config,"config");
-        FindExist("/controllers/$key/require_config",$config,"config");
-        FindExist("/controllers/$key/configs",$config,"config");
+        FindExist("//controllers//$key//title",$config,"config");
+        FindExist("//controllers//$key//entrance_function",$config,"config");
+        FindExist("//controllers//$key//require",$config,"config");
+        FindExist("//controllers//$key//require_param",$config,"config");
+        FindExist("//controllers//$key//require_config",$config,"config");
+        FindExist("//controllers//$key//configs",$config,"config");
         for($i=0;$i<count($config["controllers"][$key]["require_config"]);$i++)
-        FindExist("/controllers/$key/configs/".$config["controllers"][$key]["require_config"][$i],$config,"config");
+        FindExist("//controllers//$key//configs//".$config["controllers"][$key]["require_config"][$i],$config,"config");
+        if ($config["web"]["url_rewrite"]==true) FindExist("//controllers//$key//rewrite_param",$config,"config");
     }
 
     // Difficulties Information Check
-    FindExist("/difficulties",$config,"config",false);
+    FindExist("//difficulties",$config,"config",false);
     for ($i=0;$i<count($config["difficulties"]);$i++) {
-        FindExist("/difficulties/$i/name",$config,"config");
-        FindExist("/difficulties/$i/color",$config,"config");
+        FindExist("//difficulties//$i//name",$config,"config");
+        FindExist("//difficulties//$i//color",$config,"config");
     }
 
     // MySQL/MariaDB Information Check 
-    FindExist("/mysql/server",$config,"config");
-    FindExist("/mysql/port",$config,"config");
-    FindExist("/mysql/user",$config,"config");
-    FindExist("/mysql/passwd",$config,"config");
-    FindExist("/mysql/database",$config,"config");
+    FindExist("//mysql//server",$config,"config");
+    FindExist("//mysql//port",$config,"config");
+    FindExist("//mysql//user",$config,"config");
+    FindExist("//mysql//passwd",$config,"config");
+    FindExist("//mysql//database",$config,"config");
 }
 
 /**
@@ -225,19 +228,21 @@ function ConfigCheck():void {
 function ParamCheck():void {
     $config=GetConfig(false);
 
-    FindExist("/web/default_path",$config,"config");
+    FindExist("//web//default_path",$config,"config");
     if (!array_key_exists("path",$_GET)) $_GET["path"]=$config["web"]["default_path"];
-    $path=$_GET["path"];
+    $tmp=$_GET["path"]; $tmp=explode("/",$tmp); $path=$_GET["path"]=$tmp[0];
     if (!in_array($path,$config["skip_config_check"])) configCheck();
     $exist=false; foreach($config["controllers"] as $key=>$value) 
     if ($key==$path) $exist=true;
     if (!$exist) {
         echo Error_Controller::Common("Unknown path '$path' in \$_GET['path']");
         exit;
-    }
+    } if ($config["web"]["url_rewrite"]==true&&count($tmp)==count($config["controllers"][$path]["rewrite_param"])+1) 
+        for ($i=0;$i<count($config["controllers"][$path]["rewrite_param"]);$i++) 
+            $_GET[$config["controllers"][$path]["rewrite_param"][$i]]=$tmp[$i+1];
     // Necessary Parameter for Runner Function Check
     foreach ($config["controllers"][$path]["require_param"] as $key=>$value) 
-        if (!FindExist2("/$key",$_GET)) $_GET[$key]=$value;
+        if (!FindExist2("//$key",$_GET)) $_GET[$key]=$value;
 }
 
 /**
@@ -299,18 +304,29 @@ function InsertInlineCssStyle(array|null $property):string {
  * md转html函数 md2html
  * @param string $md markdown代码
  * @param string $id html元素id
- * @return void
+ * @return string
  */
 function md2html(string $md,string $id):string {
-    $config=GetConfig(); $md=str_replace("\\","\\\\",$md);
-    $md=str_replace("\n","\\n",$md); $md=str_replace("'","\\'",$md);
-    // return "document.getElementById(\"$id\").innerHTML=markdown.toHTML('$md');";
-    return "editormd.markdownToHTML('$id',{markdown:'$md',".
-    "emoji:true,codeFold:true,tex:true,taskList:true,flowChart:true,sequenceDiagram:true});";
+    $config=GetConfig(); $md=str_replace("\\","\\\\",$md); 
+    $md=str_replace("\n","\\n",$md); $md=str_replace("\r","",$md); $md=str_replace("'","\\'",$md);
+    // echo $md; exit;
+    return "editormd.markdownToHTML('$id',{markdown:'$md'});";
+}
+
+/**
+ * md可视化编辑器创建函数 CreateEditor
+ * @param string $md markdown代码
+ * @param string $id html元素id
+ * @return string
+ */
+function CreateEditor(string $md,string $id):string {
+    $config=GetConfig(); $md=str_replace("\\","\\\\",$md); 
+    $md=str_replace("\n","\\n",$md); $md=str_replace("\r","",$md); $md=str_replace("'","\\'",$md);
+    return "editormd('$id',{markdown:'$md'});";
 }
 
 class Application {
-    static $html,$body,$style,$others;
+    static $html,$body,$style,$others,$st;
 
     /**
      * html标签插入函数 InsertIntoHtml
@@ -355,6 +371,7 @@ class Application {
      * @return void
      */
     static function run(array $param):void {
+        self::$st=microtime(true);
         $config=GetConfig(false); ParamCheck(); $path=$_GET["path"];
         $param=$_GET; unset($param["path"]);
         self::$body=""; self::$html="";
@@ -370,7 +387,7 @@ class Application {
         self::InsertIntoBody(InsertTags("main",array("id"=>"main"),$ret_body));
         self::InsertIntoHtml($ret_html);
         self::SetDefaultFooter($path,$param);
-        if ($path!="login"&&$path!="register") setcookie("history",GetUrl($path,$param),time()+30*24*60*60);
+        if ($path!="login"&&$path!="register"&&$path!="error") setcookie("history",GetUrl($path,$param),time()+30*24*60*60);
         self::Output();
     }
 
@@ -385,10 +402,10 @@ class Application {
         $title=$config["controllers"][$path]["title"]." - ".$config["web"]["title"];
         self::InsertIntoHtml(InsertTags("title",null,$title));
         self::InsertIntoHtml(InsertSingleTag("link",array("rel"=>"shortcut icon","href"=>GetRealUrl($config["web"]["icon"],null))));
-        self::InsertIntoHtml(InsertTags("script",null,"var require={paths:{vs:'./easy-ui/monaco-editor/min/vs'}};".
+        self::InsertIntoHtml(InsertTags("script",null,"var require={paths:{vs:'".GetRealUrl("./extensions/monaco-editor/min/vs",null)."'}};".
         "var ketax_config={delimiters:[{left:\"$$\",right:\"$$\",display:true},{left:\"$\",right:\"$\",display:false},]}"));
-        foreach($config["extensions"]["js"] as $value) self::InsertScript($value);
-        foreach($config["extensions"]["css"] as $value) self::InsertCssScript($value);
+        foreach($config["extensions"]["js"] as $value) self::InsertScript(GetRealUrl($value,null));
+        foreach($config["extensions"]["css"] as $value) self::InsertCssScript(GetRealUrl($value,null));
         self::InsertIntoStyleCode(
             "@media screen and (min-width: 1000px) {".
             InsertCssStyle(array("main"),array(
@@ -426,7 +443,9 @@ class Application {
             array("body"),array(
                 "background-color"=>"rgb(237,240,242)",
                 "margin"=>"0px",
-                "font-family"=>"Segoe UI"
+                "font-family"=>"Segoe UI",
+                "overflow-y"=>"scroll",
+                "overflow-x"=>"hidden"
             )
         ); self::InsertIntoStyle(
             array("p"),array(
@@ -439,7 +458,7 @@ class Application {
                 "align-items"=>"center",
             )
         ); self::InsertIntoStyle(
-            array("button"),array(
+            $_GET["path"]=="user"?array(".button",".button2"):array("button"),array(
                 "height"=>"30px",
                 "line-height"=>"30px",
                 "border"=>"1px solid",
@@ -459,12 +478,13 @@ class Application {
                 "outline"=>"none"
             )
         ); self::InsertIntoStyle(
-            array("button:hover"),array(
+            array($_GET["path"]=="user"?".button:hover":"button:hover"),array(
                 "background-color"=>"rgb(27,116,221)",
                 "color"=>"white",
                 "border-color"=>"rgb(27,116,221)"
             )
-        ); self::InsertIntoStyle(
+        ); 
+        self::InsertIntoStyle(
             array("input"),array(
                 "height"=>"30px",
                 "line-height"=>"30px",
@@ -487,14 +507,21 @@ class Application {
                 // "color"=>"white",
                 "border-color"=>"rgb(27,116,221)"
             )
+        ); self::InsertIntoStyle(
+            array(".ellipsis"),array(
+                "overflow"=>"hidden",
+                "word-break"=>"keep-all",
+                "white-space"=>"nowrap",
+                "text-overflow"=>"ellipsis"
+            )
         ); foreach ($config["web"]["font"] as $key=>$value) {
             self::InsertIntoStyle(array("@font-face"),array(
                 "font-family"=>"'$key'",
-                "src"=>"url('".$value."')"
+                "src"=>"url('".GetRealUrl($value,null)."')"
             ));
-        } self::InsertIntoHtml(InsertTags("script",null,"function SendAjax(url,method,data) {".
-            "var res;$.ajax({url:url,type:method,data:data,async:false,success:function(message) {".
-            "console.log(message);res=message;},error:function(jqXHR,textStatus,errorThrown){".
+        } self::InsertIntoHtml(InsertTags("script",null,"function SendAjax(url,method,data,callback='',async=false) {".
+            "var res;$.ajax({url:url,type:method,data:data,async:async,success:function(message) {".
+            "console.log(message);res=message;if(typeof callback=='function')callback(message);},error:function(jqXHR,textStatus,errorThrown){".
             "console.log(jqXHR.responseText);console.log(jqXHR.status);console.log(jqXHR.readyState);".
             "console.log(jqXHR.statusText);console.log(textStatus);console.log(errorThrown);res=null;}});return res;}".
             "var \$_GET=(function(){var url=window.document.location.href.toString();var u=url.split(\"?\");".
@@ -503,7 +530,9 @@ class Application {
             "function strip_tags(str,allow){allow=(((allow||'')+'').toLowerCase().match(/<[a-z][a-z0-9]*>/g)||[]).join('');".
             "var tags=/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;var commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;".
             "return str.replace(commentsAndPhpTags,'').replace(tags,function ($0,$1){".
-            "return allow.indexOf('<'+$1.toLowerCase()+'>')>-1?$0:'';});}"));
+            "return allow.indexOf('<'+$1.toLowerCase()+'>')>-1?$0:'';});};function addLoadEvent(func){".
+            "var oldOnload=window.onload;if(typeof window.onload!='function'){window.onload=func;}else{".
+            "window.onload=function(){oldOnload();func();}}}"));
     }
 
     /**
@@ -517,6 +546,7 @@ class Application {
         require_once "./cores/controllers/user.php";
         $login_controller=new Login_Controller;
         $config=GetConfig();
+        // self::InsertIntoStyle(array("body"),array("filter"=>"grayscale(100%)"));
         self::InsertIntoStyle(
             array(".menu"),array(
                 "width"=>"100%",
@@ -546,6 +576,10 @@ class Application {
             array(".menu-item:hover"),array(
                 "border-color"=>"orange"
             )
+        ); self::InsertIntoStyle(
+            array(".selected"),array(
+                "border-color"=>"orange"
+            )
         ); $content="";
         $content.=InsertTags("div",array("class"=>"flex",
         "onclick"=>"location.href='".GetUrl("index",null)."'"),
@@ -560,11 +594,11 @@ class Application {
                 "font-family"=>"'Exo 2'",
                 "line-height"=>"32px",
                 "cursor"=>"pointer"
-            ))),"&nbsp;&nbsp;".$config["web"]["name"])
+            ))),"&nbsp;".$config["web"]["name"])
         );
         if ($config["web"]["menu"]["left"]!=null) 
         for($i=0;$i<count($config["web"]["menu"]["left"]);$i++)
-            $content.=InsertTags("div",array("class"=>"menu-item"),
+            $content.=InsertTags("div",array("class"=>"menu-item".($path==$config["web"]["menu"]["left"][$i]["path"]?" selected":"")),
                 InsertTags("p",array(
                     "onclick"=>"location.href='".
                     GetUrl($config["web"]["menu"]["left"][$i]["path"],
@@ -581,7 +615,7 @@ class Application {
         if ($config["web"]["menu"]["right"]!=null) {
             $uid=$login_controller->CheckLogin();
             if (!$uid) for($i=0;$i<count($config["web"]["menu"]["right"]);$i++)
-                $content.=InsertTags("div",array("class"=>"menu-item"),
+                $content.=InsertTags("div",array("class"=>"menu-item".($path==$config["web"]["menu"]["right"][$i]["path"]?" selected":"")),
                     InsertTags("p",array(
                         "onclick"=>"location.href='".
                         GetUrl($config["web"]["menu"]["right"][$i]["path"],
@@ -595,7 +629,7 @@ class Application {
             else {
                 $user_controller=new User_Controller;
                 $user=$user_controller->GetWholeUserInfo($uid);
-                $content.=InsertTags("div",array("class"=>"menu-item",
+                $content.=InsertTags("div",array("class"=>"menu-item".($path=="user"?" selected":""),
                 "style"=>InsertInlineCssStyle(array("width"=>"auto","min-width"=>"70px"))),
                     InsertTags("p",array(
                         "onclick"=>"location.href='".
@@ -677,20 +711,21 @@ class Application {
             foreach($config["web"]["footer"][$i]["url"] as $key=>$value) {
                 $now_content.=InsertTags("a",array("href"=>$value,"target"=>"view_window"),$key).InsertSingleTag("br",null);
             } $content.=InsertTags("div",array("style"=>InsertInlineCssStyle(array(
-                "margin-right"=>"100px",
+                "margin-right"=>(count($config["web"]["footer"])!=$i+1?"100px":"0px"),
                 "display"=>"inline-block"
             ))),$now_content);
         }
         self::InsertIntoBody(InsertTags("div",array("class"=>"footer"),$content));
         $content="© 2022 - ".date("Y",time())." ".InsertTags("a",array("href"=>"https://github.com/LittleYang0531","target"=>"view_window"),"LittleYang0531").", ";
-        $content.="Powered by ".InsertTags("a",array("href"=>"https://github.com/LittleYang0531/lyoj","target"=>"view_window"),"lyoj v".$config["version"]).".";
+        $content.="Powered by ".InsertTags("a",array("href"=>"https://github.com/LittleYang0531/lyoj","target"=>"view_window"),"lyoj v".$config["version"]).". ";
+        $content.="Calculate this page use ".InsertTags("a",null,round((microtime(true)-self::$st)*1000,0))."ms. ";
         self::InsertIntoBody(InsertTags("div",array("class"=>"copyright"),InsertTags("p",null,$content)));
         self::InsertIntoBody(InsertTags("div",array("style"=>InsertInlineCssStyle(array("display"=>"none")),"id"=>"md2html"),""));
         self::InsertIntoBody(InsertTags("script",null,"var default_main=document.getElementsByClassName('default_main');".
-        "setTimeout(function(){window.scrollTo(0,0);},10);".
-        "setTimeout(function(){window.scrollTo(0,0);},100);".
+        ($_GET["path"]=="user"?"":"addLoadEvent(function(){")."setTimeout(function(){window.scrollTo(0,window.scrollY-50);},5);".
         "for (var i=0;i<default_main.length;i++) for (var j=1;j<=100;j++)".
-        "setTimeout(function(div,j){div.style.opacity=j/100.0;div.style.top=(50+50*Math.cos(Math.PI/200*j+Math.PI/2))+'px';},5*j+i*100,default_main[i],j);"));
+        "setTimeout(function(div,j){div.style.opacity=j/100.0;div.style.top=(50+50*Math.cos(Math.PI/200*j+Math.PI/2))+'px';},5*j+i*50,default_main[i],j);".
+        ($_GET["path"]=="user"?"":"});")));
     }
 
     /**

@@ -27,6 +27,8 @@ int main(int argc,char** argv) {
 
         if (a!=b) {
             scoreout<<0;
+            if (a.size()>=100) a=a.substr(0,100),a+="...";
+            if (b.size()>=100) b=b.substr(0,100),b+="...";
             infoout<<"In line #"<<line<<": Read '"<<a<<"' but expected '"<<b<<"'";
             return 0;
         }

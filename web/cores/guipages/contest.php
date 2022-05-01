@@ -86,7 +86,7 @@ function JudgeStatus(string $status):bool {
 }
 
 function run(array $param,string& $html,string& $body):void {
-    $tmp=""; if (FindExist2("/id",$param)) {
+    $tmp=""; if (array_key_exists("id",$param)) {
         info_run($param,$html,$body);
         return;
     }
@@ -125,9 +125,10 @@ function run(array $param,string& $html,string& $body):void {
         $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".$contest_list[$i]["id"]);
         $tmp.=InsertTags("p",array(
             "style"=>InsertInlineCssStyle(array("width"=>"37%","cursor"=>"pointer")),
-            "onclick"=>"window.open('".GetUrl("contest",array(
-            "id"=>$contest_list[$i]["id"],"page"=>"index"
-        ))."')"),$contest_list[$i]["title"]);
+            "onclick"=>"location.href='".GetUrl("contest",array(
+            "id"=>$contest_list[$i]["id"],"page"=>"index"))."'",
+            "class"=>"ellipsis"
+        ),$contest_list[$i]["title"]);
         $starttime=$contest_list[$i]["starttime"]; $endtime=$starttime+$contest_list[$i]["duration"];
         $tags_content=""; $tags=$tags_controller->ListContestTagsById($contest_list[$i]["id"]);
         if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"contest-tags"),$tags[$j]["tagname"]);
@@ -159,11 +160,14 @@ function run(array $param,string& $html,string& $body):void {
         "background-color"=>"rgb(27,116,221)",
         "color"=>"white",
         "border-color"=>"rgb(27,116,221)"
-    )); if ($page==1)
-    $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+    )); $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("page"=>1))."'",
+    "style"=>InsertInlineCssStyle(array("margin-right"=>"10px"))),InsertTags("p",null,"Top"));
+    if ($page==1) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
     else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("page"=>$page-1))."'"),InsertTags("p",null,"Previous"));
     if ($page==$pages_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
     else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("page"=>$page+1))."'"),InsertTags("p",null,"Next"));
+    $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("page"=>$pages_num))."'",
+    "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
     $body.=InsertTags("style",null,$style);
     $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
         "justify-content"=>"center"
@@ -186,6 +190,7 @@ function info_run(array $param,string& $html,string& $body):void {
     $tags_controller=new Tags_Controller;
     $status_controller=new Status_Controller;
     $info=$contest_controller->GetContest($param["id"],$param["id"])[0];
+    if ($info==null) Error_Controller::Common("Unknown contest id");
     $info_res="Time: ".date("m:d H:i",$info["starttime"])." ~ ".date("m:d H:i",$info["starttime"]+$info["duration"])." | ".
     "Signup: ".$contest_controller->GetContestSignupNumber($param["id"])." | Problems: ".count($info["problem"]);
     $title=InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
@@ -193,7 +198,7 @@ function info_run(array $param,string& $html,string& $body):void {
         "padding-right"=>"20px",
         "font-size"=>"25px",
         "font-weight"=>"400"
-    ))),"#".$param["id"]." - ".$info["title"]).
+    )),"class"=>"ellipsis"),"#".$param["id"]." - ".$info["title"]).
     InsertTags("p",array("style"=>InsertInlineCssStyle(array(
         "padding-left"=>"20px",
         "padding-right"=>"20px",
@@ -284,7 +289,7 @@ function info_run(array $param,string& $html,string& $body):void {
     $features="";$uid=$login_controller->CheckLogin();
     if ($uid&&!$contest_controller->JudgeSignup($param["id"])) {
         $contest=$contest_controller->GetContest($param["id"],$param["id"]);
-        $endtime=$contest[0]["starttime"]+$contest[0]["endtime"];
+        $endtime=$contest[0]["starttime"]+$contest[0]["duration"];
         if ($endtime>=time()) $features.=InsertTags("button",array("onclick"=>"signup()"),"Sign Up");
     } $features.=InsertTags("button",array("onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"index"))."'"),"Index");
     if (($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1||
@@ -292,6 +297,7 @@ function info_run(array $param,string& $html,string& $body):void {
         $features.=InsertTags("button",array("onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"problem"))."'"),"Problems");
         $features.=InsertTags("button",array("onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"submission"))."'"),"Submissions");
         $features.=InsertTags("button",array("onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"ranking"))."'"),"Ranking");
+        $features.=InsertTags("button",array("onclick"=>"location.href='".GetAPIUrl("/contest/rank",array("id"=>$param["id"]))."'"),"Download Ranking");
     } $body.=InsertTags("div",array("class"=>"flex default_main","style"=>InsertInlineCssStyle(array(
     "padding-left"=>"10px","padding-right"=>"10px"))),$features);
 
@@ -316,16 +322,23 @@ function info_run(array $param,string& $html,string& $body):void {
         case "problem": {
             if (!(($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1||
             ($info["starttime"]<=time()&&$contest_controller->JudgeSignup($param["id"]))))||$info["starttime"]+$info["duration"]<=time())) 
-            Error_Controller::Common("You don't have enough permission to view this page!");
+            Error_Controller::Common("Permission denied");
             for ($i=0;$i<count($info["problem"]);$i++) {
                 $problem=$problem_controller->ListProblemByPid($info["problem"][$i],true);
-                $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".($i+1));
+                if ($problem["accepted"]) $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%","cursor"=>"pointer"))),InsertTags("i",array("class"=>"check icon green"),null));
+                else $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%"))),InsertTags("i",array("class"=>"minus icon grey"),null));
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"7%","cursor"=>"pointer")),
+                "onclick"=>"location.href='".GetUrl("problem",array(
+                    "id"=>$problem["id"],
+                    "contest"=>$param["id"]
+                ))."'"),"#".($i+1));
                 $tmp.=InsertTags("p",array(
                     "style"=>InsertInlineCssStyle(array("width"=>"40%","cursor"=>"pointer")),
-                    "onclick"=>"window.open('".GetUrl("problem",array(
-                        "pid"=>$problem["id"],
+                    "onclick"=>"location.href='".GetUrl("problem",array(
+                        "id"=>$problem["id"],
                         "contest"=>$param["id"]
-                    ))."')"
+                    ))."'",
+                    "class"=>"ellipsis"
                 ),$problem["name"]); $tags_content="";
                 $tags=$tags_controller->ListProblemTagsByPid($problem["id"]);
                 if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags"),$tags[$j]["tagname"]);
@@ -346,7 +359,7 @@ function info_run(array $param,string& $html,string& $body):void {
         case "submission": {
             if (!(($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1||
             ($info["starttime"]<=time()&&$contest_controller->JudgeSignup($param["id"]))))||$info["starttime"]+$info["duration"]<=time())) 
-            Error_Controller::Common("You don't have enough permission to view this page!");
+            Error_Controller::Common("Permission denied");
             if ($param["num"]==null) $param["num"]=1;
             $l=($param["num"]-1)*$config["status_number"]+1;
             $r=$param["num"]*$config["status_number"]; $sum=0;
@@ -362,13 +375,17 @@ function info_run(array $param,string& $html,string& $body):void {
                 $userinfo=$user_controller->GetWholeUserInfo($info["uid"]);
                 $probleminfo=$problem_controller->ListProblemByPid($info["pid"],true);
                 $header=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"10%","cursor"=>"pointer"))),
-                InsertTags("p",array("onclick"=>"window.open('".GetUrl("status",array("id"=>$info["id"]))."')"),"#".$info["id"]));
-                $header.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"15%"))),$userinfo["name"]);
+                InsertTags("p",array("onclick"=>"location.href='".GetUrl("status",array("id"=>$info["id"]))."'"),"#".$info["id"]));
+                $header.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"15%","cursor"=>"pointer")),
+                "onclick"=>"location.href='".GetUrl("user",array(
+                    "id"=>$userinfo["id"]
+                ))."'","class"=>"ellipsis"),$userinfo["name"]);
                 $header.=InsertTags("p",array(
                     "style"=>InsertInlineCssStyle(array("width"=>"45%","cursor"=>"pointer")),
-                    "onclick"=>"window.open('".GetUrl("problem",array(
-                        "pid"=>$probleminfo["id"]
-                    ))."')"
+                    "onclick"=>"location.href='".GetUrl("problem",array(
+                        "id"=>$probleminfo["id"]
+                    ))."'",
+                    "class"=>"ellipsis"
                 ),$probleminfo["name"]);
                 $header.=InsertTags("div",array("id"=>"whole-status"),GetFormatStatus($info["status"],true,""));
                 $body.=InsertTags("div",array("class"=>"default_main flex","style"=>InsertInlineCssStyle(array(
@@ -379,12 +396,14 @@ function info_run(array $param,string& $html,string& $body):void {
                     "margin-top"=>"20px",
                     "align-items"=>"center"
                 ))),$header);
-            } $content=""; if ($param["num"]==1)
-            $body.=InsertTags("div",null,$content); $content=""; if ($param["num"]==1)
-            $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+            } $content=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"submission","num"=>1))."'",
+            "style"=>InsertInlineCssStyle(array("margin-right"=>"10px"))),InsertTags("p",null,"Top"));
+            if ($param["num"]==1) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
             else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"submission","num"=>$param["num"]-1))."'"),InsertTags("p",null,"Previous"));
             if ($param["num"]==$page_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
             else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"submission","num"=>$param["num"]+1))."'"),InsertTags("p",null,"Next"));
+            $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"submission","num"=>$page_num))."'",
+            "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
             $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
                 "justify-content"=>"center",
                 "margin-top"=>"20px"
@@ -393,9 +412,8 @@ function info_run(array $param,string& $html,string& $body):void {
         case "ranking": {
             if (!(($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1||
             ($info["starttime"]<=time()&&$contest_controller->JudgeSignup($param["id"]))))||$info["starttime"]+$info["duration"]<=time())) 
-            Error_Controller::Common("You don't have enough permission to view this page!");
+            Error_Controller::Common("Permission denied");
             $content=""; $ranking=$contest_controller->GetRanking($param["id"]); $rank=0;
-            // print_r($ranking); exit;
             $page_num=intval((count($ranking)+$config["ranking_number"]-1)/$config["ranking_number"]);
             if ($param["num"]==null) $param["num"]=1;
             if ($param["num"]<1) $param["num"]=1;
@@ -412,30 +430,45 @@ function info_run(array $param,string& $html,string& $body):void {
             if ($contest_controller->JudgeSignup($param["id"])) {
                 $id=0; for ($i=0;$i<=count($ranking);$i++) {
                     if ($ranking[$i]["uid"]==$uid){$id=$i; break;}
-                }  $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".($id+1));
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%"))),$ranking[$id]["name"]);
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),$ranking[$id]["score"]);
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),intval($ranking[$id]["time"]/60).":".($ranking[$id]["time"]%60));
+                } $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".($id+1));
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%","cursor"=>"pointer")),"onclick"=>"location.href='".GetUrl("user",array("id"=>$id))."'","class"=>"ellipsis"),$ranking[$id]["name"]);
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),$ranking[$id]["score"]); 
+                $tmp2=intval($ranking[$id]["time"]/60);
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),
+                (intval($tmp2/60)<10?"0".intval($tmp2/60):intval($tmp2/60)).":".($tmp2%60<10?"0".$tmp2%60:$tmp2%60));
                 for ($i=0;$i<count($info["problem"]);$i++) 
-                    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),
+                    if ($ranking[$id]["info"][$i]["id"]!=0) $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
                     InsertTags("p",array("onclick"=>"location.href=\"".GetUrl("status",array("id"=>$ranking[$id]["info"][$i]["id"]))."\""),$ranking[$id]["info"][$i]["score"]));
+                    else $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
+                    InsertTags("p",null,$ranking[$id]["info"][$i]["score"]));
                 $content.=InsertTags("div",array("class"=>"default_main flex problem-item"),$tmp);
             } for ($i=0;$i<count($ranking);$i++) {
-                if ($i==0||$ranking[$i]["score"]!=$ranking[$i-1]["score"]||$ranking[$i]["time"]!=$ranking[$i-1]["time"]) $rank=$i+1;
+                $type=$info["type"]; 
+                if ($type==0) {if ($i==0||$ranking[$i]["score"]!=$ranking[$i-1]["score"]) $rank=$i+1;}
+                else{if ($i==0||$ranking[$i]["score"]!=$ranking[$i-1]["score"]||$ranking[$i]["time"]!=$ranking[$i-1]["time"]) $rank=$i+1;}
                 if ($i<($param["num"]-1)*$config["ranking_number"]||$i>=$param["num"]*$config["ranking_number"]) continue;
                 $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#$rank");
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%"))),$ranking[$i]["name"]);
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),$ranking[$i]["score"]);
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),intval($ranking[$i]["time"]/60).":".($ranking[$i]["time"]%60));
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%","cursor"=>"pointer")),"onclick"=>"location.href='".GetUrl("user",array("id"=>$ranking[$i]["uid"]))."'","class"=>"ellipsis"),$ranking[$i]["name"]);
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),$ranking[$i]["score"]); 
+                if ($type!=0) {$ranking[$i]["time"]=intval($ranking[$i]["time"]/60);
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),
+                (intval($ranking[$i]["time"]/60)<10?"0".intval($ranking[$i]["time"]/60):intval($ranking[$i]["time"]/60)).":".($ranking[$i]["time"]%60<10?"0".$ranking[$i]["time"]%60:$ranking[$i]["time"]%60));}
+                else $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),round($ranking[$i]["time"]/1000,2)."s");
                 for ($j=0;$j<count($info["problem"]);$j++) 
-                    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),
+                    if ($ranking[$i]["info"][$j]["id"]!=0) $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
                     InsertTags("p",array("onclick"=>"location.href=\"".GetUrl("status",array("id"=>$ranking[$i]["info"][$j]["id"]))."\""),$ranking[$i]["info"][$j]["score"]));
+                    else $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
+                    InsertTags("p",null,$ranking[$i]["info"][$j]["score"]));
                 $content.=InsertTags("div",array("class"=>"default_main flex problem-item"),$tmp);
-            } $body.=InsertTags("div",null,$content); $content=""; if ($param["num"]==1)
-            $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+            } $body.=InsertTags("div",null,$content); $content="";
+            $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"ranking","num"=>1))."'",
+            "style"=>InsertInlineCssStyle(array("margin-right"=>"10px"))),InsertTags("p",null,"Top"));
+            if ($param["num"]==1) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
             else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"ranking","num"=>$param["num"]-1))."'"),InsertTags("p",null,"Previous"));
             if ($param["num"]==$page_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
             else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"ranking","num"=>$param["num"]+1))."'"),InsertTags("p",null,"Next"));
+            $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"ranking","num"=>$page_num))."'",
+            "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
             $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
                 "justify-content"=>"center"
             ))),$content);

@@ -48,6 +48,15 @@ class Contest_Controller {
     }
 
     /**
+     * 获取用户报名比赛 GetUserSignup
+     * @param int $uid 用户id
+     * @return array|null
+     */
+    static function GetUserSignup(int $uid):array|null {
+        return self::$db->Query("SELECT * FROM contest_signup WHERE uid=$uid");
+    }
+
+    /**
      * 获取报名人数 GetContestSignupNumber
      * @param int $id 比赛id
      * @return int
@@ -85,34 +94,13 @@ class Contest_Controller {
      * @return array|null
      */
     function GetRanking(int $id):array|null {
-        $result=self::$db->Query("SELECT * FROM contest_ranking WHERE id=$id ORDER BY score DESC,time DESC");
-        print($result);
+        $result=self::$db->Query("SELECT * FROM contest_ranking WHERE id=$id ORDER BY score DESC,time");
         for ($i=0;$i<count($result);$i++) {
             $user=self::$user_controller->GetWholeUserInfo($result[$i]["uid"]);
             $result[$i]["name"]=$user["name"];
+            $result[$i]["uid"]=$user["id"];
             $result[$i]["info"]=json_decode($result[$i]["info"],true);
         } return $result;
-        // $contest=self::GetContest($id,$id)[0];
-        // $people=self::GetContestSignup($id);
-        // $st=$contest["starttime"];$en=$st+$contest["duration"];
-        // $result=$people; for ($i=0;$i<count($result);$i++) {
-        //     $user=self::$user_controller->GetWholeUserInfo($result[$i]["uid"]);
-        //     $result[$i]["name"]=$user["name"];
-        // } for ($i=0;$i<count($contest["problem"]);$i++) {
-        //     $pid=$contest["problem"][$i];
-        //     for ($j=0;$j<count($people);$j++) {
-        //         $array=self::$db->Query("SELECT result FROM status WHERE time>=$st AND time<=$en AND pid=$pid AND uid=".$people[$j]["uid"]." ORDER BY time DESC LIMIT 1");
-        //         if (count($array)==0) {$result[$j][$i]=""; continue;}
-        //         $array=$array[count($array)-1];
-        //         if ($array["result"]=="NULL") continue;
-        //         $res=json_decode($array["result"],true);
-        //         $score=0; if ($res!=null&&array_key_exists("info",$res)) {
-        //             for ($k=0;$k<count($res["info"]);$k++) 
-        //                 $score+=$res["info"][$k]["score"];
-        //         } $result[$j][$i]=$score;
-        //         $result[$j]["status-".$i]=$array["id"];
-        //     }
-        // } return $result;
     }
 
     /**
@@ -126,7 +114,8 @@ class Contest_Controller {
     function GetContestSubmit(int $id,float $l=1,float $r=1e18,int& $sum):array|null {
         $array=self::$db->Query("SELECT * FROM contest WHERE id=$id");
         if ($array==null||count($array)==0) return null;
-        $sql="SELECT * FROM status WHERE contest=$id ORDER BY id DESC"; 
+        $sql="SELECT * FROM status WHERE contest=$id AND time>=".$array[0]["starttime"]
+        ." AND time<=".($array[0]["starttime"]+$array[0]["duration"])." ORDER BY id DESC"; 
         $res=self::$db->Query($sql); $endtime=$array[0]["starttime"]+$array[0]["duration"];
         if ($array[0]["type"]==0&&$endtime>=time()) {
             for ($i=0;$i<count($res);$i++) $res[$i]["status"]="Submitted";

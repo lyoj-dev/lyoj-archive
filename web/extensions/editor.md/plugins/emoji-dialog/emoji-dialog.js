@@ -271,7 +271,7 @@
                     dialog.loading(true);
                 }
 
-				$.getJSON(path + "emoji.json?temp=" + Math.random(), function(json) {
+				$.getJSON("../extensions/editor.md/plugins/emoji-dialog/emoji.json?temp=" + Math.random(), function(json) {
 
 					if (typeof dialog.loading === "function") {
                         dialog.loading(false);

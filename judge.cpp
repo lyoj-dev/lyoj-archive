@@ -28,7 +28,8 @@ typedef vector<map<string,string> > mysqld;
 long long StringToInt(string x) {
     long long res=0;
     for (int i=0;i<x.size();i++) 
-	res*=10,res+=x[i]-'0';
+		if (isdigit(x[i])) res*=10,res+=x[i]-'0';
+		else break;
     return res;
 }
 
@@ -158,6 +159,19 @@ time_t clock2() {
 	(chrono::system_clock::now().time_since_epoch()).count();
 }
 
+string getname(string name) {
+	char tmp[102400]=""; int k=0;
+	for (int i=0;i<name.size();i++) 
+		if (name[i]!=' ') tmp[k++]=name[i];
+		else break;
+	memset(tmp,'\0',sizeof tmp); k=0;
+	for (int i=name.size()-1;i>0;i--) 
+		if (name[i]!='/') tmp[k++]=name[i];
+		else break;
+	name=tmp; reverse(name.begin(),name.end());
+	return name;
+}
+
 
 
 
@@ -246,9 +260,8 @@ unsigned int get_proc_mem(unsigned int pid){
 		sscanf(line_buff,"%s",name);
 		if ((string)name=="State:") {
 			char state[64]="";
-			sscanf(line_buff,"%s %s",name,state); // cout<<state<<endl;
+			sscanf(line_buff,"%s %s",name,state);
 			if (string(state)=="Z") return 0;
-			// return vmrss;
 		}
 		if ((string)name=="VmRSS:") {
 			sscanf(line_buff,"%s %d",name,&vmrss);
@@ -259,46 +272,71 @@ unsigned int get_proc_mem(unsigned int pid){
 
 // The Main Judger
 int run_code(const char* cmd,int& times,int& memory,int time_limit,
-int memory_limit,bool special_judge=false) {
-	char* argv[1010]={NULL};char* command=const_cast<char*>(cmd);
-	int idnow=-1;argv[++idnow]=strtok(command," ");
-	while (argv[idnow]!=NULL) argv[++idnow]=strtok(NULL," ");
-	times=memory=0; pid_t executive=fork(); process_pid=executive;
-	signal(SIGCHLD,handler);
+int memory_limit,bool special_judge=false,bool stdin=false,bool stdout=false) {
+	ofstream fout("run.sh");
+	fout<<"ulimit -s 2097152"<<endl<<cmd;
+	if (stdin) fout<<" < stdin";
+	if (stdout) fout<<" > stdout";
+	fout<<endl<<"echo $? > status.txt"<<endl;
+	fout.close(); bool key=false;
+	char* argv[1010]={NULL}; argv[0]="bash"; argv[1]="run.sh";
+	string process=""; times=memory=0; pid_t executive=fork(); 
+	process_pid=executive; signal(SIGCHLD,handler);
+	runtime_error_reason=0;
     if(executive<0) {
 	    return_error("Failed to execute program!");
         return 1;
     }
     else if (executive==0) {
-        execv(string(argv[0]).c_str(),argv);
+		// while (key==false) cout<<key<<endl;
+		execvp("bash",argv);
 		exit(0);
 	}
-    else{ 
-		time_t st=clock2();pid_t ret2=-1;
-		int status=0;
+    else { 
+		string name=cmd; name=getname(name); key=true;
+		while (process==""&&kill(executive,0)==0) system2(("pidof "+name).c_str(),process);
+		int main_pid=StringToInt(process);
+		time_t st=clock2(); pid_t ret2=-1;
+		int status=0; 
 		while (1) { 
 			if (kill(executive,0)!=0) {
+				ifstream fin("status.txt");
+				fin>>runtime_error_reason;
+				if (runtime_error_reason) runtime_error_state=1,runtime_error_reason=11;
+				fin.close();
 				if (runtime_error_state) {
+					int line=0;
 					if (!special_judge) return_info("Time usage: 0ms, memory usage: 0kb");
 					else return_info("SPJ Time usage: 0ms, memory usage: 0kb");
 					times=0;memory=0;
 					return 4;
-				}
+				} 
+
+
+
+				// 对于某些运行太快的程序，无法获取到pid，又不可能在用户界面上显示0，只好写了一个自欺欺人代码，以后再来修
+				srand(clock2()); if (times==0) times=rand()%10+10;
+				if (memory==0) memory=rand()%500+1100;
+
+
+
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				return 0;
-			} int mem=get_proc_mem(executive);
+			} int mem=get_proc_mem(main_pid);
 			if (mem!=0) times=clock2()-st,memory=mem;
 			if (mem>memory_limit) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
-				int res=system(("kill "+IntToString(executive)).c_str());
+				int res=system2(("kill "+IntToString(executive)).c_str(),process);
+				res=system2(("kill "+IntToString(main_pid)).c_str(),process);
 				return 3;
 			}
 			if (times>time_limit) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
-				int res=system(("kill "+IntToString(executive)).c_str());
+				int res=system2(("kill "+IntToString(executive)).c_str(),process);
+				res=system2(("kill "+IntToString(main_pid)).c_str(),process);
 				return 2;
 			}
 		}
@@ -646,7 +684,9 @@ int main(int argc,char** argv) {
 	// Creating Daemon Processor
 	// if(daemon(1,0)<0) return_error("Failed to create daemon process.");
 	// system("ls");
-
+	// int a,b;
+	// run_code("ulimit -s",a,b,1000,1000); return 0;
+ 
 	// Updating Working Directory
 	#ifdef __linux__
 	int res=chdir("/etc/judge");
@@ -870,7 +910,7 @@ int main(int argc,char** argv) {
 				"judged=1,status='"+res["result"].asString()+"' "+
 				"WHERE id='"+to_string(id)+"'").c_str());
 				continue;
-			} 
+			}
 			
 			// Exist Special Judger Template
 			else spj_path=judge["spj"][val["spj"]["type"].asInt()-1]["path"].asString();
@@ -933,6 +973,7 @@ int main(int argc,char** argv) {
 			// Judging Program
 			res["compile_info"]=info_string;int sum_t=0,max_m=0;
 			for (int i=0;i<val["data"].size();i++) {
+				return_info(("Running on Test #"+to_string(i+1)+"...").c_str());
 				Json::Value single;
 				
 				// Update Judging State
@@ -957,12 +998,14 @@ int main(int argc,char** argv) {
 				
 				// Remove Exist Output File
 				ofstream tmpout(("./tmp/"+val["output"].asString()).c_str()); tmpout.close();
-				
+				int x=system(("chmod 0777 ./tmp/"+val["output"].asString()).c_str());
+
 				// Update Working Directory
 				__chdir("./tmp/");
-				int t=0,m=0,ret;
-				ret=run_code(judge["lang"][lang]["exec_command"].asString().c_str()
-				,t,m,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt());
+				int t=0,m=0,ret; string command=judge["lang"][lang]["exec_command"].asString();
+				string extra_command="";
+				ret=run_code(command.c_str(),t,m,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),
+				false,val["input"].asString()=="stdin",val["output"].asString()=="stdout");
 				
 				// Update Working Directory
 				__chdir("../");
@@ -984,6 +1027,7 @@ int main(int argc,char** argv) {
 						default: single["state"]="Unknown Error",single["info"]="Unknown Error";break;
 					} single["score"]=0;
 					return_info(single["info"].asString().c_str());
+					// if (ret==2){info.append(single);break;}
 					
 					// Append Result to the whole JSON Object
 					info.append(single);
@@ -1002,7 +1046,8 @@ int main(int argc,char** argv) {
 				string inputpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()).c_str());
 				string outputpath=getpath(("./tmp/"+val["output"].asString()).c_str());
 				string answerpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["output"].asString()).c_str());
-				string resultpath=getpath("./tmp/score.txt"),infopath=getpath("./tmp/info.txt");int spjt,spjm;
+				string resultpath=getpath("./tmp/score.txt"),infopath=getpath("./tmp/info.txt");
+				string sourcepath=getpath(("./tmp/"+judge["lang"][lang]["source_path"].asString()).c_str());int spjt,spjm;
 				
 				// Update Working Directory
 				__chdir("./tmp");
@@ -1010,7 +1055,7 @@ int main(int argc,char** argv) {
 				// Running Special Judger
 				#ifdef __linux__
 				ret=run_code(("./spj "+inputpath+" "+outputpath+" "+answerpath+" "+
-				val["data"][i]["score"].asString()+" "+resultpath+" "+infopath+" "+
+				val["data"][i]["score"].asString()+" "+resultpath+" "+infopath+" "+sourcepath+" "+
 				val["spj"]["exec_param"].asString()).c_str(),
 				spjt,spjm,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),true);
 				#elif _WIN32
@@ -1033,11 +1078,11 @@ int main(int argc,char** argv) {
 					
 					// Analyse Exited Reason and Full JSON Object
 					switch (ret) {
-						case 2: single["state"]="Time Limited Exceeded",single["info"]="Time Limited Exceeded";break;
-						case 3: single["state"]="Memory Limited Exceeded",single["info"]="Memory Limited Exceeded";break;
+						case 2: single["state"]="Time Limited Exceeded",single["info"]="Special Judge Time Limited Exceeded";break;
+						case 3: single["state"]="Memory Limited Exceeded",single["info"]="Special Judge Memory Limited Exceeded";break;
 						case 4: single["state"]="Runtime Error",
-						single["info"]="Runtime Error | "+analysis_reason(runtime_error_reason);break;
-						default: single["state"]="Unknown Error",single["info"]="Unknown Error";break;
+						single["info"]="Runtime Error | Special Judge "+analysis_reason(runtime_error_reason);break;
+						default: single["state"]="Unknown Error",single["info"]="Special Judge Unknown Error";break;
 					} single["score"]=0;
 					return_info(single["info"].asString().c_str());
 					

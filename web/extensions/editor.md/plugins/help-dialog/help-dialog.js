@@ -63,7 +63,8 @@
 
 			if (helpContent.html() === "") 
 			{
-				$.get(path + "help.md", function(text) {
+				var domain=location.href.split("/");
+				$.get("../extensions/editor.md/plugins/help-dialog/help.md", function(text) {
 					var md = exports.$marked(text);
 					helpContent.html(md);
                     

@@ -4,6 +4,7 @@
 #include<sys/resource.h>
 #include<sys/wait.h>
 #include<mysql/mysql.h>
+#include<jsoncpp/json/json.h>
 #include"mysqld.h"
 using namespace std;
 string system2(const char* cmd) {
@@ -40,8 +41,6 @@ int main(int argc,char * argv[]) {
     char tmp[1024]="";char* kkkk=getcwd(tmp,1024);string path=tmp;
     if (cmd=="build") {
         string mysqladdr,mysqlname,mysqlpw,mysqldb;int mysqlport;
-        cout<<"Opening Service..."<<endl;cout<<flush;
-        
         
         cout<<endl<<"Collecting Datas..."<<endl;
         cout<<" * Login to the MySQL/MariaDB Server: "<<endl;
@@ -98,7 +97,7 @@ int main(int argc,char * argv[]) {
         
         cout<<endl<<"Compiling..."<<endl;
         exec("Compiling Special Judge...","g++ /etc/judge/spjtemp/1.cpp -O2 -std=c++14 -o /etc/judge/spjtemp/1");
-        exec("Compiling Main Judge Service...","g++ /etc/judge/judge.cpp -O2 -std=c++14 -o /usr/bin/judge -lmysqlclient -ljsoncpp");
+        exec("Compiling Main Judge Service...","g++ /etc/judge/judge.cpp -O2 --std=c++14 -g -o /usr/bin/judge -lmysqlclient -ljsoncpp -lpthread");
         cout<<endl<<"Success!"<<endl;
         return 0;
     }
@@ -118,7 +117,7 @@ int main(int argc,char * argv[]) {
     }
     if (cmd=="compile") {
         exec("Compiling Special Judge...","g++ ./spjtemp/1.cpp -o /etc/judge/spjtemp/1");
-        exec("Compiling Main Judge Service...","g++ ./judge.cpp -O2 -o /usr/bin/judge -lmysqlclient -ljsoncpp");
+        exec("Compiling Main Judge Service...","g++ ./judge.cpp -O2 --std=c++14 -g -o /usr/bin/judge -lmysqlclient -ljsoncpp -lpthread");
         cout<<endl<<"Success!"<<endl;
         return 0;
     }

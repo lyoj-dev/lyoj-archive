@@ -2,12 +2,13 @@
  * Editor.md
  *
  * @file        editormd.js 
- * @version     v1.5.0 
+ * @version     v1.6.0 
  * @description Open source online markdown editor.
  * @license     MIT License
  * @author      Pandao
- * {@link       https://github.com/pandao/editor.md}
- * @updateTime  2015-06-09
+ * @updater     LittleYang0531
+ * {@link       https://github.com/LittleYang0531/editor.md}
+ * @updateTime  2022-04-01
  */
 
 ;(function(factory) {
@@ -98,7 +99,7 @@
         markdown             : "",             // Markdown source code
         appendMarkdown       : "",             // if in init textarea value not empty, append markdown to textarea
         width                : "100%",
-        height               : "100%",
+        height               : "600px",
         path                 : "./lib/",       // Dependents module file directory
         pluginPath           : "",             // If this empty, default use settings.path + "../plugins/"
         delay                : 300,            // Delay parse markdown to html, Uint : ms
@@ -106,7 +107,7 @@
         watch                : true,
         placeholder          : "Enjoy Markdown! coding now...",
         gotoLine             : true,
-        codeFold             : false,
+        codeFold             : true,
         autoHeight           : false,
 		autoFocus            : true,
         autoCloseTags        : true,
@@ -130,7 +131,7 @@
         dialogMaskBgColor    : "#fff",
         dialogMaskOpacity    : 0.1,
         fontSize             : "13px",
-        saveHTMLToTextarea   : false,
+        saveHTMLToTextarea   : true,
         disabledKeyMaps      : [],
         
         onload               : function() {},
@@ -152,22 +153,22 @@
         uploadCallbackURL    : "",
         
         toc                  : true,           // Table of contents
-        tocm                 : false,           // Using [TOCM], auto create ToC dropdown menu
+        tocm                 : true,           // Using [TOCM], auto create ToC dropdown menu
         tocTitle             : "",             // for ToC dropdown menu btn
-        tocDropdown          : false,
+        tocDropdown          : true,
         tocContainer         : "",
         tocStartLevel        : 1,              // Said from H1 to create ToC
-        htmlDecode           : false,          // Open the HTML tag identification 
+        htmlDecode           : true,          // Open the HTML tag identification 
         pageBreak            : true,           // Enable parse page break [========]
         atLink               : true,           // for @link
         emailLink            : true,           // for email address auto link
-        taskList             : false,          // Enable Github Flavored Markdown task lists
-        emoji                : false,          // :emoji: , Support Github emoji, Twitter Emoji (Twemoji);
+        taskList             : true,          // Enable Github Flavored Markdown task lists
+        emoji                : true,          // :emoji: , Support Github emoji, Twitter Emoji (Twemoji);
                                                // Support FontAwesome icon emoji :fa-xxx: > Using fontAwesome icon web fonts;
                                                // Support Editor.md logo icon emoji :editormd-logo: :editormd-logo-1x: > 1~8x;
-        tex                  : false,          // TeX(LaTeX), based on KaTeX
-        flowChart            : false,          // flowChart.js only support IE9+
-        sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
+        tex                  : true,          // TeX(LaTeX), based on KaTeX
+        flowChart            : true,          // flowChart.js only support IE9+
+        sequenceDiagram      : true,          // sequenceDiagram.js only support IE9+
         previewCodeHighlight : true,
                 
         toolbar              : true,           // show/hide toolbar
@@ -1119,7 +1120,7 @@
             
             if (settings.toolbar && toolbar.length < 1)
             {            
-                var toolbarHTML = "<div class=\"" + classPrefix + "toolbar\"><div class=\"" + classPrefix + "toolbar-container\"><ul class=\"" + classPrefix + "menu\"></ul></div></div>";
+                var toolbarHTML = "<div class=\"" + classPrefix + "toolbar\" style=\"display: block; position: absolute; width: 100%; left: 0px;\"><div class=\"" + classPrefix + "toolbar-container\"><ul class=\"" + classPrefix + "menu\"></ul></div></div>";
                 
                 editor.append(toolbarHTML);
                 toolbar = this.toolbar = editor.children("." + classPrefix + "toolbar");
@@ -1369,7 +1370,7 @@
         
         showInfoDialog : function() {
 
-            $("html,body").css("overflow-x", "hidden");
+            // $("html,body").css("overflow-x", "hidden");
             
             var _this       = this;
 			var editor      = this.editor;
@@ -1403,7 +1404,7 @@
          */
         
         hideInfoDialog : function() {            
-            $("html,body").css("overflow-x", "");
+            // $("html,body").css("overflow-x", "");
             this.infoDialog.hide();
             this.mask.hide();
             this.lockScreen(false);
@@ -2627,7 +2628,7 @@
             {
                 state.fullscreen = true;
 
-                $("html,body").css("overflow", "hidden");
+                // $("html,body").css("overflow", "hidden");
                 
                 editor.css({
                     width    : $(window).width(),
@@ -2669,7 +2670,7 @@
                 toolbar.find(".fa[name=fullscreen]").parent().removeClass("active"); 
             }
 
-            $("html,body").css("overflow", "");
+            // $("html,body").css("overflow", "");
 
             editor.css({
                 width    : editor.data("oldWidth"),
@@ -2699,16 +2700,19 @@
             var settings = this.settings;
             
             path = settings.pluginPath + path;
+
+            console.log(define);
             
             if (typeof define === "function") 
             {            
-                if (typeof this[name] === "undefined")
-                {
-                    alert("Error: " + name + " plugin is not found, you are not load this plugin.");
+                // if (typeof this[name] === "undefined")
+                // {
+                //     alert("Error: " + name + " plugin is not found, you are not load this plugin.");
                     
-                    return this;
-                }
-                
+                //     return this;
+                // }
+                console.log(name); console.log(cm);
+
                 this[name](cm);
                 
                 return this;
@@ -2781,7 +2785,7 @@
         
         if (settings.dialogLockScreen) 
         {            
-            $("html,body").css("overflow", "hidden");
+            // $("html,body").css("overflow", "hidden");
             this.resize();
         }
     };
@@ -3069,7 +3073,7 @@
             {
                 alert("settings.tex === false");
                 return this;
-            }
+            } 
             
             var cm        = this.cm;
             var cursor    = cm.getCursor();
@@ -3364,7 +3368,7 @@
 
     // Emoji graphics files url path
     editormd.emoji     = {
-        path  : "../plugins/emoji-dialog/emoji",
+        path  : "../extensions/editor.md/plugins/emoji-dialog/emoji/",
         ext   : ".png"
     };
 
@@ -3385,16 +3389,16 @@
     editormd.markedRenderer = function(markdownToC, options) {
         var defaults = {
             toc                  : true,           // Table of contents
-            tocm                 : false,
+            tocm                 : true,
             tocStartLevel        : 1,              // Said from H1 to create ToC  
             pageBreak            : true,
             atLink               : true,           // for @link
             emailLink            : true,           // for mail address auto link
-            taskList             : false,          // Enable Github Flavored Markdown task lists
-            emoji                : false,          // :emoji: , Support Twemoji, fontAwesome, Editor.md logo emojis.
-            tex                  : false,          // TeX(LaTeX), based on KaTeX
-            flowChart            : false,          // flowChart.js only support IE9+
-            sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
+            taskList             : true,          // Enable Github Flavored Markdown task lists
+            emoji                : true,          // :emoji: , Support Twemoji, fontAwesome, Editor.md logo emojis.
+            tex                  : true,          // TeX(LaTeX), based on KaTeX
+            flowChart            : true,          // flowChart.js only support IE9+
+            sequenceDiagram      : true,          // sequenceDiagram.js only support IE9+
         };
         
         var settings        = $.extend(defaults, options || {});    
@@ -3595,20 +3599,23 @@
         };
 
         markedRenderer.paragraph = function(text) {
+
             var isTeXInline     = /\$(.*)\$/g.test(text);
             var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
             var isTeXAddClass   = (isTeXLine)     ? " class=\"" + editormd.classNames.tex + "\"" : "";
             var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
             var isToCMenu       = /^\[TOCM\]$/.test(text);
-            
+
             if (!isTeXLine && isTeXInline) 
             {
                 text = text.replace(/(\$([^\$]*)\$)+/g, function($1, $2) {
+                    var x=new RegExp("<em>","g"); $1=$1.replace(x,"_"); $2=$2.replace(x,"_");
+                    x=new RegExp("</em>","g"); $1=$1.replace(x,"_"); $2=$2.replace(x,"_");
                     return "<span class=\"" + editormd.classNames.tex + "\">" + $2.replace(/\$/g, "") + "</span>";
                 });
             } 
             else 
-            {
+            { 
                 text = (isTeXLine) ? text.replace(/\$/g, "") : text;
             }
             
@@ -3619,11 +3626,10 @@
         };
 
         markedRenderer.code = function (code, lang, escaped) { 
-
             if (lang === "seq" || lang === "sequence")
             {
                 return "<div class=\"sequence-diagram\">" + code + "</div>";
-            } 
+            }
             else if ( lang === "flow")
             {
                 return "<div class=\"flowchart\">" + code + "</div>";
@@ -3634,12 +3640,21 @@
             } 
             else 
             {
-
                 return marked.Renderer.prototype.code.apply(this, arguments);
             }
         };
 
         markedRenderer.tablecell = function(content, flags) {
+            var isTeXInline = /\$(.*)\$/g.test(content);
+            if (isTeXInline) 
+            {
+                content = content.replace(/(\$([^\$]*)\$)+/g, function($1, $2) {
+                    var x=new RegExp("<em>","g"); $1=$1.replace(x,"_"); $2=$2.replace(x,"_");
+                    x=new RegExp("</em>","g"); $1=$1.replace(x,"_"); $2=$2.replace(x,"_");
+                    return "<span class=\"" + editormd.classNames.tex + "\">" + $2.replace(/\$/g, "") + "</span>";
+                });
+            } 
+
             var type = (flags.header) ? "th" : "td";
             var tag  = (flags.align)  ? "<" + type +" style=\"text-align:" + flags.align + "\">" : "<" + type + ">";
             
@@ -3647,6 +3662,17 @@
         };
 
         markedRenderer.listitem = function(text) {
+            
+            var isTeXInline     = /\$(.*)\$/g.test(text);
+            if (isTeXInline) 
+            {
+                text = text.replace(/(\$([^\$]*)\$)+/g, function($1, $2) {
+                    var x=new RegExp("<em>","g"); $1=$1.replace(x,"_"); $2=$2.replace(x,"_");
+                    x=new RegExp("</em>","g"); $1=$1.replace(x,"_"); $2=$2.replace(x,"_");
+                    return "<span class=\"" + editormd.classNames.tex + "\">" + $2.replace(/\$/g, "") + "</span>";
+                });
+            } 
+
             if (settings.taskList && /^\s*\[[x\s]\]\s*/.test(text)) 
             {
                 text = text.replace(/^\s*\[\s\]\s*/, "<input type=\"checkbox\" class=\"task-list-item-checkbox\" /> ")
@@ -3895,23 +3921,23 @@
         var defaults = {
             gfm                  : true,
             toc                  : true,
-            tocm                 : false,
+            tocm                 : true,
             tocStartLevel        : 1,
             tocTitle             : "目录",
-            tocDropdown          : false,
+            tocDropdown          : true,
             tocContainer         : "",
             markdown             : "",
-            markdownSourceCode   : false,
-            htmlDecode           : false,
+            markdownSourceCode   : true,
+            htmlDecode           : true,
             autoLoadKaTeX        : true,
             pageBreak            : true,
             atLink               : true,    // for @link
             emailLink            : true,    // for mail address auto link
-            tex                  : false,
-            taskList             : false,   // Github Flavored Markdown task lists
-            emoji                : false,
-            flowChart            : false,
-            sequenceDiagram      : false,
+            tex                  : true,
+            taskList             : true,   // Github Flavored Markdown task lists
+            emoji                : true,
+            flowChart            : true,
+            sequenceDiagram      : true,
             previewCodeHighlight : true
         };
         
@@ -4211,7 +4237,7 @@
      */
     
     editormd.lockScreen = function(lock) {
-        $("html,body").css("overflow", (lock) ? "hidden" : "");
+        // $("html,body").css("overflow", (lock) ? "hidden" : "");
     };
         
     /**
@@ -4284,7 +4310,7 @@
         dialog.lockScreen = function(lock) {
             if (options.lockScreen)
             {                
-                $("html,body").css("overflow", (lock) ? "hidden" : "");
+                // $("html,body").css("overflow", (lock) ? "hidden" : "");
                 $this.resize();
             }
 

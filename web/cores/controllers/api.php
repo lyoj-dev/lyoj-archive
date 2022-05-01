@@ -59,5 +59,9 @@ class API_Controller{
     static function error_contest_not_found($id):void {
         Error_Controller::Common("Contest id $id not found!",-404,true);
     }
+    // 没有权限
+    static function error_permission_denied():void {
+        Error_Controller::Common("Permission denied",-403,true);
+    }
 }
 ?>

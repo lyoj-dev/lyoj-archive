@@ -129,7 +129,7 @@
 			{            
 				if (typeof (dialog.loading) == "function") dialog.loading(true);
 
-				$.getJSON(path + pluginName.replace("-dialog", "") + ".json", function(json) {
+				$.getJSON("../extensions/editor.md/plugins/html-entities-dialog/" + pluginName.replace("-dialog", "") + ".json", function(json) {
 
 					if (typeof (dialog.loading) == "function") dialog.loading(false);
 

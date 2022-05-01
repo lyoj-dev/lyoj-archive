@@ -47,7 +47,9 @@ function run(array $param,string& $html,string& $body):void {
     InsertTags("a",array("href"=>GetUrl("passwd",null)),"Forget your password? Reset it!"));
     $script="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
     $script.="function setCookie(name,value,expire) {";
-    $script.="var exp=new Date(); exp.setTime(exp.getTime()+expire);";
+    $script.="var exp=new Date(); exp.setTime(exp.getTime()+expire*1000);";
+    // $script.="console.log(exp.getTime());";
+    // $script.="console.log(exp.getTime()+expire);";
     $script.="document.cookie=name+\"=\"+escape(value)+\";expires=\"+exp.toGMTString()+\";\";}";
     $script.="function login(){";
     $script.="var name=document.getElementById('name').value;";
@@ -64,10 +66,10 @@ function run(array $param,string& $html,string& $body):void {
     $script.="var res=strip_tags_pre(SendAjax('".GetAPIUrl("/login/password",null)."','POST',{email:name,passwd:hash}));";
     $script.="if (JSON.parse(res)['code']) {layer.msg(JSON.parse(res)['message']); return false;}";
     $script.="res=JSON.parse(res)['data'];";
-    $script.="setCookie(\"DedeUserID\",res[\"DedeUserID\"],".$config["cookie_time"].");";
-    $script.="setCookie(\"DedeUserID__ckMd5\",res[\"DedeUserID__ckMd5\"],".$config["cookie_time"].");";
-    $script.="setCookie(\"CSRF_TOKEN\",res[\"CSRF_TOKEN\"],".$config["cookie_time"].");";
-    $script.="setCookie(\"SESSDATA\",res[\"SESSDATA\"],".$config["cookie_time"].");";
+    $script.="setCookie(\"DedeUserID\",res[\"DedeUserID\"],".$config["web"]["cookie_time"].");";
+    $script.="setCookie(\"DedeUserID__ckMd5\",res[\"DedeUserID__ckMd5\"],".$config["web"]["cookie_time"].");";
+    $script.="setCookie(\"CSRF_TOKEN\",res[\"CSRF_TOKEN\"],".$config["web"]["cookie_time"].");";
+    $script.="setCookie(\"SESSDATA\",res[\"SESSDATA\"],".$config["web"]["cookie_time"].");";
     $script.="alert(\"Welcome back, \"+res[\"user\"][\"name\"]+\"!\");";
     $script.="window.location.href=\"".($param["return"]!=""?$param["return"]:$_COOKIE["history"])."\";";
     $script.="}";

@@ -3,7 +3,8 @@ CREATE TABLE `contest` (
   `title` longtext DEFAULT NULL,
   `starttime` int(20) DEFAULT NULL,
   `duration` int(20) DEFAULT NULL,
-  `type` int(11) DEFAULT NULL
+  `type` int(11) DEFAULT NULL,
+  `rated` bool DEFAULT 0
 ) DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `contest_ranking` (
   `id` int(255) DEFAULT NULL,
@@ -20,7 +21,8 @@ CREATE TABLE `crontab` (
   `id` int(255) DEFAULT NULL,
   `duration` int(20) DEFAULT NULL,
   `lasttime` int(20) DEFAULT NULL,
-  `command` longtext DEFAULT NULL
+  `command` longtext DEFAULT NULL,
+  `name` longtext DEFAULT NULL
 ) DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `judger` (
   `id` varchar(128) DEFAULT NULL,
@@ -64,7 +66,7 @@ CREATE TABLE `status` (
 CREATE TABLE `tags` (
   `tagname` longtext CHARACTER SET utf8 DEFAULT NULL,
   `id` int(255) DEFAULT NULL,
-  `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
+  `type` varchar(255) CHARACTER SET utf8 DEFAULT NULL
 ) DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `user` (
   `id` int(255) DEFAULT NULL,
@@ -72,9 +74,11 @@ CREATE TABLE `user` (
   `passwd` longtext CHARACTER SET utf8 DEFAULT NULL,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `permission` int(10) DEFAULT NULL,
-  `email` longtext COLLATE utf8_unicode_ci DEFAULT NULL,
-  `salt` longtext COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email` longtext CHARACTER SET utf8 DEFAULT NULL,
+  `salt` longtext CHARACTER SET utf8 DEFAULT NULL,
   `salttime` int(20) DEFAULT NULL,
   `verify` tinyint(1) DEFAULT NULL,
-  `verify_code` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL
+  `verify_code` varchar(200) CHARACTER SET utf8 DEFAULT NULL,
+  `rp` int(255) DEFAULT 0,
+  `rptime` int(20) DEFAULT 0
 ) DEFAULT CHARSET=utf8mb4;

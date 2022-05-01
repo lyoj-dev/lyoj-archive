@@ -1,16 +1,17 @@
 <?php
 function run(array $param,string &$html,string &$body):void {
-    $tmp=""; if (FindExist2("/pid",$_GET)) {
+    $tmp=""; if (array_key_exists("id",$param)) {
         info_run($param,$html,$body);
         return;
-    } if (!FindExist2("/key",$_GET)) $_GET["key"]="";
-    if (!FindExist2("/tag",$_GET)) $_GET["tag"]="";
-    if (!FindExist2("/diff",$_GET)) $_GET["diff"]="";
+    } if (!array_key_exists("key",$param)) $_GET["key"]="";
+    if (!array_key_exists("tag",$param)) $_GET["tag"]="";
+    if (!array_key_exists("diff",$param)) $_GET["diff"]="";
     $t=explode(",",$_GET["tag"]);array_splice($t,count($t)-1,1);
     $d=explode(",",$_GET["diff"]);array_splice($d,count($d)-1,1);
     $problem_controller=new Problem_Controller;
     $status_controller=new Status_Controller;
     $tags_controller=new Tags_Controller;
+    $login_controller=new Login_Controller;
     $page=$param["page"]; $config=GetConfig(); $num=0;
     $problem_list=$problem_controller->ListProblemByNumber(
         ($page-1)*$config["number_of_pages"]+1,
@@ -46,7 +47,6 @@ function run(array $param,string &$html,string &$body):void {
         "padding-left"=>"20px",
         "margin-bottom"=>"20px",
         "padding-bottom"=>"15px",
-        "box-shadow"=>"0 0.375rem 1.375rem rgb(175 194 201 / 50%)",
         "padding-right"=>"20px",
         "width"=>"calc(100% - 20px)"
     ))),$search_box); $style=InsertCssStyle(array(".problem-item"),array(
@@ -55,7 +55,6 @@ function run(array $param,string &$html,string &$body):void {
             "background-color"=>"white",
             "padding-left"=>"20px",
             "margin-bottom"=>"20px",
-            "box-shadow"=>"0 0.375rem 1.375rem rgb(175 194 201 / 50%)",
             "align-items"=>"center"
     )); for ($i=0;$i<count($config["difficulties"]);$i++) {
         $style.=InsertCssStyle(array(".problem-difficulties-$i"),array(
@@ -86,23 +85,30 @@ function run(array $param,string &$html,string &$body):void {
         "width"=>"fit-content",
         "display"=>"inline-block",
         "cursor"=>"pointer"
+    )); $style.=InsertCssStyle(array(".green"),array(
+        "color"=>"green"
+    )); $style.=InsertCssStyle(array(".grey"),array(
+        "color"=>"rgba(0,0,0,0.7)"
     )); $style.=InsertCssStyle(array(".unsubmitted"),array(
         "background-color"=>"rgb(210,210,210)"
     )); for ($i=0;$i<count($problem_list);$i++) {
-        $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"P".$problem_list[$i]["id"]);
+        $uid=$login_controller->CheckLogin();
+        if ($problem_list[$i]["accepted"]) $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%","cursor"=>"pointer")),"onclick"=>"location.href='".
+        GetUrl("status",array("uid"=>$uid,"pid"=>$problem_list[$i]["id"]))."'"),InsertTags("i",array("class"=>"check icon green"),null));
+        else $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%"))),InsertTags("i",array("class"=>"minus icon grey"),null));
+        $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"7%","cursor"=>"pointer")),
+        "onclick"=>"location.href='".GetUrl("problem",array("id"=>$problem_list[$i]["id"]))."'"),"P".$problem_list[$i]["id"]);
         $tmp.=InsertTags("p",array(
             "style"=>InsertInlineCssStyle(array("width"=>"40%","cursor"=>"pointer")),
-            "onclick"=>"window.open('".GetUrl("problem",array(
-                "pid"=>$problem_list[$i]["id"]
-            ))."')"
+            "onclick"=>"location.href='".GetUrl("problem",array("id"=>$problem_list[$i]["id"]))."'",
+            "class"=>"ellipsis"
         ),$problem_list[$i]["name"]); $tags_content="";
         $tags=$tags_controller->ListProblemTagsByPid($problem_list[$i]["id"]);
-        if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags"),$tags[$j]["tagname"]);
+        if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags","onclick"=>"searchTag('".$tags[$j]["tagname"]."')"),$tags[$j]["tagname"]);
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$tags_content);
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"15%","text-align"=>"center"))),
         InsertTags("div",array("class"=>"problem-difficulties-".$problem_list[$i]["difficult"],"style"=>InsertInlineCssStyle(array(
-            "margin"=>"auto"
-        ))),$config["difficulties"][$problem_list[$i]["difficult"]]["name"]));
+        "margin"=>"auto")),"onclick"=>"searchDiff('".$problem_list[$i]["difficult"]."')"),$config["difficulties"][$problem_list[$i]["difficult"]]["name"]));
         $accepted=count($status_controller->ListAcceptedByPid($problem_list[$i]["id"]));
         $whole=count($status_controller->ListWholeByPid($problem_list[$i]["id"]));
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>(10*$accepted/($whole?$whole:1))."%","height"=>"15px","background-color"=>"rgb(126,204,89)"))),"");
@@ -132,11 +138,14 @@ function run(array $param,string &$html,string &$body):void {
         "background-color"=>"rgb(27,116,221)",
         "color"=>"white",
         "border-color"=>"rgb(27,116,221)"
-    )); if ($page==1)
-    $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+    )); $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("problem",array("page"=>1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'",
+    "style"=>InsertInlineCssStyle(array("margin-right"=>"10px"))),InsertTags("p",null,"Top"));
+    if ($page==1) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
     else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("problem",array("page"=>$page-1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'"),InsertTags("p",null,"Previous"));
     if ($page==$pages_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
     else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("problem",array("page"=>$page+1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'"),InsertTags("p",null,"Next"));
+    $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("problem",array("page"=>$pages_num,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'",
+    "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
     $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
         "justify-content"=>"center"
     ))),$content);
@@ -144,6 +153,12 @@ function run(array $param,string &$html,string &$body):void {
     $script="var tag=new Array,diff=new Array;";
     for ($i=0;$i<count($t);$i++) $script.="tag.push('".$t[$i]."');";
     for ($i=0;$i<count($d);$i++) $script.="diff.push(".$d[$i].");";
+    $script.="function searchTag(name) {";
+    $script.="tag=new Array; diff=new Array;";
+    $script.="addTag(name); search();}";
+    $script.="function searchDiff(name) {";
+    $script.="tag=new Array; diff=new Array;";
+    $script.="addDiff(name); search();}";
     $script.="function addTag(name) {";
     $script.="if (!tag.includes(name)) {document.getElementById('tag-'+name).classList.remove('unsubmitted');tag.push(name);}";
     $script.="else {document.getElementById('tag-'+name).classList.add('unsubmitted');tag=tag.filter(function(item){return item!=name});}";
@@ -153,9 +168,9 @@ function run(array $param,string &$html,string &$body):void {
     $script.="else {document.getElementById('difficulties-'+id).classList.add('unsubmitted');diff=diff.filter(function(item){return item!=id});}";
     $script.="}";
     $script.="function search() {";
-    $script.="var url='".GetUrl("problem",array("page"=>1))."&key='+document.getElementById('key').value;";
-    $script.="url+='&tag='; for (i=0;i<tag.length;i++) url+=tag[i]+',';";
-    $script.="url+='&diff='; for (i=0;i<diff.length;i++) url+=diff[i]+',';";
+    $script.="var url='".GetUrl("problem",array("page"=>1))."&key='+encodeURIComponent(document.getElementById('key').value);";
+    $script.="url+='&tag='; for (i=0;i<tag.length;i++) url+=encodeURIComponent(tag[i]+',');";
+    $script.="url+='&diff='; for (i=0;i<diff.length;i++) url+=encodeURIComponent(diff[i]+',');";
     $script.="window.location.href=url;";
     $script.="}";
     $script.="$(\"#key\").keypress(function(event){";
@@ -169,8 +184,8 @@ function info_run(array $param,string &$html,string &$body):void {
     $config=GetConfig();
     $problem_controller=new Problem_Controller;    
     $login_controller=new Login_Controller;
-    $info=$problem_controller->ListProblemByPid($param["pid"]);
-    if ($info==null||count($info)==0) Error_Controller::Common("Known problem id ".$param["id"]);
+    $info=$problem_controller->ListProblemByPid($param["id"]);
+    if ($info==null||count($info)==0) Error_Controller::Common("Unknown problem id ".$param["id"]);
     foreach($info as $key => $value) if ($key!="cases") $info[$key]=str_replace("\\","\\\\",$value);
     $fp=fopen("../problem/".$info["id"]."/config.json","r");
     $conf=fread($fp,filesize("../problem/".$info["id"]."/config.json"));
@@ -311,6 +326,7 @@ function info_run(array $param,string &$html,string &$body):void {
     }
 
     if ($login_controller->CheckLogin()) {
+        $uid=$login_controller->CheckLogin();
         $tmp=""; for ($i=0;$i<count($config["lang"]);$i++) 
         if ($i!=$config["default_lang"]) $tmp.=InsertTags("option",array("value"=>$i),$config["lang"][$i]["name"]);
         else $tmp.=InsertTags("option",array("value"=>$i,"selected"=>"selected"),$config["lang"][$i]["name"]);
@@ -335,11 +351,11 @@ function info_run(array $param,string &$html,string &$body):void {
         ))),""); $tmp.=InsertTags("center",null,
         InsertTags("button",array("onclick"=>"submit()"),"Submit"));
         $script.="var codeEditor=null;";
-        $script.="window.onload=function(){codeEditor=monaco.editor.create(".
+        $script.="addLoadEvent(function(){codeEditor=monaco.editor.create(".
         "document.getElementById('code-container'), {language:'".$config["lang"][$config["default_lang"]]["mode"]."',roundedSelection:false,".
         "scrollBeyondLastLine:false,readOnly:false,theme:'vs-dark'});".
         "document.getElementsByClassName(\"overflow-guard\")[0].style.width='100%';".
-        "document.getElementsByClassName(\"monaco-editor\")[0].style.width='100%';};";
+        "document.getElementsByClassName(\"monaco-editor\")[0].style.width='100%';});";
         $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
             "padding-top"=>"20px",
             "margin-bottom"=>"20px"
@@ -347,11 +363,20 @@ function info_run(array $param,string &$html,string &$body):void {
             "padding-bottom"=>"60px",
             "padding-left"=>"20px",
             "padding-right"=>"20px"
-        ))),"Submit").InsertTags("div",array("id"=>"problem-submit","style"=>InsertInlineCssStyle(array(
+        ))),"Submit&nbsp;".InsertTags("button",array("onclick"=>"location.href='".
+        GetUrl("status",array("uid"=>$uid,"pid"=>$param["id"],"page"=>1))."'","style"=>
+        InsertInlineCssStyle(array("width"=>"100px","height"=>"30px",
+        "line-height"=>"20px",
+        "padding-left"=>"0px",
+        "padding-right"=>"0px",
+        "padding-top"=>"2px",
+        "position"=>"relative",
+        "top"=>"-2px"))),"My Submit"))
+        .InsertTags("div",array("id"=>"problem-submit","style"=>InsertInlineCssStyle(array(
             "width"=>"calc(100% - 40px)",
             "padding-left"=>"20px",
             "padding-right"=>"20px",
-            "padding-top"=>"20px",
+            "padding-top"=>"10px",
             "padding-bottom"=>"20px"
         ))),$tmp));
         $script.="var mode=["; for ($i=0;$i<count($config["lang"])-1;$i++) $script.="'".$config["lang"][$i]["mode"]."',";
@@ -360,7 +385,7 @@ function info_run(array $param,string &$html,string &$body):void {
         "monaco.editor.setModelLanguage(codeEditor.getModel(),mode[document.getElementById('language').value])};";
         $script.="function submit(){var lang=document.getElementById('language').value,code=codeEditor.getValue();".
 		"console.log(lang);console.log(code);var e=new RegExp(\"\\\\\\\\\",\"g\");code=code.replace(e,\"\\\\\\\\\");e=new RegExp(\"'\",\"g\");code=code.replace(e,\"\\\\'\");var res=SendAjax(\"".GetAPIUrl("/problem/submit")."\",'POST',{".
-        "code:code,lang:lang,pid:".$param["pid"]."});if (res==null) layui.msg('Submit Failed!'); else {".
+        "code:code,lang:lang,pid:".$param["id"]."});if (res==null) layui.msg('Submit Failed!'); else {".
         "res=JSON.parse(strip_tags(res));if (res[\"code\"]) {layer.msg(res[\"message\"]);return false;}".
         "location.href='".GetUrl("status",array("id"=>""))."'+res['data']['id'];}}";
     }

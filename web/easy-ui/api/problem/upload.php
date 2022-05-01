@@ -35,8 +35,10 @@
     } unlink($filePath);
     $files=scandir("../../../../problem/$id/");$bracket=array();
     for ($i=0;$i<count($files);$i++) {
-        $name=explode(".",$files[$i])[0];
-        $extension=explode(".",$files[$i])[1];
+        if ($files[$i]=="."||$files[$i]=="..") continue;
+        $tmp=explode(".",$files[$i]);
+        $extension=$tmp[count($tmp)-1];
+        $name=substr($files[$i],0,strlen($files[$i])-strlen($extension)-1);
         if (!array_key_exists($name,$bracket)) $bracket[$name]=array();
         $bracket[$name][]=$extension;
     } $json=array(
@@ -70,7 +72,7 @@
             $json["data"][]=$array;
         }
     } if (count($json["data"])) $min=intval(100/count($json["data"]));$max=count($json["data"])-(100-count($json["data"])*$min);
-    for ($i=0;$i<count($json["data"]);$i++) $json["data"][$i]["score"]=($i<=$max?$min:$min+1);
+    for ($i=0;$i<count($json["data"]);$i++) $json["data"][$i]["score"]=($i<$max?$min:$min+1);
     $fp=fopen("../../../../problem/$id/config.json","wb");fwrite($fp,json_encode($json));fclose($fp);
     echo "Upload Successfully! pid: $id";
 ?>

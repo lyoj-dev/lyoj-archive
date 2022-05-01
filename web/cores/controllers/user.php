@@ -112,10 +112,9 @@ class Login_Controller {
         if ($uuid) return -2; $pass=null;
         $user=self::$db->Query("SELECT id FROM user WHERE name='$name'");
         if (count($user)) return -3;
-        $user=self::$db->Query("SELECT id FROM user"); $uid=count($user)+1;
+        $user=self::$db->Query("SELECT id FROM user ORDER BY id DESC"); $uid=(count($user)==0?0:$user[0]["id"])+1;
         $pass=openssl_private_decrypt(base64_decode($passwd),$pass,$private_key)?$pass:null;
         $code=bin2hex(openssl_random_pseudo_bytes(50));
-        self::$db->Execute("INSERT INTO user (id,name,passwd,email,permission,verify,verify_code) VALUES ($uid,'$name','$pass','$email',1,0,'$code')");
         $config=GetConfig(); 
         $fp=fopen($config["email_content"],"r");
         $content=fread($fp,filesize($config["email_content"]));
@@ -124,6 +123,7 @@ class Login_Controller {
         $content=str_replace("\$\$email$$",$email,$content);
         $content=str_replace("\$\$link$$",$link,$content);
         Email_Controller::SendEmail(array($email),"Email verify in ".$config["web"]["name"],$content);
+        self::$db->Execute("INSERT INTO user (id,name,passwd,email,permission,verify,verify_code) VALUES ($uid,'$name','$pass','$email',1,0,'$code')");
         return $uid;
     }
 
@@ -138,6 +138,10 @@ class Login_Controller {
         if (count($array)==0) Error_Controller::Common("User ID $id is not exist!");
         if ($array[0]["verify_code"]!=$code) Error_Controller::Common("User and code is not matched!");
         self::$db->Execute("UPDATE user SET verify=true WHERE id=$id"); 
+        mkdir("./data/user/$id",0777);
+        copy("./data/user/default/header.jpg","./data/user/$id/header.jpg");
+        copy("./data/user/default/background.jpg","./data/user/$id/background.jpg");
+        copy("./data/user/default/intro.md","./data/user/$id/intro.md");
     }
 }
 
@@ -181,6 +185,45 @@ class User_Controller {
         $array=$array[0];  unset($array["salt"]);
         unset($array["salttime"]); unset($array["passwd"]);
         return $array;
+    }
+
+    /**
+     * 上传用户头像 UploadHeader
+     * @param int $uid 用户id
+     * @param string $data 用户头像base64
+     * @return void
+     */
+    static function UploadHeader(int $uid,string $data):void {
+        $file_content=base64_decode($data);
+        $fp=fopen("../../data/user/$uid/header.jpg","w");
+        fwrite($fp,$file_content); 
+        fclose($fp);
+    }
+
+    /**
+     * 上传用户空间头图 UploadBackground
+     * @param int $uid 用户id
+     * @param string $data 空间头图base64
+     * @return void
+     */
+    static function UploadBackground(int $uid,string $data):void {
+        $file_content=base64_decode($data);
+        $fp=fopen("../../data/user/$uid/background.jpg","w");
+        fwrite($fp,$file_content); 
+        fclose($fp);
+    }
+
+    /**
+     * 更新用户信息 UpdateInfo
+     * @param int $uid 用户id
+     * @param string $intro 用户个人介绍
+     * @return array
+     */
+    static function UpdateInfo(int $uid,string $intro):array {
+        $fp=fopen("../../data/user/$uid/intro.md","w");
+        fwrite($fp,$intro);
+        fclose($fp);
+        return array("uid"=>$uid,"intro"=>$intro);
     }
 }
 ?>

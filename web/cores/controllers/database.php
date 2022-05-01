@@ -15,7 +15,8 @@ class Database_Controller {
             $config["mysql"]["server"],
             $config["mysql"]["user"],
             $config["mysql"]["passwd"],
-            $config["mysql"]["database"]
+            $config["mysql"]["database"],
+            $config["mysql"]["port"]
         ); if (!self::$conn) {
             echo Error_Controller::Common("Failed to connect database",-500,self::$api_mode);
             exit;

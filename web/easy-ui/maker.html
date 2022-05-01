@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <title>随机数据生成器 - LYOJ | LittleYang OnlineJudg</title>
+    <script src="./jQuery.js"></script>
+</html>
+<body>
+    <script>
+        var $_GET=(function(){
+            var url=window.document.location.href.toString();
+            var u=url.split("?");
+            if(typeof(u[1])=="string"){
+                u=u[1].split("&");
+                var get={};
+                for(var i in u){
+                    var j=u[i].split("=");
+                    get[j[0]]=j[1];
+                } return get;
+            } else return {};
+        })();
+        if ($_GET["pid"]==undefined) {
+            alert("Expected parameter 'pid', but not found!");
+            window.history.back(-1);
+        }
+    </script>
+    <style>
+        body {
+            width: 60%;
+            margin: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 500px;
+            border: 0px;
+            outline: none;
+            font-size: 20px;
+            border: 2px solid grey;
+            resize: none; 
+            font-family: consolas;
+        }
+        input {
+            width: 100px;
+        }
+    </style>
+    <center><h2>数据生成</h2></center>
+    <p>数据编号范围: [l=<input id="0-l"/>,r=<input id="0-r"/>]</p>
+    <p>当前代码(可直接修改): </p> 
+    <textarea id="code"></textarea>
+    <br/>
+    <div>
+        <p>预设模板: </p>
+        <div><p>1. 输出一个换行符: <button onclick="insert1()">添加</button></p></div>
+        <div><p>2. 输出一个空格: <button onclick="insert2()">添加</button></p></div>
+        <div><p>3. 给出一个范围为 [l=<input id="3-l"/>, r=<input id="3-r"/>] 的整数, 
+            并将其赋值给 name=<input id="3-name"/> 的变量: <button onclick="insert3()">添加</button></p></div>
+        <div><p>4. 给出一个范围为 [l=<input id="4-l"/>, r=<input id="4-r"/>], 小数点后保留 k=<input id="4-k"/> 位的浮点数, 
+            并将其赋值给 name=<input id="4-name"/> 的变量: <button onclick="insert4()">添加</button></p></div>
+        <div><p>5. 新建一个范围为 [l=<input id="5-l"/>, r=<input id="5-r"/>], 步长 k=<input id="5-k"/> 的循环,
+            并将其赋值给 name=<input id="5-name"/> 的变量: <button onclick="insert5()">添加</button></p></div>
+        <div><p>6. 结束当前循环: <button onclick="insert6()">添加</button></p></div>
+        <div><p>7. 输出 name=<input id="7-name"/> 的变量当前的值: <button onclick="insert7()">添加</button></p></div>
+        <div><p>8. 给出一棵大小为 n=<input id="8-n"/>, 不含有边权的树: <button onclick="insert8()">添加</button></p></div>
+        <div><p>9. 给出一棵大小为 n=<input id="9-n"/>, 含有边权范围为 [l=<input id="9-l"/>, r=<input id="9-r"/>] 的树: <button onclick="insert9()">添加</button></p></div>
+        <div><p>10. 将 name=<input id="10-name"/> 的变量的值加上 a=<input id="10-a"/>: <button onclick="insert10()">添加</button></p></div>
+        <div><p>11. 将 name=<input id="11-name"/> 的变量的值乘上 a=<input id="11-a"/>: <button onclick="insert11()">添加</button></p></div>
+    </div>
+    <script>
+        var v=new Array;
+        function insert1() {
+            document.getElementById("code").value+="enter\n";
+        } function insert2() {
+            document.getElementById("code").value+="space\n";
+        } function insert3() {
+            var l=document.getElementById("3-l").value,r=document.getElementById("3-r").value;
+            var name=document.getElementById("3-name").value;
+            if (l=="") {alert("Parameter 'l' isn't allowed to be empty!"); return false;}
+            if (r=="") {alert("Parameter 'r' isn't allowed to be empty!"); return false;}
+            document.getElementById("code").value+="randint "+l+" "+r+" "+name+"\n";
+            document.getElementById("3-l").value="";document.getElementById("3-r").value="";
+            document.getElementById("3-name").value="";
+        } function insert4() {
+            var l=document.getElementById("4-l").value,r=document.getElementById("4-r").value;
+            var k=document.getElementById("4-k").value,name=document.getElementById("4-name").value;
+            if (l=="") {alert("Parameter 'l' isn't allowed to be empty!"); return false;}
+            if (r=="") {alert("Parameter 'r' isn't allowed to be empty!"); return false;}
+            if (k=="") {alert("Parameter 'k' isn't allowed to be empty!"); return false;}
+            document.getElementById("code").value+="randfloat "+l+" "+r+" "+k+" "+name+"\n";
+            document.getElementById("4-l").value="";document.getElementById("4-r").value="";
+            document.getElementById("4-k").value="";document.getElementById("4-name").value="";
+        } function insert5() {
+            var l=document.getElementById("5-l").value,r=document.getElementById("5-r").value;
+            var k=document.getElementById("5-k").value,name=document.getElementById("5-name").value;
+            if (l=="") {alert("Parameter 'l' isn't allowed to be empty!"); return false;}
+            if (r=="") {alert("Parameter 'r' isn't allowed to be empty!"); return false;}
+            if (k=="") {alert("Parameter 'k' isn't allowed to be empty!"); return false;}
+            document.getElementById("code").value+="for "+l+" "+r+" "+k+" "+name+"\n";
+            document.getElementById("5-l").value="";document.getElementById("5-r").value="";
+            document.getElementById("5-k").value="";document.getElementById("5-name").value="";
+        } function insert6() {
+            document.getElementById("code").value+="endfor\n";
+        } function insert7() {
+            var name=document.getElementById("7-name").value;
+            document.getElementById("code").value+="output "+name+"\n";
+            document.getElementById("7-name").value="";
+        } function insert8() {
+            var n=document.getElementById("8-n").value;
+            document.getElementById("code").value+="tree "+n+" 0\n";
+            document.getElementById("8-n").value="";
+        } function insert9() {
+            var n=document.getElementById("9-n").value;
+            var l=document.getElementById("9-l").value;
+            var r=document.getElementById("9-r").value;
+            document.getElementById("code").value+="tree "+n+" 1 "+l+" "+r+"\n";
+            document.getElementById("9-n").value="";document.getElementById("9-l").value="";
+            document.getElementById("9-r").value="";
+        } function insert10() {
+            var name=document.getElementById("10-name").value;
+            var a=document.getElementById("10-a").value;
+            document.getElementById("code").value+="plus "+name+" "+a+"\n";
+            document.getElementById("10-name").value="";document.getElementById("10-a").value="";
+        } function insert11() {
+            var name=document.getElementById("11-name").value;
+            var a=document.getElementById("11-a").value;
+            document.getElementById("code").value+="mul "+name+" "+a+"\n";
+            document.getElementById("11-name").value="";document.getElementById("11-a").value="";
+        }
+    </script> 
+</body>
