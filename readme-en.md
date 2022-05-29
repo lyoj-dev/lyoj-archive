@@ -13,7 +13,7 @@
 3. Use PHP as frontend language. It makes the feature of website stronger.
 4. The Markdown Visual Editor, which was modified from the repository named Editor.md. Correct some of the syntax parsing errors occurred in the original repository. Adjust Latex parsing format to make it easier to migrate the problem from other online judge platform. 
 5. Support to build it multi-platformly and multi-architecturely, even an old mobile phone also can build it successfully.
-6. Support the source format of Special Judge in application LemonLime. We may support Tastlib.h in the future.
+6. Support the source format of Special Judge in application LemonLime. We provide support for Tastlib.h.
 7. The modular writing of PHP makes it easier to extend it.
 8. Support File Input/Output or Standard Input/Output.
 9. Waiting to update......

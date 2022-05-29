@@ -60,7 +60,7 @@
     };
     
     editormd.title        = editormd.$name = "Editor.md";
-    editormd.version      = "1.5.0";
+    editormd.version      = "1.6.0";
     editormd.homePage     = "https://pandao.github.io/editor.md/";
     editormd.classPrefix  = "editormd-";
     
@@ -1316,7 +1316,7 @@
                 "<h1><i class=\"editormd-logo editormd-logo-lg editormd-logo-color\"></i> " + editormd.title + "<small>v" + editormd.version + "</small></h1>",
                 "<p>" + this.lang.description + "</p>",
                 "<p style=\"margin: 10px 0 20px 0;\"><a href=\"" + editormd.homePage + "\" target=\"_blank\">" + editormd.homePage + " <i class=\"fa fa-external-link\"></i></a></p>",
-                "<p style=\"font-size: 0.85em;\">Copyright &copy; 2015 <a href=\"https://github.com/pandao\" target=\"_blank\" class=\"hover-link\">Pandao</a>, The <a href=\"https://github.com/pandao/editor.md/blob/master/LICENSE\" target=\"_blank\" class=\"hover-link\">MIT</a> License.</p>",
+                "<p style=\"font-size: 0.85em;\">Copyright &copy; 2015 <a href=\"https://github.com/pandao\" target=\"_blank\" class=\"hover-link\">Pandao</a>. Modified by <a href=\"https://github.com/LittleYang0531\" target=\"_blank\" class=\"hover-link\">LittleYang0531</a>. <a href=\"https://github.com/pandao/editor.md/blob/master/LICENSE\" target=\"_blank\" class=\"hover-link\">MIT</a></p>",
                 "</div>",
                 "<a href=\"javascript:;\" class=\"fa fa-close " + classPrefix + "dialog-close\"></a>",
                 "</div>"
@@ -3617,10 +3617,12 @@
             else 
             { 
                 text = (isTeXLine) ? text.replace(/\$/g, "") : text;
+                var x=new RegExp("<em>","g"); text=text.replace(x,"_");
+                x=new RegExp("</em>","g"); text=text.replace(x,"_");
             }
             
             var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
-            
+
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
                            : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
         };
@@ -3636,6 +3638,8 @@
             } 
             else if ( lang === "math" || lang === "latex" || lang === "katex")
             {
+                var x=new RegExp("<em>","g"); code=code.replace(x,"_");
+                x=new RegExp("</em>","g"); code=code.replace(x,"_");
                 return "<p class=\"" + editormd.classNames.tex + "\">" + code + "</p>";
             } 
             else 
@@ -3946,12 +3950,12 @@
         var div           = $("#" + id);
         var settings      = div.settings = $.extend(true, defaults, options || {});
         var saveTo        = div.find("textarea");
-        
+
         if (saveTo.length < 1)
         {
             div.append("<textarea></textarea>");
             saveTo        = div.find("textarea");
-        }        
+        }
         
         var markdownDoc   = (settings.markdown === "") ? saveTo.val() : settings.markdown; 
         var markdownToC   = [];
@@ -3995,7 +3999,7 @@
         }
         
         div.addClass("markdown-body " + this.classPrefix + "html-preview").append(markdownParsed);
-        
+
         var tocContainer = (settings.tocContainer !== "") ? $(settings.tocContainer) : div;
         
         if (settings.tocContainer !== "")
@@ -4037,10 +4041,18 @@
 
         if (settings.tex)
         {
+            function HTMLDecode(text) { 
+                var temp = document.createElement("div"); 
+                temp.innerHTML = text; 
+                var output = temp.innerText || temp.textContent; 
+                temp = null; 
+                return output; 
+            } 
+            
             var katexHandle = function() {
                 div.find("." + editormd.classNames.tex).each(function(){
-                    var tex  = $(this);                    
-                    katex.render(tex.html().replace(/&lt;/g, "<").replace(/&gt;/g, ">"), tex[0]);                    
+                    var tex  = $(this);
+                    katex.render(HTMLDecode(tex.html()), tex[0]);                    
                     tex.find(".katex").css("font-size", "1.6em");
                 });
             };

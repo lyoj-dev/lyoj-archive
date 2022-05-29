@@ -10,20 +10,53 @@ class Contest_Controller {
     }
 
     /**
+     * 判断比赛是否存在 JudgeContestExist
+     * @param int $id 比赛id
+     * @return void
+     */
+    static function JudgeContestExist(int $id):void {
+        $c=self::$db->Query("SELECT id FROM contest WHERE id=$id");
+        if (!count($c)) {
+            $url=$_SERVER['REQUEST_URI'];
+            $path=explode("/",$url);
+            $api_mode=$path[1]=="api";
+            if ($api_mode) API_Controller::error_contest_not_found($id);
+            else Error_Controller::Common("Contest id $id not found");
+        }
+    }
+
+    /**
      * 获取所有比赛信息 GetContest
      * @param float $l=1 左区间
      * @param float $r=1e9 右区间
      * @param bool $api_mode=false 是否开启api模式
+     * @param string $sort="id" 排序方式
      * @return array|null
      */
-    function GetContest(float $l=1,float $r=1e9,bool $api_mode=false):array|null {
-        $array=self::$db->Query("SELECT * FROM contest WHERE id>=$l AND id<=$r ORDER BY id");
-        if ($api_mode) return $array;
-        for ($i=0;$i<count($array);$i++) {
-            $tmp=self::$db->Query("SELECT id FROM problem WHERE contest=".$array[$i]["id"]);
-            $arr=array(); for ($j=0;$j<count($tmp);$j++) $arr[]=$tmp[$j]["id"];
-            $dat=array("problem"=>$arr); $array[$i]=array_merge($array[$i],$dat);
-        } return $array;
+    function GetContest(float $l=1,float $r=1e9,bool $api_mode=false,string $sort="id"):array|null {
+        $array=self::$db->Query("SELECT * FROM contest ORDER BY $sort");
+        $uid=self::$login_controller->CheckLogin(); $admin=0; $res=array();
+        if ($uid) $admin=self::$user_controller->GetWholeUserInfo($uid)["permission"]>1;
+        for ($i=$l-1;$i<min(count($array),$r);$i++) {
+            $fp=fopen(($api_mode?"../../":"")."../contest/".$array[$i]["id"].".md","r");
+            $md=fread($fp,filesize(($api_mode?"../../":"")."../contest/".$array[$i]["id"].".md"));
+            fclose($fp); $tmp=self::$db->Query("SELECT pid FROM contest_problem WHERE id=".$array[$i]["id"]);
+            $arr=array(); for ($j=0;$j<count($tmp);$j++) $arr[]=$tmp[$j]["pid"];
+            $dat=array("problem"=>$arr);  $array[$i]["intro"]=$md;
+            $tmp=self::$db->Query("SELECT * FROM tags WHERE type='contest' AND id=".$array[$i]["id"]);
+            $arr=array(); for ($j=0;$j<count($tmp);$j++) {
+                $name=$tmp[$j]["tagname"]; 
+                if ($name=="OI") continue;
+                if ($name=="IOI") continue;
+                if ($name=="ACM") continue;
+                if ($name=="Rated") continue;
+                if ($name=="Unrated") continue;
+                $arr[]=$name;
+            } $dat=array_merge(array("tags"=>$arr),$dat);
+            $ok=$array[$i]["starttime"]+$array[$i]["duration"]<time()||$admin;
+            if (!$api_mode||$ok) $array[$i]=array_merge($array[$i],$dat);
+            $res[]=$array[$i]; 
+        } return $res;
     }
 
     /**
@@ -41,6 +74,7 @@ class Contest_Controller {
      * @return bool
      */
     function JudgeSignup(int $id):bool {
+        Contest_Controller::JudgeContestExist($id);
         $uid=self::$login_controller->CheckLogin();
         if (!$uid) return false;
         $array=self::$db->Query("SELECT * FROM contest_signup WHERE uid=$uid AND id=$id");
@@ -62,6 +96,7 @@ class Contest_Controller {
      * @return int
      */
     function GetContestSignupNumber(int $id):int {
+        Contest_Controller::JudgeContestExist($id);
         $num=self::$db->Query("SELECT * FROM contest_signup WHERE id=$id");
         return count($num);
     }
@@ -72,6 +107,7 @@ class Contest_Controller {
      * @return array|null
      */
     function GetContestSignup(int $id):array|null {
+        Contest_Controller::JudgeContestExist($id);
         $array=self::$db->Query("SELECT uid FROM contest_signup WHERE id=$id");
         return $array;
     }
@@ -82,6 +118,7 @@ class Contest_Controller {
      * @return array|null
      */
     function SignupContest(int $id):void {
+        Contest_Controller::JudgeContestExist($id);
         $uid=self::$login_controller->CheckLogin(); 
         $array=self::$db->Query("SELECT * FROM contest_signup WHERE id=$id AND uid=$uid");
         if (count($array)) return;
@@ -94,6 +131,7 @@ class Contest_Controller {
      * @return array|null
      */
     function GetRanking(int $id):array|null {
+        Contest_Controller::JudgeContestExist($id);
         $result=self::$db->Query("SELECT * FROM contest_ranking WHERE id=$id ORDER BY score DESC,time");
         for ($i=0;$i<count($result);$i++) {
             $user=self::$user_controller->GetWholeUserInfo($result[$i]["uid"]);
@@ -112,6 +150,7 @@ class Contest_Controller {
      * @return array|null
      */
     function GetContestSubmit(int $id,float $l=1,float $r=1e18,int& $sum):array|null {
+        Contest_Controller::JudgeContestExist($id);
         $array=self::$db->Query("SELECT * FROM contest WHERE id=$id");
         if ($array==null||count($array)==0) return null;
         $sql="SELECT * FROM status WHERE contest=$id AND time>=".$array[0]["starttime"]
@@ -120,6 +159,100 @@ class Contest_Controller {
         if ($array[0]["type"]==0&&$endtime>=time()) {
             for ($i=0;$i<count($res);$i++) $res[$i]["status"]="Submitted";
         } $sum=count($res); return array_slice($res,$l-1,$r-$l+1);
+    }
+
+    /**
+     * 删除比赛 DeleteContest
+     * @param int $id 比赛id
+     * @return void
+     */
+    static function DeleteContest(int $id):void {
+        Contest_Controller::JudgeContestExist($id);
+        self::$db->Execute("DELETE FROM contest WHERE id=$id");
+        self::$db->Execute("DELETE FROM contest_problem WHERE id=$id");
+        self::$db->execute("DELETE FROM contest_signup WHERE id=$id");
+        self::$db->Execute("DELETE FROM contest_ranking WHERE id=$id");
+        self::$db->Execute("DELETE FROM tags WHERE id=$id AND type='contest'");
+        unlink("../../../contest/$id.md");
+    }
+
+    /**
+     * 新建比赛 CreateContest
+     * @param string $title 题目名称
+     * @param int $starttime 开始时间
+     * @param int $duration 持续时间
+     * @param string $intro 比赛介绍
+     * @param string $problem 比赛试题
+     * @param int $type 比赛类型
+     * @param bool $rated 是否rated
+     * @param string $tag 比赛tag
+     * @return int
+     */
+    static function CreateContest(string $title,int $starttime,int $duration,   
+        string $intro,string $problem,int $type,int $rated,string $tag):int {
+        $id=self::$db->Query("SELECT id FROM contest ORDER BY id DESC LIMIT 1")[0]["id"]+1;
+        self::$db->Execute("INSERT INTO contest (id,title,starttime,duration,type,rated)".
+            "VALUES ($id,'$title',$starttime,$duration,$type,$rated);");
+        $fp=fopen("../../../contest/$id.md","w");
+        fwrite($fp,$intro); fclose($fp);
+        $problem=explode(",",$problem);
+        for ($i=0;$i<count($problem);$i++) {
+            $pid=trim($problem[$i]);
+            if ($pid=="") continue;
+            self::$db->Execute("INSERT INTO contest_problem (id,pid) VALUES ($id,$pid)");
+        } $tag=explode(",",$tag);
+        if ($type==0) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('OI',$id,'contest')");
+        if ($type==1) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('IOI',$id,'contest')");
+        if ($type==2) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('ACM',$id,'contest')");
+        if ($rated==0) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('Unrated',$id,'contest')");
+        if ($rated==1) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('Rated',$id,'contest')");
+        for ($i=0;$i<count($problem);$i++) {
+            $t=trim($tag[$i]);
+            if ($t=="") continue;
+            self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('$t',$id,'contest')");
+        } return $id;
+    }
+
+    /**
+     * 修改比赛 UpdateContest
+     * @param int $id 比赛id
+     * @param string $title 题目名称
+     * @param int $starttime 开始时间
+     * @param int $duration 持续时间
+     * @param string $intro 比赛介绍
+     * @param string $problem 比赛试题
+     * @param int $type 比赛类型
+     * @param bool $rated 是否rated
+     * @param string $tag 比赛tag
+     * @return void
+     */
+    static function UpdateContest(int $id,string $title,int $starttime,int $duration,   
+        string $intro,string $problem,int $type,int $rated,string $tag):void {
+        Contest_Controller::JudgeContestExist($id);
+        self::$db->Execute("UPDATE contest SET title='$title' WHERE id=$id");
+        self::$db->Execute("UPDATE contest SET starttime=$starttime WHERE id=$id");
+        self::$db->Execute("UPDATE contest SET duration=$duration WHERE id=$id");
+        self::$db->Execute("UPDATE contest SET type=$type WHERE id=$id");
+        self::$db->Execute("UPDATE contest SET rated=$rated WHERE id=$id");
+        self::$db->Execute("DELETE FROM contest_problem WHERE id=$id");
+        self::$db->Execute("DELETE FROM tags WHERE id=$id AND type='contest'");
+        $problem=explode(",",$problem);
+        for ($i=0;$i<count($problem);$i++) {
+            $pid=trim($problem[$i]);
+            if ($pid=="") continue;
+            self::$db->Execute("INSERT INTO contest_problem (id,pid) VALUES ($id,$pid)");
+        } $tag=explode(",",$tag);
+        if ($type==0) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('OI',$id,'contest')");
+        if ($type==1) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('IOI',$id,'contest')");
+        if ($type==2) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('ACM',$id,'contest')");
+        if ($rated==0) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('Unrated',$id,'contest')");
+        if ($rated==1) self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('Rated',$id,'contest')");
+        for ($i=0;$i<count($tag);$i++) {
+            $t=trim($tag[$i]);
+            if ($t=="") continue;
+            self::$db->Execute("INSERT INTO tags (tagname,id,type) VALUES ('$t',$id,'contest')");
+        } $fp=fopen("../../../contest/$id.md","w");
+        fwrite($fp,$intro); fclose($fp);
     }
 }
 ?>

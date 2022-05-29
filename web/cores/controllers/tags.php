@@ -11,8 +11,11 @@ class Tags_Controller {
      * @return array|null
      */
     static function ListProblemTagsByPid(int $pid):array|null {
+        Problem_Controller::JudgeProblemExist($pid);
         $array=self::$db->Query("SELECT * FROM tags WHERE id=$pid AND type='problem'");
-        return $array;
+        $res=array(); for ($i=0;$i<count($array);$i++) $res[]=$array[$i]["tagname"];
+        $res=array_unique($res); $res=array_values($res); sort($res);
+        return $res;
     }
 
     /**
@@ -23,6 +26,7 @@ class Tags_Controller {
         $array=self::$db->Query("SELECT tagname FROM tags WHERE type='problem'");
         $res=array(); for ($i=0;$i<count($array);$i++) $res[]=$array[$i]["tagname"];
         $res=array_unique($res); $res=array_values($res);
+        sort($res);
         return $res; 
     }
 
@@ -32,6 +36,7 @@ class Tags_Controller {
      * @return array|null
      */
     function ListContestTagsById(int $id):array|null {
+        Contest_Controller::JudgeContestExist($id);
         $array=self::$db->Query("SELECT tagname FROM tags WHERE type='contest' AND id=$id");
         return $array;
     }

@@ -152,6 +152,22 @@ class User_Controller {
     }
 
     /**
+     * 判断用户是否存在 JudgeUserExist
+     * @param int $id 用户id
+     * @return void
+     */
+    static function JudgeUserExist(int $id):void {
+        $p=self::$db->Query("SELECT id FROM user WHERE id=$id");
+        if (!count($p)) {
+            $url=$_SERVER['REQUEST_URI'];
+            $path=explode("/",$url);
+            $api_mode=$path[1]=="api";
+            if ($api_mode) API_Controller::error_user_not_found($id);
+            else Error_Controller::Common("User id $id not found");
+        }
+    }
+
+    /**
      * 获取用户邮箱对应id GetEmailId
      * @param string $email
      * @return int
@@ -168,6 +184,7 @@ class User_Controller {
      * @return array|null
      */
     static function OutputAPIInfo(int $uid):array|null {
+        User_Controller::JudgeUserExist($uid);
         $array=self::$db->Query("SELECT * FROM user WHERE id=$uid");
         if ($array==null) return null;
         return array("uid"=>$array[0]["id"],"name"=>$array[0]["name"],
@@ -180,9 +197,10 @@ class User_Controller {
      * @return array|null
      */
     static function GetWholeUserInfo(int $uid):array|null {
+        User_Controller::JudgeUserExist($uid);
         $array=self::$db->Query("SELECT * FROM user WHERE id=$uid");
         if ($array==null) return null;
-        $array=$array[0];  unset($array["salt"]);
+        $array=$array[0];  unset($array["salt"]); unset($array["verify_code"]);
         unset($array["salttime"]); unset($array["passwd"]);
         return $array;
     }
@@ -194,6 +212,7 @@ class User_Controller {
      * @return void
      */
     static function UploadHeader(int $uid,string $data):void {
+        User_Controller::JudgeUserExist($uid);
         $file_content=base64_decode($data);
         $fp=fopen("../../data/user/$uid/header.jpg","w");
         fwrite($fp,$file_content); 
@@ -207,6 +226,7 @@ class User_Controller {
      * @return void
      */
     static function UploadBackground(int $uid,string $data):void {
+        User_Controller::JudgeUserExist($uid);
         $file_content=base64_decode($data);
         $fp=fopen("../../data/user/$uid/background.jpg","w");
         fwrite($fp,$file_content); 
@@ -220,6 +240,7 @@ class User_Controller {
      * @return array
      */
     static function UpdateInfo(int $uid,string $intro):array {
+        User_Controller::JudgeUserExist($uid);
         $fp=fopen("../../data/user/$uid/intro.md","w");
         fwrite($fp,$intro);
         fclose($fp);

@@ -104,7 +104,7 @@ function run(array $param,string &$html,string &$body):void {
             "class"=>"ellipsis"
         ),$problem_list[$i]["name"]); $tags_content="";
         $tags=$tags_controller->ListProblemTagsByPid($problem_list[$i]["id"]);
-        if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags","onclick"=>"searchTag('".$tags[$j]["tagname"]."')"),$tags[$j]["tagname"]);
+        if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags","onclick"=>"searchTag('".$tags[$j]."')"),$tags[$j]);
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$tags_content);
         $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"15%","text-align"=>"center"))),
         InsertTags("div",array("class"=>"problem-difficulties-".$problem_list[$i]["difficult"],"style"=>InsertInlineCssStyle(array(
@@ -180,25 +180,38 @@ function run(array $param,string &$html,string &$body):void {
     $body.=InsertTags("script",null,$script);
 }
 
+function format_size(int $size):string {
+    if ($size<=2048) return $size."B";
+    $size=$size/1024; if ($size<100) return round($size,2)."KB";
+    if ($size<1000) return round($size,1)."KB";
+    if ($size<=2048) return round($size,0)."KB";
+    $size=$size/1024; if ($size<100) return round($size,2)."MB";
+    if ($size<1000) return round($size,1)."MB";
+    if ($size<=2048) return round($size,0)."MB";
+    $size=$size/1024; return round($size,0)."GB";
+}
+
 function info_run(array $param,string &$html,string &$body):void {
     $config=GetConfig();
     $problem_controller=new Problem_Controller;    
     $login_controller=new Login_Controller;
-    $info=$problem_controller->ListProblemByPid($param["id"]);
-    if ($info==null||count($info)==0) Error_Controller::Common("Unknown problem id ".$param["id"]);
-    foreach($info as $key => $value) if ($key!="cases") $info[$key]=str_replace("\\","\\\\",$value);
+    $status_controller=new Status_Controller;
+    $cid=0; if (array_key_exists("contest",$param)) $cid=$param["contest"];
+    $info=$problem_controller->ListProblemByPid($param["id"],false,$cid);
     $fp=fopen("../problem/".$info["id"]."/config.json","r");
     $conf=fread($fp,filesize("../problem/".$info["id"]."/config.json"));
     $conf=JSON_decode($conf,true);
     $min_t=1e18;$max_t=-1e18;$min_m=1e18;$max_m=-1e18;
-    for ($i=0;$i<count($conf["data"]);$i++) {
-        $min_t=min($min_t,$conf["data"][$i]["time"]);
-        $max_t=max($max_t,$conf["data"][$i]["time"]);
-        $min_m=min($min_m,$conf["data"][$i]["memory"]);
-        $max_m=max($max_m,$conf["data"][$i]["memory"]);
-    } $info_res="Input: ".$conf["input"]." | Output: ".$conf["output"]." | ";
-    $info_res.="Time: ".(($min_t==$max_t)?$min_t."ms":$min_t."ms~".$max_t."ms");$info_res.=" | ";
-    $info_res.="Memory: ".(($min_m==$max_m)?($min_m/1024)."mb":($min_m/1024)."mb~".($max_m/1024)."mb");
+    $info_res="Input: ".$conf["input"]." | Output: ".$conf["output"]." | ";
+    if (count($conf["data"])!=0) {
+        for ($i=0;$i<count($conf["data"]);$i++) {
+            $min_t=min($min_t,$conf["data"][$i]["time"]);
+            $max_t=max($max_t,$conf["data"][$i]["time"]);
+            $min_m=min($min_m,$conf["data"][$i]["memory"]);
+            $max_m=max($max_m,$conf["data"][$i]["memory"]);
+        } $info_res.="Time: ".(($min_t==$max_t)?$min_t."ms":$min_t."ms~".$max_t."ms");$info_res.=" | ";
+        $info_res.="Memory: ".(($min_m==$max_m)?($min_m/1024)."mb":($min_m/1024)."mb~".($max_m/1024)."mb");
+    } else $info_res.="Time: No Test Data | Memory: No Test Data";
     $title=InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
         "padding-left"=>"20px",
         "padding-right"=>"20px",
@@ -285,31 +298,33 @@ function info_run(array $param,string &$html,string &$body):void {
     ));
     $info["cases"]=preg_replace('/[[:cntrl:]]/','',$info["cases"]);
     $sample=JSON_decode($info["cases"],true); $res="";
-    for ($i=0;$i<count($sample);$i++) {
-        $sample[$i]["input"]=str_replace("\\n","<br/>",$sample[$i]["input"]);
-        $sample[$i]["output"]=str_replace("\\n","<br/>",$sample[$i]["output"]);
-        $tmp=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"49%","margin-right"=>"2%"))),
-        InsertTags("p",null,"Input #".($i+1).":").InsertTags("pre",array("class"=>"problem-cases","id"=>"problem-cases-input".($i+1)),$sample[$i]["input"]));
-        $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"49%"))),
-        InsertTags("p",null,"Output #".($i+1).":").InsertTags("pre",array("class"=>"problem-cases","id"=>"problem-cases-output".($i+1)),$sample[$i]["output"]));
-        $res.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
+    if (count($sample)!=0) {
+        for ($i=0;$i<count($sample);$i++) {
+            $sample[$i]["input"]=str_replace("\\n","<br/>",$sample[$i]["input"]);
+            $sample[$i]["output"]=str_replace("\\n","<br/>",$sample[$i]["output"]);
+            $tmp=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"49%","margin-right"=>"2%"))),
+            InsertTags("p",null,"Input #".($i+1).":").InsertTags("pre",array("class"=>"problem-cases","id"=>"problem-cases-input".($i+1)),$sample[$i]["input"]));
+            $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"49%"))),
+            InsertTags("p",null,"Output #".($i+1).":").InsertTags("pre",array("class"=>"problem-cases","id"=>"problem-cases-output".($i+1)),$sample[$i]["output"]));
+            $res.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
+                "padding-left"=>"20px",
+                "padding-right"=>"20px",
+                "margin-top"=>"10px",
+                "align-items"=>"baseline"
+            ))),$tmp);
+        }
+        $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+            "padding-top"=>"20px",
+            "margin-bottom"=>"20px"
+        ))),InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
+            "padding-bottom"=>"60px",
             "padding-left"=>"20px",
-            "padding-right"=>"20px",
-            "margin-top"=>"10px",
-            "align-items"=>"baseline"
-        ))),$tmp);
+            "padding-right"=>"20px"
+        ))),"Sample").InsertTags("div",array("id"=>"problem-sample","style"=>InsertInlineCssStyle(array(
+            "width"=>"calc(100% - 40px)",
+            "padding-bottom"=>"20px"
+        ))),$res));
     }
-    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
-        "padding-top"=>"20px",
-        "margin-bottom"=>"20px"
-    ))),InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
-        "padding-bottom"=>"60px",
-        "padding-left"=>"20px",
-        "padding-right"=>"20px"
-    ))),"Sample").InsertTags("div",array("id"=>"problem-sample","style"=>InsertInlineCssStyle(array(
-        "width"=>"calc(100% - 40px)",
-        "padding-bottom"=>"20px"
-    ))),$res));
 
     if ($info["hint"]!="") {
         $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
@@ -325,8 +340,34 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.=md2html($info["hint"],"problem-hint");
     }
 
+    if (is_dir("./files/".$param["id"])) $files=scandir("./files/".$param["id"]);
+    else $files=array(".","..");
+    if (count($files)>2) {
+        $tmp=""; foreach($files as $key=>$value) {
+            if (is_dir("./files/".$param["id"]."/$value")) continue;
+            $tmp.=InsertTags("i",array("class"=>"linkify icon","style"=>InsertInlineCssStyle(array(
+                "width"=>"auto",
+                "margin"=>"10px 20px 10px 20px"
+            ))),"&nbsp;&nbsp;&nbsp;&nbsp;".
+            InsertTags("a",array("href"=>GetAPIUrl("/problem/addition",array("pid"=>$param["id"],"name"=>$value))),$value).
+            "&nbsp;&nbsp;".InsertTags("pp",null,format_size(filesize("./files/".$param["id"]."/$value")))
+            ).InsertSingleTag("br",null);
+        }
+        $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+            "padding-top"=>"20px",
+            "padding-bottom"=>"20px",
+            "margin-bottom"=>"20px"
+        ))),InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
+            "padding-bottom"=>"60px",
+            "padding-left"=>"20px",
+            "padding-right"=>"20px",
+            "margin-bottom"=>"10px"
+        ))),"Additional Files").InsertSingleTag("br",null).$tmp);
+    }
+
     if ($login_controller->CheckLogin()) {
-        $uid=$login_controller->CheckLogin();
+        $uid=$login_controller->CheckLogin(); $sum=0;
+        $array=$status_controller->GetJudgeInfo(1,1,$uid,$info["id"],$sum);
         $tmp=""; for ($i=0;$i<count($config["lang"]);$i++) 
         if ($i!=$config["default_lang"]) $tmp.=InsertTags("option",array("value"=>$i),$config["lang"][$i]["name"]);
         else $tmp.=InsertTags("option",array("value"=>$i,"selected"=>"selected"),$config["lang"][$i]["name"]);
@@ -350,12 +391,16 @@ function info_run(array $param,string &$html,string &$body):void {
             "margin-top"=>"10px"
         ))),""); $tmp.=InsertTags("center",null,
         InsertTags("button",array("onclick"=>"submit()"),"Submit"));
-        $script.="var codeEditor=null;";
+        $script.="var codeEditor=null;"; $code="";
+        if ($sum!=0) $code=$array[0]["code"];
+        $code=str_replace("\\","\\\\",$code); $code=str_replace("\n","\\n",$code); 
+        $code=str_replace("\r","",$code); $code=str_replace("'","\\'",$code);
         $script.="addLoadEvent(function(){codeEditor=monaco.editor.create(".
-        "document.getElementById('code-container'), {language:'".$config["lang"][$config["default_lang"]]["mode"]."',roundedSelection:false,".
+        "document.getElementById('code-container'),{language:'".$config["lang"][$config["default_lang"]]["mode"]."',roundedSelection:false,".
         "scrollBeyondLastLine:false,readOnly:false,theme:'vs-dark'});".
         "document.getElementsByClassName(\"overflow-guard\")[0].style.width='100%';".
-        "document.getElementsByClassName(\"monaco-editor\")[0].style.width='100%';});";
+        "document.getElementsByClassName(\"monaco-editor\")[0].style.width='100%';".
+        "codeEditor.setValue('$code')});";
         $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
             "padding-top"=>"20px",
             "margin-bottom"=>"20px"
@@ -384,8 +429,10 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="document.getElementById('language').onchange=function(){".
         "monaco.editor.setModelLanguage(codeEditor.getModel(),mode[document.getElementById('language').value])};";
         $script.="function submit(){var lang=document.getElementById('language').value,code=codeEditor.getValue();".
-		"console.log(lang);console.log(code);var e=new RegExp(\"\\\\\\\\\",\"g\");code=code.replace(e,\"\\\\\\\\\");e=new RegExp(\"'\",\"g\");code=code.replace(e,\"\\\\'\");var res=SendAjax(\"".GetAPIUrl("/problem/submit")."\",'POST',{".
-        "code:code,lang:lang,pid:".$param["id"]."});if (res==null) layui.msg('Submit Failed!'); else {".
+		"console.log(lang);console.log(code);var e=new RegExp(\"\\\\\\\\\",\"g\");code=code.replace(e,\"\\\\\\\\\");".
+        "e=new RegExp(\"'\",\"g\");code=code.replace(e,\"\\\\'\");var res=SendAjax(\"".GetAPIUrl("/problem/submit")."\",'POST',{".
+        "code:code,lang:lang,pid:".$param["id"].",cid:".(array_key_exists("contest",$param)?$param["contest"]:0)."});".
+        "if (res==null) layui.msg('Submit Failed!'); else {".
         "res=JSON.parse(strip_tags(res));if (res[\"code\"]) {layer.msg(res[\"message\"]);return false;}".
         "location.href='".GetUrl("status",array("id"=>""))."'+res['data']['id'];}}";
     }

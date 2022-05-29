@@ -1,19 +1,20 @@
 <?php
 require_once "../require.php";
 CheckParam(array("id"),$_GET);
+$contest_controller=new Contest_Controller;
+$info=$contest_controller->GetContest($_GET["id"],$_GET["id"],true)[0];
+if ($info["type"]==0&&$info["starttime"]+$info["duration"]>=time()) API_Controller::error_permission_denied();
+$rank=$contest_controller->GetRanking($_GET["id"]);
 header("Content-Type: application/octet-stream");
 header("Content-Disposition: attachment; filename=result.html");
-$contest_controller=new Contest_Controller;
-$info=$contest_controller->GetContest($_GET["id"],$_GET["id"])[0];
-$rank=$contest_controller->GetRanking($_GET["id"]);
 $pname=array(); $pid=array();
 ?><!DOCTYPE html><html><style>th,td{padding-left:1em;padding-right:1em;white-space:nowrap;text-align:center;verticle-align:middle;}</style><style>.head{border-style:none solid solid none;border-width:3px 3px;border-color:#000;}</style><style>.cont{border-style:none solid solid none;border-width:1px 3px;border-color:#ccc;font-weight:normal}</style><style>.score{border-radius:5px;font-weight:normal;}</style><style>.all{border-radius:5px;}table{border-color:#000;}</style><style>.a{color:black;text-decoration:none;}</style><style>code{background-color:white;tab-size:4;font-family:consolas;font-size:13px;}</style><title><?php echo $info["title"]?>: Contest Result</title></html><body><p style="font-size:x-large;font-weight:bold;margin:0px"><span><a name="top"></a><?php echo $info["title"]?>: Ranking</span></p><p style="font-size:small">Click on the name or single question score to jump to the details. Use LYOJ contest system to judge.</p><p><table cellpadding="1" style="border-style:solid;"><tbody><tr><th class="head" scope="col">Rank</th><th class="head" scope="col">Name</th><th class="head" scope="col">Time</th><th class="head" scope="col">Score</th><?php
     $database_controller=new Database_Controller; $cnt=0;
-    $p=$database_controller->Query("SELECT * FROM problem WHERE contest=".$_GET["id"]);
+    $p=$database_controller->Query("SELECT pid FROM contest_problem WHERE id=".$_GET["id"]);
     for ($i=0;$i<count($p);$i++) {
-        $fp=fopen("../../../problem/".$p[$i]["id"]."/config.json","r");
-        $json=fread($fp,filesize("../../../problem/".$p[$i]["id"]."/config.json"));
-        $pid[]=$p[$i]["id"];
+        $fp=fopen("../../../problem/".$p[$i]["pid"]."/config.json","r");
+        $json=fread($fp,filesize("../../../problem/".$p[$i]["pid"]."/config.json"));
+        $pid[]=$p[$i]["pid"];
         fclose($fp); $arr=json_decode($json,true);
         $name=explode(".",$arr["input"]); $tmp="";
         for ($j=0;$j<count($name)-1;$j++) $tmp.=($j==0?"":".").$name[$j];

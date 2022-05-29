@@ -6,11 +6,28 @@ class Status_Controller{
     }
 
     /**
+     * 判断提交是否存在 JudgeStatusExist
+     * @param int $id 提交id
+     * @return void
+     */
+    static function JudgeStatusExist(int $id):void {
+        $p=self::$db->Query("SELECT id FROM status WHERE id=$id");
+        if (!count($p)) {
+            $url=$_SERVER['REQUEST_URI'];
+            $path=explode("/",$url);
+            $api_mode=$path[1]=="api";
+            if ($api_mode) API_Controller::error_status_not_found($id);
+            else Error_Controller::Common("Status id $id not found");
+        }
+    }
+
+    /**
      * 根据用户uid列举所有状态 ListWholeByUid
      * @param int $uid 用户uid
      * @return array|null
      */
     static function ListWholeByUid(int $uid):array|null {
+        User_Controller::JudgeUserExist($uid);
         $array=self::$db->Query("SELECT id FROM status WHERE uid=$uid");
         return $array;
     }
@@ -21,6 +38,7 @@ class Status_Controller{
      * @return array|null
      */
     static function ListAcceptedByUid(int $uid):array|null {
+        User_Controller::JudgeUserExist($uid);
         $array=self::$db->Query("SELECT pid FROM status WHERE uid=$uid AND status='Accepted'");
         $res=array(); for ($i=0;$i<count($array);$i++) $res[]=$array[$i]["pid"];
         $array=array_unique($res); $array=array_values($array); sort($array);
@@ -33,6 +51,7 @@ class Status_Controller{
      * @return array|null  
      */
     static function ListWholeByPid(int $pid):array|null {
+        Problem_Controller::JudgeProblemExist($pid);
         $array=self::$db->Query("SELECT id FROM status WHERE pid=$pid");
         return $array;
     }
@@ -43,6 +62,7 @@ class Status_Controller{
      * @return array|null
      */
     static function ListAcceptedByPid(int $pid):array|null {
+        Problem_Controller::JudgeProblemExist($pid);
         $array=self::$db->Query("SELECT id FROM status WHERE pid=$pid AND status='Accepted'");
         return $array;
     }
@@ -69,12 +89,15 @@ class Status_Controller{
      * @param string $code 代码
      * @param int $uid 用户id
      * @param int $pid 题目id
+     * @param int $cid=0 比赛id
      * @return int
      */
-    static function Submit(string $lang,string $code,int $uid,int $pid):int {
+    static function Submit(string $lang,string $code,int $uid,int $pid,int $cid=0):int {
+        User_Controller::JudgeUserExist($uid);
+        Problem_Controller::JudgeProblemExist($pid);
         $sid=self::$db->Query("SELECT id FROM status ORDER BY id DESC")[0]["id"]+1;
-        $c=self::$db->Query("SELECT contest FROM problem WHERE id=$pid")[0];
-        $cid=$c["contest"]; if ($c["starttime"]+$c["duration"]<time()) $cid=0;
+        $c=self::$db->Query("SELECT * FROM contest WHERE id=$cid")[0];
+        if ($c["starttime"]+$c["duration"]<time()) $cid=0;
         // $keyword=["reboot"];
         // if (strpos($code,"reboot")!==FALSE) {
         //     $json=array("result"=>"Compile Error","output"=>"Compile Error",
@@ -92,6 +115,7 @@ class Status_Controller{
      * @return array|null
      */
     static function GetJudgeStatusById(int $id):string|null {
+        Status_Controller::JudgeStatusExist($id);
         $array=self::$db->Query("SELECT result,judged FROM status WHERE id=$id");
         if ($array==null) return null;
         if ($array[0]["judged"]==false) return $array[0]["status"];
@@ -105,7 +129,8 @@ class Status_Controller{
      * @return array|null
      */
     static function GetJudgeResultById(int $id):array|null {
-        $array=self::$db->Query("SELECT result FROM status WHERE id=$id");
+        Status_Controller::JudgeStatusExist($id);
+        $array=self::$db->Query("SELECT result,judged FROM status WHERE id=$id");
         if ($array==null) return null;
         if ($array[0]["judged"]==false) return null;
         return json_decode($array[0]["result"],true);
@@ -117,6 +142,7 @@ class Status_Controller{
      * @return array|null
      */
     static function GetJudgeInfoById(int $id):array|null {
+        Status_Controller::JudgeStatusExist($id);
         $array=self::$db->Query("SELECT * FROM status WHERE id=$id");
         if ($array==null) return null;
         if ($array[0]["contest"]==0) return $array[0];
@@ -158,7 +184,9 @@ class Status_Controller{
         $sql.=" ORDER BY id DESC";
         $array=self::$db->Query($sql);
         $sum=count($array); $result=array();
-        for ($i=$l-1;$i<$r;$i++) {
+        // print_r($sum); exit;
+        for ($i=$l-1;$i<$r&&$i<count($array);$i++) {
+            $c=self::$db->Query("SELECT * FROM contest WHERE id=".$array[$i]["contest"]);
             $endtime=$c[0]["starttime"]+$c[0]["duration"];
             if ($c[0]["type"]!=0||$endtime<time()) {$result[]=$array[$i]; continue;}
             $status=$array[$i]["status"];
@@ -182,6 +210,7 @@ class Status_Controller{
      * @return void
      */
     function SubmitRejudge(int $id):void {
+        Status_Controller::JudgeStatusExist($id);
         self::$db->Execute("UPDATE status SET judged=0,status='Waiting...',result='NULL' WHERE id=$id");
     }
 }

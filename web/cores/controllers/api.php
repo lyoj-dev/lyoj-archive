@@ -63,5 +63,21 @@ class API_Controller{
     static function error_permission_denied():void {
         Error_Controller::Common("Permission denied",-403,true);
     }
+    // ZIP文件错误
+    static function error_invalid_zip():void {
+        Error_Controller::Common("Invalid ZIP Package",-400,true);
+    }
+    // 题目未找到
+    static function error_problem_not_found($id):void {
+        Error_Controller::Common("Problem id $id not found",-404,true);
+    }
+    // 提交未找到
+    static function error_status_not_found($id):void {
+        Error_Controller::Common("Status id $id not found",-404,true);
+    }
+    // 用户未找到
+    static function error_user_not_found($id):void {
+        Error_Controller::Common("User id $id not found",-404,true);
+    }
 }
 ?>

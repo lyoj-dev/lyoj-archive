@@ -3887,13 +3887,14 @@
 }
 .editormd-preview-container span.editormd-tex, .editormd-html-preview span.editormd-tex {
   margin: 0 5px;
+  font-size: 10px!important;
 }
 .editormd-preview-container .emoji, .editormd-html-preview .emoji {
   width: 24px;
   height: 24px;
 }
 .editormd-preview-container .katex, .editormd-html-preview .katex {
-  font-size: 1.4em;
+  font-size: 11px;
 }
 .editormd-preview-container .sequence-diagram, .editormd-preview-container .flowchart, .editormd-html-preview .sequence-diagram, .editormd-html-preview .flowchart {
   margin: 0 auto;

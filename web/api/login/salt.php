@@ -7,7 +7,7 @@
     if (!$user_controller->GetEmailId($_GET["email"])) $api_controller->error_email_not_exist($_GET["email"]);
     $salt=$login_controller->UserLoginSalt($_GET["email"]);
     $api_controller->output(array(
-        "id"=>$user_controller->GetEmailId($_GET["email"]),
+        "uid"=>$user_controller->GetEmailId($_GET["email"]),
         "salt"=>$salt,
     ));
 ?>

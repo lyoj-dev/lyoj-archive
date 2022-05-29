@@ -5,8 +5,8 @@
     $contest_controller=new Contest_Controller;
     $login_controller=new Login_Controller;
     if (!$login_controller->CheckLogin()) $api_controller->error_login_failed();
-    if ($contest_controller->GetContest($_POST["id"],$_POST["id"])==null) $api_controller->error_contest_not_found($_POST["id"]);
+    if ($contest_controller->GetContest($_POST["id"],$_POST["id"],true)==null) $api_controller->error_contest_not_found($_POST["id"]);
     $contest_controller->SignupContest($_POST["id"]);
-    $dat=$contest_controller->GetContest($_POST["id"],$_POST["id"],true);
+    $dat=$contest_controller->GetContest($_POST["id"],$_POST["id"],true)[0];
     $api_controller->output($dat);
 ?>

@@ -160,7 +160,8 @@ function run(array $param,string &$html,string &$body):void {
         $script.="function submit(){";
         $script.="var md=intro_editor.getMarkdown();";
         $script.="var html=intro_editor.getHTML();";
-        $script.="SendAjax('".GetAPIUrl("/user/infomation",null)."','POST',{intro:md},function(){alert('Success!');document.getElementById('intro').innerHTML=html});";
+        $script.="SendAjax('".GetAPIUrl("/user/intro",null)."','POST',{intro:md},function(){alert('Success!');";
+        $script.="document.getElementById('intro').innerHTML='';editormd.markdownToHTML('intro',{markdown:md});});";
         $script.="}";
     } $script.="open_page(page);";
     $body.=InsertTags("style",null,$style);

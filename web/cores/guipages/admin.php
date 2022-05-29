@@ -4,7 +4,6 @@ function run(array $param,string &$html,string &$body):void {
     $login_controller=new Login_Controller;
     $uid=$login_controller->CheckLogin();
     $user_controller=new User_Controller;
-    $admin_controller=new Admin_Controller;
     if (!$uid) Error_Controller::Common("Permission denied");
     $permission=$user_controller->GetWholeUserInfo($uid)["permission"];
     if ($permission<2) Error_Controller::Common("Permission denied");
@@ -47,13 +46,957 @@ function run(array $param,string &$html,string &$body):void {
     $script.="SendAjax('".$config["hitokoto_link"]."','GET',null,hitokoto,true);";
     $body.=InsertTags("script",null,$script);
 }
-function control_run(array $param,string &$html,string &$body):void {}
 
-function user_run(array $param,string &$html,string &$body):void {}
+function control_run(array $param,string &$html,string &$body):void {
 
-function contest_run(array $param,string &$html,string &$body):void {}
+}
 
-function problem_run(array $param,string &$html,string &$body):void {}
+function user_run(array $param,string &$html,string &$body):void {
+    
+}
+
+function contest_run(array $param,string &$html,string &$body):void {
+    if (array_key_exists("num",$param)){contest_list_run($param,$html,$body);return;}
+    if (!array_key_exists("id",$param)){$param["num"]=1;contest_list_run($param,$html,$body);return;}
+    if ($param["id"]==0){contest_create($param,$html,$body);return;}
+    contest_update($param,$html,$body);
+}
+
+function contest_list_run(array $param,string &$html,string &$body):void {
+    $style=""; $content="";
+    $contest_controller=new Contest_Controller;
+    $tags_controller=new Tags_Controller;
+    $page=$param["num"]; $config=GetConfig(); $num=$contest_controller->GetContestTotal();
+    $pages_num=($num+$config["contest_of_pages"]-1)/$config["contest_of_pages"];
+    $pages_num=intval($pages_num);
+    if ($page<=0||$page>$pages_num) $page=1; 
+    $contest_list=$contest_controller->GetContest
+    (($page-1)*$config["contest_of_pages"]+1,$page*$config["contest_of_pages"],false,"starttime DESC");
+    $style=InsertCssStyle(array(".contest-item"),array(
+        "width"=>"calc(100% - 20px)",
+        "min-height"=>"50px",
+        "background-color"=>"white",
+        "padding-left"=>"20px",
+        "margin-top"=>"20px",
+        "box-shadow"=>"0 0.375rem 1.375rem rgb(175 194 201 / 50%)",
+        "align-items"=>"center"
+    )); $style.=InsertCssStyle(array(".contest-tags"),array(
+        "background-color"=>"#e67e22",
+        "border-radius"=>"100px",
+        "height"=>"25px",
+        "color"=>"white",
+        "padding-left"=>"10px",
+        "padding-right"=>"10px",
+        "font-size"=>"13px",
+        "line-height"=>"25px",
+        "margin-right"=>"4px",
+        "margin-bottom"=>"4px",
+        "width"=>"fit-content",
+        "display"=>"inline-block",
+        "cursor"=>"pointer"
+    )); $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%"))),InsertTags("i",array("class"=>"angle right icon green"),null));
+    $tmp.=InsertTags("p",array(
+        "style"=>InsertInlineCssStyle(array("width"=>"40%","cursor"=>"pointer")),
+        "onclick"=>"location.href='".GetUrl("admin",array("page"=>"contest","id"=>0))."'",
+        "class"=>"ellipsis"
+    ),"Create a new contest!");
+    $body.=InsertTags("div",array(
+        "class"=>"contest-item default_main flex",
+    ),$tmp);
+    for ($i=0;$i<count($contest_list);$i++) {
+        $color=""; $word="";
+        if (time()<$contest_list[$i]["starttime"]){$color="green";$word="Not start";}
+        else if (time()<=$contest_list[$i]["starttime"]+$contest_list[$i]["duration"]){$color="blue";$word="Running";}
+        else {$color="red";$word="Finished";}
+        $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array(
+            "margin-left"=>"1%",
+            "width"=>"9%",
+            "font-weight"=>"500",
+            "color"=>$color,
+            "cursor"=>"pointer"
+        ))),$word);
+        $tmp.=InsertTags("p",array(
+            "style"=>InsertInlineCssStyle(array("width"=>"37%","cursor"=>"pointer")),
+            "onclick"=>"location.href='".GetUrl("contest",array(
+            "id"=>$contest_list[$i]["id"],"page"=>"index"))."'",
+            "class"=>"ellipsis"
+        ),$contest_list[$i]["title"]);
+        $starttime=$contest_list[$i]["starttime"]; $endtime=$starttime+$contest_list[$i]["duration"];
+        $tags_content=""; $tags=$tags_controller->ListContestTagsById($contest_list[$i]["id"]);
+        if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"contest-tags"),$tags[$j]["tagname"]);
+        $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$tags_content);
+        $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%"))),date("m-d H:i",$starttime)." ~ ".date("m-d H:i",$endtime));
+        $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),
+            InsertTags("a",array("onclick"=>"delete2(".$contest_list[$i]["id"].")"),"Delete")."&nbsp;&nbsp;&nbsp;".
+            InsertTags("a",array("href"=>GetUrl("admin",array("page"=>"contest","id"=>$contest_list[$i]["id"]))),"Update"));
+        $body.=InsertTags("div",array(
+            "class"=>"contest-item default_main flex",
+        ),$tmp);
+    } $style.=InsertCssStyle(array(".pages"),array(
+        "height"=>"30px",
+        "line-height"=>"30px",
+        "border"=>"1px solid",
+        "border-color"=>"rgb(213,216,218)",
+        "color"=>"rgb(27,116,221)",
+        "margin-top"=>"10px",
+        "margin-bottom"=>"10px",
+        "padding-left"=>"20px",
+        "padding-right"=>"20px",
+        "border-radius"=>"3px",
+        "font-weight"=>"500",
+        "font-size"=>"13px",
+        "background-color"=>"white",
+        "cursor"=>"pointer",
+        "transition"=>"background-color 0.5s,color 0.5s,border-color 0.5s"
+    )).InsertCssStyle(array(".banned"),array(
+        "color"=>"rgb(137,182,234)"
+    )).InsertCssStyle(array(".pages:not(.banned):hover"),array(
+        "background-color"=>"rgb(27,116,221)",
+        "color"=>"white",
+        "border-color"=>"rgb(27,116,221)"
+    )); $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"contest","num"=>1))."'",
+    "style"=>InsertInlineCssStyle(array("margin-right"=>"10px"))),InsertTags("p",null,"Top"));
+    if ($page==1) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+    else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"contest","num"=>$page-1))."'"),InsertTags("p",null,"Previous"));
+    if ($page==$pages_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
+    else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"contest","num"=>$page+1))."'"),InsertTags("p",null,"Next"));
+    $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"contest","num"=>$pages_num))."'",
+    "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
+    $body.=InsertTags("style",null,$style);
+    $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
+        "justify-content"=>"center","margin-top"=>"20px"
+    ))),$content);
+    $script="function delete2(id){";
+    $script.="if (confirm('Click \"OK\" to delete the contest!')==false) return false;";
+    $script.="SendAjax('".GetAPIUrl("/contest/delete",null)."','POST',{id:id}";
+    $script.=",function(){alert('Success!');location.href=location.href;},true)}";
+    $body.=InsertTags("script",null,$script);
+}
+
+function contest_create(array $param,string &$html,string &$body):void {
+    $tmp=InsertTags("hp",null,"Contest Information");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Contest Name:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"name","placeholder"=>"Input Problem Name here")));
+    $tmp.=InsertTags("div",array("id"=>"intro","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Start Time:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"starttime","value"=>date("Y-m-d H:i:s",time()),"placeholder"=>"Input start time here (eg:".date("Y-m-d H:i:s",time()).")")));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "End Time:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"endtime","value"=>date("Y-m-d H:i:s",time()+24*3600),"placeholder"=>"Input end time here (eg:".date("Y-m-d H:i:s",time()+3600*24).")")));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Problems:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"problem","placeholder"=>"Input problem id here, use ',' to seperate them.")));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Tags:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"tags","placeholder"=>"Input problem id here, use ',' to seperate them.")));
+    $options=InsertTags("option",array("value"=>0),"OI");
+    $options.=InsertTags("option",array("value"=>1),"IOI");
+    $options.=InsertTags("option",array("value"=>2),"ACM");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "Contest Type:&nbsp;".InsertTags("select",array("id"=>"type","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $options=InsertTags("option",array("value"=>0),"Unrated Contest");
+    $options.=InsertTags("option",array("value"=>1),"Rated Contest");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "Rated Type:&nbsp;".InsertTags("select",array("id"=>"rated","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $tmp.=InsertTags("center",null,InsertTags("button",array("onclick"=>"submit()"),"Submit"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+    $script="var editor=".CreateEditor("","intro",",height:'400px'");
+    $script.="function getTime(x){return (new Date(x).getTime())/1000;}";
+    $script.="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
+    $script.="function submit(){";
+    $script.="var title=document.getElementById('name').value;";
+    $script.="var intro=editor.getMarkdown();";
+    $script.="var starttime=getTime(document.getElementById('starttime').value);";
+    $script.="var endtime=getTime(document.getElementById('endtime').value);";
+    $script.="var duration=endtime-starttime;";
+    $script.="var problem=document.getElementById('problem').value;";
+    $script.="var tags=document.getElementById('tags').value;";
+    $script.="var type=document.getElementById('type').value;";
+    $script.="var rated=document.getElementById('rated').value;";
+    $script.="SendAjax('".GetAPIUrl("/contest/create")."','POST',{tags:tags,";
+    $script.="title:title,intro:intro,starttime:starttime,duration:duration,problem:problem,type:type,rated:rated},";
+    $script.="function(res){alert(\"Create Successfully! Your contest id: \"+JSON.parse(strip_tags_pre(res))['data']['id']);";
+    $script.="location.href='".GetUrl("admin",array("page"=>"contest"))."&id='+JSON.parse(strip_tags_pre(res))['data']['id'];},true)}";
+    $body.=InsertTags("script",null,$script);
+}
+
+function contest_update(array $param,string &$html,string &$body):void {
+    $contest_controller=new Contest_Controller;
+    Contest_Controller::JudgeContestExist($param["id"]);
+    $info=$contest_controller->GetContest($param["id"],$param["id"])[0];
+    // print_r($info); exit;
+    $tmp=InsertTags("hp",null,"Contest Information");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Contest Name:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"name","placeholder"=>"Input Problem Name here","value"=>$info["title"])));
+    $tmp.=InsertTags("div",array("id"=>"intro","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Start Time:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"starttime","value"=>date("Y-m-d H:i:s",$info["starttime"]),"placeholder"=>"Input start time here (eg:".date("Y-m-d H:i:s",time()).")")));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "End Time:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"endtime","value"=>date("Y-m-d H:i:s",$info["starttime"]+$info["duration"]),"placeholder"=>"Input end time here (eg:".date("Y-m-d H:i:s",time()+3600*24).")")));
+    $problem=""; for ($i=0;$i<count($info["problem"]);$i++) $problem.=$info["problem"][$i].",";
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Problems:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"problem","placeholder"=>"Input problem id here, use ',' to seperate them.","value"=>$problem)));
+    
+        $tags=""; for ($i=0;$i<count($info["tags"]);$i++) $tags.=$info["tags"][$i].",";
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Tags:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"tags","placeholder"=>"Input problem id here, use ',' to seperate them.","value"=>$tags)));
+    $options=InsertTags("option",array("value"=>0,"id"=>"type0"),"OI");
+    $options.=InsertTags("option",array("value"=>1,"id"=>"type1"),"IOI");
+    $options.=InsertTags("option",array("value"=>2,"id"=>"type2"),"ACM");
+    $md=$info["intro"];
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "Contest Type:&nbsp;".InsertTags("select",array("id"=>"type","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $options=InsertTags("option",array("value"=>0,"id"=>"rated0"),"Unrated Contest");
+    $options.=InsertTags("option",array("value"=>1,"id"=>"rated1"),"Rated Contest");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "Rated Type:&nbsp;".InsertTags("select",array("id"=>"rated","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $tmp.=InsertTags("center",null,InsertTags("button",array("onclick"=>"submit()"),"Submit"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+    $script="var editor=".CreateEditor($md,"intro",",height:'400px'");
+    $script.="function getTime(x){return (new Date(x).getTime())/1000;}";
+    $script.="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
+    $script.="function submit(){";
+    $script.="var title=document.getElementById('name').value;";
+    $script.="var intro=editor.getMarkdown();";
+    $script.="var starttime=getTime(document.getElementById('starttime').value);";
+    $script.="var endtime=getTime(document.getElementById('endtime').value);";
+    $script.="var duration=endtime-starttime;";
+    $script.="var problem=document.getElementById('problem').value;";
+    $script.="var tags=document.getElementById('tags').value;";
+    $script.="var type=document.getElementById('type').value;";
+    $script.="var rated=document.getElementById('rated').value;";
+    $script.="SendAjax('".GetAPIUrl("/contest/update")."','POST',{id:".$param["id"].",tags:tags,";
+    $script.="title:title,intro:intro,starttime:starttime,duration:duration,problem:problem,type:type,rated:rated},";
+    $script.="function(res){alert(\"Update Successfully!\");},true)}";
+    $script.="document.getElementById('type'+".$info["type"].").setAttribute('selected','selected');";
+    $script.="document.getElementById('rated'+".$info["rated"].").setAttribute('selected','selected');";
+    $body.=InsertTags("script",null,$script);
+}
+
+function problem_list_run(array $param,string &$html,string &$body):void {
+    if (!array_key_exists("key",$param)) $_GET["key"]="";
+    if (!array_key_exists("tag",$param)) $_GET["tag"]="";
+    if (!array_key_exists("diff",$param)) $_GET["diff"]="";
+    $t=explode(",",$_GET["tag"]);array_splice($t,count($t)-1,1);
+    $d=explode(",",$_GET["diff"]);array_splice($d,count($d)-1,1);
+    $problem_controller=new Problem_Controller;
+    $tags_controller=new Tags_Controller;
+    $page=$param["num"]; $config=GetConfig(); $num=0;
+    $problem_list=$problem_controller->ListProblemByNumber(
+        ($page-1)*$config["problem_of_pages"]+1,
+        $page*$config["problem_of_pages"],
+        $_GET["key"],$t,$d,$num
+    ); $pages_num=($num+$config["problem_of_pages"]-1)/$config["problem_of_pages"];
+    $pages_num=intval($pages_num);
+    if ($page<=0||$page>$pages_num) $page=1; 
+    $problem_list=$problem_controller->ListProblemByNumber(
+        ($page-1)*$config["problem_of_pages"]+1,
+        $page*$config["problem_of_pages"],
+        $_GET["key"],$t,$d,$num
+    ); $search_box=InsertSingleTag("input",array("id"=>"key","placeholder"=>"Searching something...","value"=>$param["key"])).
+    InsertTags("button",array("onclick"=>"search()","style"=>InsertInlineCssStyle(array(
+        "margin-left"=>"10px",
+        "height"=>"33px"
+    ))),"Search");
+    $search_box=InsertTags("div",array("class"=>"flex"),$search_box);
+    $tags=$tags_controller->ListProblemTag();
+    $tag_box=""; for ($i=0;$i<count($tags);$i++)
+        $tag_box.=InsertTags("div",array("class"=>"problem-tags".(array_search($tags[$i],$t)===false?" unsubmitted":"")
+        ,"id"=>"tag-".$tags[$i],"onclick"=>"addTag('".$tags[$i]."')"),$tags[$i]);
+    $search_box.=InsertTags("div",null,InsertTags("p",array("style"=>InsertInlineCssStyle(array(
+        "display"=>"inline-block"
+    ))),"Tags Filter:&nbsp;&nbsp;").$tag_box); $tag_box="";
+    for ($i=0;$i<count($config["difficulties"]);$i++)
+        $tag_box.=InsertTags("div",array("class"=>"problem-difficulties-$i".(array_search($i,$d)===false?" unsubmitted":""),"id"=>"difficulties-$i",
+        "onclick"=>"addDiff($i)"),$config["difficulties"][$i]["name"]);
+    $search_box.=InsertTags("div",null,InsertTags("p",array("style"=>InsertInlineCssStyle(array(
+        "display"=>"inline-block"
+    ))),"Difficult Filter:&nbsp;&nbsp;").$tag_box);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "padding-left"=>"20px",
+        "margin-bottom"=>"20px",
+        "padding-bottom"=>"15px",
+        "padding-right"=>"20px",
+        "margin-top"=>"20px"
+    ))),$search_box); $style=InsertCssStyle(array(".problem-item"),array(
+            "min-height"=>"50px",
+            "background-color"=>"white",
+            "padding-left"=>"20px",
+            "margin-bottom"=>"20px",
+            "align-items"=>"center"
+    )); for ($i=0;$i<count($config["difficulties"]);$i++) {
+        $style.=InsertCssStyle(array(".problem-difficulties-$i"),array(
+            "background-color"=>$config["difficulties"][$i]["color"],
+            "border-radius"=>"100px",
+            "height"=>"25px",
+            "color"=>"white",
+            "padding-left"=>"10px",
+            "padding-right"=>"10px",
+            "font-size"=>"13px",
+            "line-height"=>"25px",
+            "margin-right"=>"5px",
+            "width"=>"fit-content",
+            "display"=>"inline-block",
+            "cursor"=>"pointer"
+        ));
+    } $style.=InsertCssStyle(array(".problem-tags"),array(
+        "background-color"=>"rgb(41,73,180)",
+        "border-radius"=>"100px",
+        "height"=>"25px",
+        "color"=>"white",
+        "padding-left"=>"10px",
+        "padding-right"=>"10px",
+        "font-size"=>"13px",
+        "line-height"=>"25px",
+        "margin-right"=>"4px",
+        "margin-bottom"=>"4px",
+        "width"=>"fit-content",
+        "display"=>"inline-block",
+        "cursor"=>"pointer"
+    )); $style.=InsertCssStyle(array(".gray"),array(
+        "color"=>"orange"
+    )); $style.=InsertCssStyle(array(".red"),array(
+        "color"=>"red"
+    )); $style.=InsertCssStyle(array(".unsubmitted"),array(
+        "background-color"=>"rgb(210,210,210)"
+    )); $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%"))),InsertTags("i",array("class"=>"angle right icon green"),null));
+    $tmp.=InsertTags("p",array(
+        "style"=>InsertInlineCssStyle(array("width"=>"40%","cursor"=>"pointer")),
+        "onclick"=>"location.href='".GetUrl("admin",array("page"=>"problem","id"=>0))."'",
+        "class"=>"ellipsis"
+    ),"Create a new problem!");
+    $body.=InsertTags("div",array(
+        "class"=>"problem-item default_main flex",
+    ),$tmp);
+    for ($i=0;$i<count($problem_list);$i++) {
+        if ($problem_list[$i]["hidden"]==0) $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%","cursor"=>"pointer"))),InsertTags("i",array("class"=>"eye icon gray"),null));
+        else $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%"))),InsertTags("i",array("class"=>"ban icon red"),null));
+        $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"7%","cursor"=>"pointer")),
+        "onclick"=>"location.href='".GetUrl("problem",array("id"=>$problem_list[$i]["id"]))."'"),"P".$problem_list[$i]["id"]);
+        $tmp.=InsertTags("p",array(
+            "style"=>InsertInlineCssStyle(array("width"=>"35%","cursor"=>"pointer")),
+            "onclick"=>"location.href='".GetUrl("problem",array("id"=>$problem_list[$i]["id"]))."'",
+            "class"=>"ellipsis"
+        ),$problem_list[$i]["name"]); $tags_content="";
+        $tags=$tags_controller->ListProblemTagsByPid($problem_list[$i]["id"]);
+        if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags","onclick"=>"searchTag('".$tags[$j]."')"),$tags[$j]);
+        $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$tags_content);
+        $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"15%","text-align"=>"center"))),
+        InsertTags("div",array("class"=>"problem-difficulties-".$problem_list[$i]["difficult"],"style"=>InsertInlineCssStyle(array(
+        "margin"=>"auto")),"onclick"=>"searchDiff('".$problem_list[$i]["difficult"]."')"),$config["difficulties"][$problem_list[$i]["difficult"]]["name"]));
+        $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%"))),
+            InsertTags("a",array("onclick"=>"hidden2(".$problem_list[$i]["id"].")"),($problem_list[$i]["hidden"]==0?"Hidden":"Show"))."&nbsp;|&nbsp;".
+            InsertTags("a",array("onclick"=>"rejudge(".$problem_list[$i]["id"].")"),"Rejudge")."&nbsp;|&nbsp;".
+            InsertTags("a",array("onclick"=>"delete2(".$problem_list[$i]["id"].")"),"Del.")."&nbsp;|&nbsp;".
+            InsertTags("a",array("href"=>GetUrl("admin",array("page"=>"problem","id"=>$problem_list[$i]["id"]))),"Upd."));
+        $body.=InsertTags("div",array(
+            "class"=>"problem-item default_main flex",
+        ),$tmp);
+    } $content=""; $style.=InsertCssStyle(array(".pages"),array(
+        "height"=>"30px",
+        "line-height"=>"30px",
+        "border"=>"1px solid",
+        "border-color"=>"rgb(213,216,218)",
+        "color"=>"rgb(27,116,221)",
+        "margin-top"=>"10px",
+        "margin-bottom"=>"10px",
+        "padding-left"=>"20px",
+        "padding-right"=>"20px",
+        "border-radius"=>"3px",
+        "font-weight"=>"500",
+        "font-size"=>"13px",
+        "background-color"=>"white",
+        "cursor"=>"pointer",
+        "transition"=>"background-color 0.5s,color 0.5s,border-color 0.5s"
+    )).InsertCssStyle(array(".banned"),array(
+        "color"=>"rgb(137,182,234)"
+    )).InsertCssStyle(array(".pages:not(.banned):hover"),array(
+        "background-color"=>"rgb(27,116,221)",
+        "color"=>"white",
+        "border-color"=>"rgb(27,116,221)"
+    )); $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"problem","num"=>1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'",
+    "style"=>InsertInlineCssStyle(array("margin-right"=>"10px"))),InsertTags("p",null,"Top"));
+    if ($page==1) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Previous"));
+    else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"problem","num"=>$page-1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'"),InsertTags("p",null,"Previous"));
+    if ($page==$pages_num) $content.=InsertTags("div",array("class"=>"pages banned"),InsertTags("p",null,"Next"));
+    else $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"problem","num"=>$page+1,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'"),InsertTags("p",null,"Next"));
+    $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("admin",array("page"=>"problem","num"=>$pages_num,"key"=>$param["key"],"tag"=>$param["tag"],"diff"=>$param["diff"]))."'",
+    "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
+    $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
+        "justify-content"=>"center"
+    ))),$content);
+    $body.=InsertTags("style",null,$style);
+    $script="var tag=new Array,diff=new Array;";
+    for ($i=0;$i<count($t);$i++) $script.="tag.push('".$t[$i]."');";
+    for ($i=0;$i<count($d);$i++) $script.="diff.push(".$d[$i].");";
+    $script.="function searchTag(name) {";
+    $script.="tag=new Array; diff=new Array;";
+    $script.="addTag(name); search();}";
+    $script.="function searchDiff(name) {";
+    $script.="tag=new Array; diff=new Array;";
+    $script.="addDiff(name); search();}";
+    $script.="function addTag(name) {";
+    $script.="if (!tag.includes(name)) {document.getElementById('tag-'+name).classList.remove('unsubmitted');tag.push(name);}";
+    $script.="else {document.getElementById('tag-'+name).classList.add('unsubmitted');tag=tag.filter(function(item){return item!=name});}";
+    $script.="} function addDiff(id) {";
+    $script.="if (!diff.includes(id)) {document.getElementById('difficulties-'+id).classList.remove('unsubmitted');diff.push(id);}";
+    $script.="else {document.getElementById('difficulties-'+id).classList.add('unsubmitted');diff=diff.filter(function(item){return item!=id});}";
+    $script.="} function search() {";
+    $script.="var url='".GetUrl("admin",array("page"=>"problem","num"=>1))."&key='+encodeURIComponent(document.getElementById('key').value);";
+    $script.="url+='&tag='; for (i=0;i<tag.length;i++) url+=encodeURIComponent(tag[i]+',');";
+    $script.="url+='&diff='; for (i=0;i<diff.length;i++) url+=encodeURIComponent(diff[i]+',');";
+    $script.="window.location.href=url;";
+    $script.="} function hidden2(id) {";
+    $script.="SendAjax('".GetAPIUrl("/problem/hidden",null)."','POST',{pid:id},function(){";
+    $script.="alert('Success!'); location.href=location.href;},true);";
+    $script.="} function rejudge(id) {";
+    $script.="SendAjax('".GetAPIUrl("/problem/rejudge",null)."','POST',{pid:id},function(){";
+    $script.="alert('Success!'); location.href=location.href;},true);";
+    $script.="} function delete2(id) {";
+    $script.="if (confirm('Click \"OK\" to delete the problem!')==false) return false;";
+    $script.="SendAjax('".GetAPIUrl("/problem/delete",null)."','POST',{pid:id},function(){";
+    $script.="alert('Success!'); location.href=location.href;},true);";
+    $script.="} $(\"#key\").keypress(function(event){";
+    $script.="var keynum=(event.keyCode?event.keyCode:event.which);  ";
+    $script.="if(keynum=='13') search();";
+    $script.="});";
+    $body.=InsertTags("script",null,$script);
+}
+
+function problem_create(array $param,string &$html,string &$body):void {
+    $contest_controller=new Contest_Controller;
+    $style=InsertCssStyle(array("input[type='file']"),array(
+        "display"=>"none"
+    )); $style.=InsertCssStyle(array(".label"),array(
+        "height"=>"30px",
+        "line-height"=>"30px",
+        "border"=>"1px solid",
+        "border-color"=>"rgb(213,216,218)",
+        "color"=>"rgb(27,116,221)",
+        "margin-top"=>"10px",
+        "margin-bottom"=>"10px",
+        "margin-right"=>"5px",
+        "padding-left"=>"20px",
+        "padding-right"=>"20px",
+        "padding-top"=>"5px",
+        "padding-bottom"=>"8px",
+        "border-radius"=>"3px",
+        "font-weight"=>"500",
+        "font-size"=>"13px",
+        "background-color"=>"white",
+        "cursor"=>"pointer",
+        "transition"=>"background-color 0.5s,color 0.5s,border-color 0.5s",    
+        "outline"=>"none"
+    )); $style.=InsertCssStyle(array(".label:hover"),array(
+            "background-color"=>"rgb(27,116,221)",
+            "color"=>"white",
+            "border-color"=>"rgb(27,116,221)"
+        )
+    ); $style.=InsertCssStyle(array("textarea"),array(
+        "width"=>"calc( 100% - 16.8px )",
+        "height"=>"100px",
+        "resize"=>"vertical",
+        "padding"=>"8.4px 10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) solid 1px",
+        "background-color"=>"rgb(249,255,204)",
+    ));
+
+    $tmp=InsertTags("hp",null,"Problem Information");
+    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("margin-top"=>"15px","display"=>"flex","align-items"=>"center"))),InsertTags("p",null,"Data Package:&nbsp;").
+        InsertTags("div",array("class"=>"file"),InsertTags("label",array("for"=>"data","class"=>"label"),"Choose a Data Package")).
+        InsertSingleTag("input",array("accept"=>".zip","type"=>"file","id"=>"data","name"=>"data")).
+        InsertTags("div",array("id"=>"dataname"),""));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Problem Name:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"name","placeholder"=>"Input Problem Name here")));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Background");
+    $tmp.=InsertTags("div",array("id"=>"bg","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Description");
+    $tmp.=InsertTags("div",array("id"=>"descrip","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"I/O Information");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Input File:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"input-file","placeholder"=>"Input File Name(Input File) here, 'stdin' refers to Standard Input.")));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Output File:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"output-file","placeholder"=>"Input File Name(Output File) here, 'stdout' refers to Standard Output.")));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Input");
+    $tmp.=InsertTags("div",array("id"=>"input","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+    $tmp=InsertTags("hp",null,"Output");
+    $tmp.=InsertTags("div",array("id"=>"output","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Sample");
+    $tmp.=InsertTags("div",array("id"=>"cases"),"");
+    $tmp.=InsertTags("center",null,InsertTags("button",array("onclick"=>"appendCase()"),"Append"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Hint");
+    $tmp.=InsertTags("div",array("id"=>"hint","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Others");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Tags:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"tags","placeholder"=>"Input Tags here, use ',' to desperate them.")));
+    $contest=$contest_controller->GetContest();
+    $options=InsertTags("option",array("value"=>"0"),"none"); for ($i=0;$i<count($contest);$i++) 
+        $options.=InsertTags("option",array("value"=>$contest[$i]["id"]),$contest[$i]["title"]);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Contests:&nbsp;".InsertTags("select",array("id"=>"contest","style"=>InsertInlineCssStyle(array(
+            "width"=>"10px",
+            "flex-grow"=>"1000",
+            "height"=>"30px",
+            "padding-left"=>"10px",
+            "outline"=>"none",
+            "border"=>"rgb(221,221,221) 1px solid",
+            "background-color"=>"rgb(249,255,204)",
+            "border-radius"=>"3px",
+            "padding-right"=>"10px"
+        ))),$options));
+    $config=GetConfig();
+    $options=InsertTags("option",array("value"=>"0"),$config["difficulties"][0]["name"]); for ($i=1;$i<count($config["difficulties"]);$i++) 
+        $options.=InsertTags("option",array("value"=>$i),$config["difficulties"][$i]["name"]);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "Difficulty:&nbsp;".InsertTags("select",array("id"=>"difficulty","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $tmp.=InsertTags("center",null,InsertTags("button",array("onclick"=>"submit()"),"Submit"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+    
+    $script="var bg=".CreateEditor("","bg",",height:'400px'");
+    $script.="var descrip=".CreateEditor("","descrip",",height:'400px'");
+    $script.="var input=".CreateEditor("","input",",height:'400px'");
+    $script.="var output=".CreateEditor("","output",",height:'400px'");
+    $script.="var hint=".CreateEditor("","hint",",height:'400px'");
+    $script.="var cs=0;appendCase();function appendCase() {cs++;var content=\"<div id='case\"+cs+\"' style='display:flex;display:-webkit-flex;margin-top:15px'>\"+";
+    $script.="\"<div style='flex-grow:1000'><p>Input #\"+cs+\": </p><textarea id='case\"+cs+\"-input'></textarea></div>\"+";
+    $script.="\"<div style='flex-grow:1000;margin-left:20px'><p>Output #\"+cs+\": </p><textarea id='case\"+cs+\"-output'></textarea></div>\"+";
+    $script.="\"</div>\";$(\"#cases\").append(content);} function getCases(){";
+    $script.="var obj=new Array;for (var i=1;i<=cs;i++) {var objnow=new Object;";
+    $script.="objnow={input:document.getElementById(\"case\"+i+\"-input\").value,";
+    $script.="output:document.getElementById(\"case\"+i+\"-output\").value};";
+    $script.="if (objnow[\"input\"]==\"\"&&objnow[\"output\"]==\"\") continue;";
+    $script.="obj.push(objnow);}return JSON.stringify(obj);}";
+    $script.="function readFile(id){var input=document.getElementById(id);if (input.value==''){alert(\"Data Package is not uploaded!\");return false;}";
+    $script.="if (typeof(FileReader)==='undefined'){alert(\"Your browser is too old, sorry!\");";
+    $script.="input.setAttribute('disabled','disabled');} var reader=new FileReader();";
+    $script.="reader.readAsDataURL(input.files[0]);reader.onload=function(){getFormData(this.result);}}";
+    $script.="function submit(){readFile(\"data\");}function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
+    $script.="function getFormData(content) {var Form={\"file\":(content.split(\",\"))[1],\"title\":document.getElementById(\"name\").value,";
+    $script.="\"background\":bg.getMarkdown(),\"description\":descrip.getMarkdown(),\"input-file\":document.getElementById(\"input-file\").value,";
+    $script.="\"output-file\":document.getElementById(\"output-file\").value,\"input\":input.getMarkdown(),\"output\":output.getMarkdown(),";
+    $script.="\"cases\":getCases(),\"hint\":hint.getMarkdown(),\"tags\":docuqment.getElementById('tags').value,";
+    $script.="\"contest\":document.getElementById('contest').value,\"difficulty\":document.getElementById('difficulty').value};console.log(Form);";
+    $script.="SendAjax(\"".GetAPIUrl("/problem/create",null)."\",\"POST\",Form,function(res){alert(\"Create successfully! Your problem id: \"+JSON.parse(strip_tags_pre(res))['data']['id']);";
+    $script.="location.href=\"".GetUrl("admin",array("page"=>"problem"))."?id=\"+JSON.parse(strip_tags_pre(res))['data']['id'];},true);}";
+    $script.="document.getElementById('data').onchange=function(){document.getElementById('dataname').innerHTML=document.getElementById('data').files[0]['name'];};";
+    $script.="setTimeout(function(){window.scrollTo(0,0)},100);";
+
+    $body.=InsertTags("script",null,$script);
+    $body.=InsertTags("style",null,$style);
+}
+
+function solve($md) {
+    $md=str_replace("\\","\\\\",$md); $md=str_replace("\n","\\n",$md); 
+    $md=str_replace("\r","",$md); $md=str_replace("'","\\'",$md);
+    return $md;
+}
+
+function format_size(int $size):string {
+    if ($size<=2048) return $size."B";
+    $size=$size/1024; if ($size<100) return round($size,2)."KB";
+    if ($size<1000) return round($size,1)."KB";
+    if ($size<=2048) return round($size,0)."KB";
+    $size=$size/1024; if ($size<100) return round($size,2)."MB";
+    if ($size<1000) return round($size,1)."MB";
+    if ($size<=2048) return round($size,0)."MB";
+    $size=$size/1024; return round($size,0)."GB";
+}
+
+function problem_update(array $param,string &$html,string &$body):void {
+    $id=$param["id"];
+    $problem_controller=new Problem_Controller;
+    $tags_controller=new Tags_Controller;
+    $problem=$problem_controller->ListProblemByPid($id);
+    $tags=$tags_controller->ListProblemTagsByPid($id);
+    $fp=fopen("../problem/$id/config.json","r");
+    $json=fread($fp,filesize("../problem/$id/config.json"));
+    $json=json_decode($json,true);
+    fclose($fp);
+
+    $contest_controller=new Contest_Controller;
+    $style=InsertCssStyle(array("input[type='file']"),array(
+        "display"=>"none"
+    )); $style.=InsertCssStyle(array(".label"),array(
+        "height"=>"30px",
+        "line-height"=>"30px",
+        "border"=>"1px solid",
+        "border-color"=>"rgb(213,216,218)",
+        "color"=>"rgb(27,116,221)",
+        "margin-top"=>"10px",
+        "margin-bottom"=>"10px",
+        "margin-right"=>"5px",
+        "padding-left"=>"20px",
+        "padding-right"=>"20px",
+        "padding-top"=>"5px",
+        "padding-bottom"=>"8px",
+        "border-radius"=>"3px",
+        "font-weight"=>"500",
+        "font-size"=>"13px",
+        "background-color"=>"white",
+        "cursor"=>"pointer",
+        "transition"=>"background-color 0.5s,color 0.5s,border-color 0.5s",    
+        "outline"=>"none"
+    )); $style.=InsertCssStyle(array(".label:hover"),array(
+            "background-color"=>"rgb(27,116,221)",
+            "color"=>"white",
+            "border-color"=>"rgb(27,116,221)"
+        )
+    ); $style.=InsertCssStyle(array("textarea"),array(
+        "width"=>"calc( 100% - 16.8px )",
+        "height"=>"100px",
+        "resize"=>"vertical",
+        "padding"=>"8.4px 10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) solid 1px",
+        "background-color"=>"rgb(249,255,204)",
+    )); $style.=InsertCssStyle(array(".data-main"),array(
+        "display"=>"flex",
+        "display"=>"-webkit-flex",
+        "margin-top"=>"19.92px"
+    )); $style.=InsertCssStyle(array(".name"),array(
+        "width"=>"1px",
+        "flex-grow"=>"1500",
+    )); $style.=InsertCssStyle(array(".input",".input2"),array(
+        "width"=>"1px",
+        "flex-grow"=>"2000",
+    )); $style.=InsertCssStyle(array(".input > center > input"),array(
+        "flex-grow"=>"0!important",
+        "width"=>"150px",
+    ));  $style.=InsertCssStyle(array(".input > center"),array(
+        "position"=>"relative",
+        "left"=>"10px"
+    ));
+
+    $tmp=InsertTags("hp",null,"Problem Information");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Problem Name:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"name","placeholder"=>"Input Problem Name here","value"=>$problem["name"])));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Background");
+    $tmp.=InsertTags("div",array("id"=>"bg","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Description");
+    $tmp.=InsertTags("div",array("id"=>"descrip","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"I/O Information");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Input File:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"input-file","placeholder"=>"Input File Name(Input File) here, 'stdin' refers to Standard Input.","value"=>$json["input"])));
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Output File:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"output-file","placeholder"=>"Input File Name(Output File) here, 'stdout' refers to Standard Output.","value"=>$json["output"])));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Input");
+    $tmp.=InsertTags("div",array("id"=>"input","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+    $tmp=InsertTags("hp",null,"Output");
+    $tmp.=InsertTags("div",array("id"=>"output","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Sample");
+    $tmp.=InsertTags("div",array("id"=>"cases"),"");
+    $tmp.=InsertTags("center",null,InsertTags("button",array("onclick"=>"appendCase()"),"Append"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Hint");
+    $tmp.=InsertTags("div",array("id"=>"hint","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),null);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Additional Files");
+    if (is_dir("./files/".$param["id"])) $files=scandir("./files/".$param["id"]);
+    else $files=array(".",".."); $tmp2="";
+    unset($files[0]); unset($files[1]);
+    foreach ($files as $key=>$value) {
+        $tmp2.=InsertTags("i",array("class"=>"linkify icon","style"=>InsertInlineCssStyle(array(
+            "width"=>"auto",
+            "margin"=>"10px 0px"
+        ))),"&nbsp;&nbsp;&nbsp;&nbsp;".
+        InsertTags("a",array("href"=>GetAPIUrl("/problem/addition",array("pid"=>$param["id"],"name"=>$value))),$value).
+        "&nbsp;&nbsp;&nbsp;&nbsp;".InsertTags("pp",null,format_size(filesize("./files/".$param["id"]."/$value"))).
+        "&nbsp;&nbsp;|&nbsp;&nbsp;".InsertTags("a",array("onclick"=>"delete_file('$value')"),"Delete")
+        ).InsertSingleTag("br",null);
+    } $tmp.=InsertTags("div",array("id"=>"addition","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),$tmp2);
+    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("margin-top"=>"15px","display"=>"flex","align-items"=>"center"))),InsertTags("p",null,"Upload a File:&nbsp;").
+        InsertTags("div",array("class"=>"file"),InsertTags("label",array("for"=>"data2","class"=>"label"),"Choose a File")).
+        InsertSingleTag("input",array("type"=>"file","id"=>"data2","name"=>"data2")).
+        InsertTags("div",array("id"=>"data2name"),""));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tagstring=""; for ($i=0;$i<count($tags);$i++) $tagstring.=$tags[$i].",";
+    $tmp=InsertTags("hp",null,"Others");
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Tags:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"tags","placeholder"=>"Input Tags here, use ',' to desperate them.","value"=>$tagstring)));
+    $contest=$contest_controller->GetContest();
+    $options=InsertTags("option",array("value"=>"0"),"none"); for ($i=0;$i<count($contest);$i++) 
+        if ($problem["contest"]!=$contest[$i]["id"]) $options.=InsertTags("option",array("value"=>$contest[$i]["id"]),$contest[$i]["title"]);
+        else $options.=InsertTags("option",array("value"=>$contest[$i]["id"],"selected"=>"selected"),$contest[$i]["title"]);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "Contests:&nbsp;".InsertTags("select",array("id"=>"contest","style"=>InsertInlineCssStyle(array(
+            "width"=>"10px",
+            "flex-grow"=>"1000",
+            "height"=>"30px",
+            "padding-left"=>"10px",
+            "outline"=>"none",
+            "border"=>"rgb(221,221,221) 1px solid",
+            "background-color"=>"rgb(249,255,204)",
+            "border-radius"=>"3px",
+            "padding-right"=>"10px"
+        ))),$options));
+    $config=GetConfig();
+    $options=InsertTags("option",array("value"=>"0"),$config["difficulties"][0]["name"]);  
+    for ($i=1;$i<count($config["difficulties"]);$i++) 
+        if ($i!=$problem["difficult"]) $options.=InsertTags("option",array("value"=>$i),$config["difficulties"][$i]["name"]);
+        else $options.=InsertTags("option",array("value"=>$i,"selected"=>"selected"),$config["difficulties"][$i]["name"]);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "Difficulty:&nbsp;".InsertTags("select",array("id"=>"difficulty","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"Data Config");
+    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("margin-top"=>"15px","display"=>"flex","align-items"=>"center"))),InsertTags("p",null,"Upload a Data Package:&nbsp;").
+        InsertTags("div",array("class"=>"file"),InsertTags("label",array("for"=>"data","class"=>"label"),"Choose a Data Package")).
+        InsertSingleTag("input",array("accept"=>".zip","type"=>"file","id"=>"data","name"=>"data")).
+        InsertTags("div",array("id"=>"dataname"),""));
+    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("display"=>"flex","align-items"=>"center"))),
+        InsertTags("p",null,"Download Data:&nbsp;").InsertTags("button",array("onclick"=>"download()"),"Click here"));
+    $tmp.=InsertTags("div",array("class"=>"data-main","id"=>"data-header"),
+        InsertTags("div",array("class"=>"name"),InsertTags("center",null,"Test Case")).
+        InsertTags("div",array("class"=>"input2"),InsertTags("center",null,"Time Limit")).
+        InsertTags("div",array("class"=>"input2"),InsertTags("center",null,"Memory Limit")).
+        InsertTags("div",array("class"=>"input2"),InsertTags("center",null,"Score")).
+        InsertTags("div",array("class"=>"input2"),InsertTags("center",null,"Subtask"))
+    ); $tmp.=InsertTags("div",array("class"=>"data-main","id"=>"data-all"),
+        InsertTags("div",array("class"=>"name"),"One-click Config").
+        InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-time0"))."&nbsp;ms")).
+        InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-memory0"))."&nbsp;MiB")).
+        InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-score0"))."&nbsp;pts")).
+        InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-subtask0"))))
+    ); for ($i=0;$i<count($json["data"]);$i++) {
+        $tmp.=InsertTags("div",array("class"=>"data-main","id"=>"data-".($i+1)),
+            InsertTags("div",array("class"=>"name ellipsis"),"#".($i+1).":&nbsp;".$json["data"][$i]["input"]."&nbsp;/&nbsp;".$json["data"][$i]["output"]).
+            InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-time".($i+1),"value"=>$json["data"][$i]["time"]))."&nbsp;ms")).
+            InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-memory".($i+1),"value"=>round($json["data"][$i]["memory"]/1024)))."&nbsp;MiB")).
+            InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-score".($i+1),"value"=>$json["data"][$i]["score"]))."&nbsp;pts")).
+            InsertTags("div",array("class"=>"input"),InsertTags("center",null,InsertSingleTag("input",array("type"=>"text","id"=>"data-subtask".($i+1),"value"=>$json["data"][$i]["subtask"]))))
+        );
+    } $tmp.=InsertTags("p",null,"Subtask Dependence: "); $sd="\n";
+    for ($i=0;$i<count($json["subtask_depend"]);$i++) {
+        for ($j=0;$j<count($json["subtask_depend"][$i]);$j++) {
+            $sd.=$json["subtask_depend"][$i][$j].",";
+        } $sd.="\n";
+    } // echo $sd; exit;
+    $tmp.=InsertTags("textarea",array("id"=>"subtask-dependence"),$sd);
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+
+    $tmp=InsertTags("hp",null,"SPJ Config");
+    $options=InsertTags("option",array("id"=>"spj-type-0","value"=>0),"Custom Special Judge");
+    for ($i=0;$i<count($config["spj"]);$i++) $options.=InsertTags("option",array("id"=>"spj-type-".($i+1),"value"=>($i+1)),$config["spj"][$i]["name"]);
+    $tmp.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+    "SPJ Template:&nbsp;".InsertTags("select",array("id"=>"spj-type","style"=>InsertInlineCssStyle(array(
+        "width"=>"10px",
+        "flex-grow"=>"1000",
+        "height"=>"30px",
+        "padding-left"=>"10px",
+        "outline"=>"none",
+        "border"=>"rgb(221,221,221) 1px solid",
+        "background-color"=>"rgb(249,255,204)",
+        "border-radius"=>"3px",
+        "padding-right"=>"10px"
+    ))),$options));
+    $tmp.=InsertTags("div",array("id"=>"spj-1","class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "SPJ Source:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"spj-source","placeholder"=>"Input SPJ Source Path here","value"=>$json["spj"]["source"])));
+    $tmp.=InsertTags("div",array("id"=>"spj-2","class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "SPJ Compile Command:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"spj-compile-cmd","placeholder"=>"Input SPJ Compile Command here","value"=>$json["spj"]["compile_cmd"])));
+    $tmp.=InsertTags("div",array("id"=>"spj-3","class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "SPJ Path:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"spj-exec-name","placeholder"=>"Input SPJ Path here","value"=>$json["spj"]["exec_name"])));
+    $tmp.=InsertTags("div",array("id"=>"spj-4","class"=>"flex","style"=>InsertInlineCssStyle(array("margin-top"=>"15px"))),
+        "SPJ Running Param:&nbsp;".InsertSingleTag("input",array("type"=>"text","id"=>"spj-exec-param","placeholder"=>"Input SPJ Running Param here","value"=>$json["spj"]["exec_param"])));
+    $tmp.=InsertTags("center",null,InsertTags("button",array("onclick"=>"submit()"),"Submit"));
+    $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
+        "margin-top"=>"20px","padding"=>"20px"))),$tmp);
+    
+    $script="var bg=".CreateEditor($problem["bg"],"bg",",height:'400px'");
+    $script.="var descrip=".CreateEditor($problem["descrip"],"descrip",",height:'400px'");
+    $script.="var input=".CreateEditor($problem["input"],"input",",height:'400px'");
+    $script.="var output=".CreateEditor($problem["output"],"output",",height:'400px'");
+    $script.="var hint=".CreateEditor($problem["hint"],"hint",",height:'400px'");
+    $sample=$problem["cases"]; $sample=preg_replace('/[\x00-\x1F\x7F-\x9F]/u','',$sample);
+    $sample=json_decode($sample,true); 
+    $script.="var cs=0;function appendCase() {cs++;var content=\"<div id='case\"+cs+\"' style='display:flex;display:-webkit-flex;margin-top:15px'>\"+";
+    $script.="\"<div style='flex-grow:1000'><p>Input #\"+cs+\": </p><textarea id='case\"+cs+\"-input'></textarea></div>\"+";
+    $script.="\"<div style='flex-grow:1000;margin-left:20px'><p>Output #\"+cs+\": </p><textarea id='case\"+cs+\"-output'></textarea></div>\"+";
+    $script.="\"</div>\";$(\"#cases\").append(content);} function getCases(){";
+    $script.="var obj=new Array;for (var i=1;i<=cs;i++) {var objnow=new Object;";
+    $script.="objnow={input:document.getElementById(\"case\"+i+\"-input\").value,";
+    $script.="output:document.getElementById(\"case\"+i+\"-output\").value};";
+    $script.="if (objnow[\"input\"]==\"\"&&objnow[\"output\"]==\"\") continue;";
+    $script.="obj.push(objnow);}return JSON.stringify(obj);}";
+    $script.="function readFile(id,callback){var input=document.getElementById(id);if (input.value==''){alert(\"Data Package is not uploaded!\");return false;}";
+    $script.="if (typeof(FileReader)==='undefined'){alert(\"Your browser is too old, sorry!\");";
+    $script.="input.setAttribute('disabled','disabled');} var reader=new FileReader();";
+    $script.="reader.readAsDataURL(input.files[0]);reader.onload=function(){callback(this.result);}}";
+    $script.="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
+    $script.="function submit() {var Form={\"pid\":$id,\"title\":document.getElementById(\"name\").value,";
+    $script.="\"background\":bg.getMarkdown(),\"description\":descrip.getMarkdown(),\"input-file\":document.getElementById(\"input-file\").value,";
+    $script.="\"output-file\":document.getElementById(\"output-file\").value,\"input\":input.getMarkdown(),\"output\":output.getMarkdown(),";
+    $script.="\"cases\":getCases(),\"hint\":hint.getMarkdown(),\"tags\":document.getElementById('tags').value,";
+    $script.="\"contest\":document.getElementById('contest').value,\"difficulty\":document.getElementById('difficulty').value,";
+    $script.="\"data\":getData(),\"spj_type\":document.getElementById('spj-type').value,";
+    $script.="\"spj_source\":document.getElementById('spj-source').value,\"spj_compile\":document.getElementById('spj-compile-cmd').value,";
+    $script.="\"spj_name\":document.getElementById('spj-exec-name').value,\"spj_param\":document.getElementById('spj-exec-param').value,";
+    $script.="\"subtask_dependence\":document.getElementById('subtask-dependence').value};console.log(Form);";
+    $script.="SendAjax(\"".GetAPIUrl("/problem/update",null)."\",\"POST\",Form,function(res){alert(\"Update successfully! Your problem id: \"+JSON.parse(strip_tags_pre(res))['data']['id']);},true);}";
+    for ($i=0;$i<count($sample);$i++) $script.="appendCase();document.getElementById('case'+cs+'-input').innerHTML='".solve($sample[$i]["input"])."';document.getElementById('case'+cs+'-output').innerHTML='".solve($sample[$i]["output"])."';";
+    $script.="document.getElementById(\"data-time0\").oninput=function() {for (var i=1;i<=".count($json["data"]).";i++) {";
+    $script.="document.getElementById(\"data-time\"+i).value=document.getElementById(\"data-time0\").value;}};";
+    $script.="document.getElementById(\"data-memory0\").oninput=function() {for (var i=1;i<=".count($json["data"]).";i++) {";
+    $script.="document.getElementById(\"data-memory\"+i).value=document.getElementById(\"data-memory0\").value;}};";
+    $script.="document.getElementById(\"data-score0\").oninput=function() {for (var i=1;i<=".count($json["data"]).";i++) {";
+    $script.="document.getElementById(\"data-score\"+i).value=document.getElementById(\"data-score0\").value;}};";
+    $script.="document.getElementById(\"data-subtask0\").oninput=function() {for (var i=1;i<=".count($json["data"]).";i++) {";
+    $script.="document.getElementById(\"data-subtask\"+i).value=document.getElementById(\"data-subtask0\").value;}};";
+    $script.="document.getElementById(\"spj-type-".$json["spj"]["type"]."\").setAttribute(\"selected\",\"selected\");";
+    if ($json["spj"]["type"]==0) {
+        $script.="document.getElementById(\"spj-1\").style=\"display:flex;margin-top:15px\";";
+        $script.="document.getElementById(\"spj-2\").style=\"display:flex;margin-top:15px\";";
+        $script.="document.getElementById(\"spj-3\").style=\"display:flex;margin-top:15px\";";
+    } else {
+        $script.="document.getElementById(\"spj-1\").style=\"display:none\";";
+        $script.="document.getElementById(\"spj-2\").style=\"display:none\";";
+        $script.="document.getElementById(\"spj-3\").style=\"display:none\";";
+    } $script.="document.getElementById(\"spj-type\").onchange=function() {";
+    $script.="if (document.getElementById(\"spj-type\").value==0) {";
+    $script.="document.getElementById(\"spj-1\").style=\"display:flex;margin-top:15px\";";
+    $script.="document.getElementById(\"spj-2\").style=\"display:flex;margin-top:15px\";";
+    $script.="document.getElementById(\"spj-3\").style=\"display:flex;margin-top:15px\";";
+    $script.="} else {";
+    $script.="document.getElementById(\"spj-1\").style=\"display:none\";";
+    $script.="document.getElementById(\"spj-2\").style=\"display:none\";";
+    $script.="document.getElementById(\"spj-3\").style=\"display:none\";";
+    $script.="}}; function getData() {";
+    $script.="var res={\"time\":new Array,\"memory\":new Array,\"score\":new Array,\"subtask\":new Array};";
+    $script.="for (var i=1;i<=".count($json["data"]).";i++) {";
+    $script.="res[\"time\"].push(Number(document.getElementById(\"data-time\"+i).value));";
+    $script.="res[\"memory\"].push(Number(document.getElementById(\"data-memory\"+i).value*1024));";
+    $script.="res[\"score\"].push(Number(document.getElementById(\"data-score\"+i).value));";
+    $script.="res[\"subtask\"].push(Number(document.getElementById(\"data-subtask\"+i).value));";
+    $script.="} return JSON.stringify(res);";
+    $script.="} document.getElementById('data').onchange=function(){readFile('data',UploadFile);};";
+    $script.="document.getElementById('data2').onchange=function(){readFile('data2',UploadFile2);};";
+    $script.="function UploadFile(content) {";
+    $script.="SendAjax('".GetAPIUrl("/problem/upload",null)."','POST',{pid:$id,file:(content.split(\",\"))[1]}";
+    $script.=",function(){alert('Upload Success!');location.href=location.href;},true);}";
+    $script.="function download(){location.href='".GetAPIUrl("/problem/download",array("id"=>$id))."';}";
+    $script.="function UploadFile2(content) { console.log(document.getElementById('data2').files[0]);";
+    $script.="SendAjax('".GetAPIUrl("/problem/upload2",null)."','POST',{pid:$id,file:(content.split(\",\"))[1],name:document.getElementById('data2').files[0]['name']}";
+    $script.=",function(){alert('Upload Success!');location.href=location.href;},true);}";
+    $script.="function delete_file(name){SendAjax('".GetAPIUrl("/problem/delete2",null)."','POST',{pid:$id,name:name}";
+    $script.=",function(){alert('Delete Success!');location.href=location.href;},true)}";
+    $body.=InsertTags("script",null,$script);
+    $body.=InsertTags("style",null,$style);
+}
+
+function problem_run(array $param,string &$html,string &$body):void {
+    if (array_key_exists("num",$param)){problem_list_run($param,$html,$body);return;}
+    if (!array_key_exists("id",$param)){$param["num"]=1;problem_list_run($param,$html,$body);return;}
+    if ($param["id"]==0){problem_create($param,$html,$body);return;}
+    problem_update($param,$html,$body);
+}
 
 function system_run(array $param,string &$html,string &$body):void {
     $admin_controller=new Admin_Controller;
@@ -315,6 +1258,7 @@ function system_run(array $param,string &$html,string &$body):void {
     $script.="document.getElementById('server-time').value=sysinfo['data']['timeServer'];";
     $script.="document.getElementById('time-stamp').value=sysinfo['data']['timeStamp'];";
     $script.="},1000);";
+    $script.="setTimeout(function(){window.scrollTo(0,0)},100);";
     $body.=InsertTags("style",null,$style);
     $body.=InsertTags("script",null,$script);
 }

@@ -9,7 +9,7 @@
             "DedeUserID__ckMd5"=>$_COOKIE["DedeUserID__ckMd5"],
             "CSRF_TOKEN"=>$_COOKIE["CSRF_TOKEN"],
             "SESSDATA"=>$_COOKIE["SESSDATA"],
-            "login"=>false
+            "login"=>0
         ));
     $uid=$login_controller->GetLoginID();
     $api_controller->output(array(
@@ -17,7 +17,7 @@
         "DedeUserID__ckMd5"=>$_COOKIE["DedeUserID__ckMd5"],
         "CSRF_TOKEN"=>$_COOKIE["CSRF_TOKEN"],
         "SESSDATA"=>$_COOKIE["SESSDATA"],
-        "login"=>true,
+        "login"=>1,
         "user"=>$user_controller->GetWholeUserInfo($uid)
     ));
 ?>

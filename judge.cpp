@@ -271,8 +271,8 @@ unsigned int get_proc_mem(unsigned int pid){
 }
 
 // The Main Judger
-int run_code(const char* cmd,int& times,int& memory,int time_limit,
-int memory_limit,bool special_judge=false,bool stdin=false,bool stdout=false) {
+int run_code(const char* cmd,long long& times,long long& memory,long long time_limit,
+long long memory_limit,bool special_judge=false,bool stdin=false,bool stdout=false) {
 	ofstream fout("run.sh");
 	fout<<"ulimit -s 2097152"<<endl<<cmd;
 	if (stdin) fout<<" < stdin";
@@ -296,7 +296,7 @@ int memory_limit,bool special_judge=false,bool stdin=false,bool stdout=false) {
 		string name=cmd; name=getname(name); key=true;
 		while (process==""&&kill(executive,0)==0) system2(("pidof "+name).c_str(),process);
 		int main_pid=StringToInt(process);
-		time_t st=clock2(); pid_t ret2=-1;
+		long long st=clock2(); pid_t ret2=-1;
 		int status=0; 
 		while (1) { 
 			if (kill(executive,0)!=0) {
@@ -323,7 +323,7 @@ int memory_limit,bool special_judge=false,bool stdin=false,bool stdout=false) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				else return_info(("SPJ Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
 				return 0;
-			} int mem=get_proc_mem(main_pid);
+			} long long mem=get_proc_mem(main_pid);
 			if (mem!=0) times=clock2()-st,memory=mem;
 			if (mem>memory_limit) {
 				if (!special_judge) return_info(("Time usage: "+IntToString(times)+"ms, memory usage: "+IntToString(memory)+"kb").c_str());
@@ -609,7 +609,7 @@ void AnalyseArgv(int argc,char** argv,Json::Value config) {
 		#ifdef __linux__
 		cout<<"                                     Default value is '/etc/judge/config.json'."<<endl;
 		#elif _WIN32
-		cout<<"                                     Default value is 'C:/judge/config.json'."<<endl;
+		cout<<"                                     Default value is 'C://judge/config.json'."<<endl;
 		#endif
 		cout<<"    --mysql-server=<address>         Set MySQL/MariaDB server address to connect."<<endl;
 		cout<<"                                     Default Value is '"+cache["mysql-server"].asString()+"'."<<endl;
@@ -678,21 +678,165 @@ void AnalyseArgv(int argc,char** argv,Json::Value config) {
 	}
 }
 
+Json::Value judge,val;
+Json::Value judge_data(int pid,int dataid,int lang,int& state,int& rest,int& resm) {
+	Json::Value single; int sum_t=0,max_m=0;
+	
+	// Copy Test Data
+	long long st=clock2();
+	#ifdef __linux__
+	int retc=system(("rm /etc/judge/tmp/"+val["input"].asString()).c_str());
+	retc=system2(("ln \"/etc/judge/problem/"+IntToString(pid)+"/"+val["data"][dataid]["input"].asString()+"\" \""+
+	"/etc/judge/tmp/"+val["input"].asString()+"\" -s").c_str(),garbage);
+	#elif _WIN32
+	int retc=system2(("copy \"problem\\"+IntToString(pid)+"\\"+val["data"][dataid]["input"].asString()+"\" \""+
+	"tmp\\"+val["input"].asString()+"\" /Y").c_str(),garbage);
+	#endif
+	if (retc) {
+		return_error(("Failed to create link for input file in problem #"+IntToString(pid)).c_str(),false);
+		return_error(("Error file name: "+val["data"][dataid]["input"].asString()+"/"+
+		val["data"][dataid]["output"].asString()).c_str(),false);
+		return_error(garbage.c_str(),false);
+		return_error(to_string(retc).c_str(),false);
+		state=6; rest=sum_t,resm=max_m;
+		return single;
+	}
+	
+	// Remove Exist Output File
+	ofstream tmpout(("./tmp/"+val["output"].asString()).c_str()); tmpout.close();
+	int x=system(("chmod 0777 ./tmp/"+val["output"].asString()).c_str());
+
+	// Update Working Directory
+	__chdir("./tmp/");
+	long long t=0,m=0,ret; string command=judge["lang"][lang]["exec_command"].asString();
+	string extra_command="";
+	ret=run_code(command.c_str(),t,m,val["data"][dataid]["time"].asInt(),val["data"][dataid]["memory"].asInt(),
+	false,val["input"].asString()=="stdin",val["output"].asString()=="stdout");
+	
+	// Update Working Directory
+	__chdir("../");
+	
+	// When Exited Abnormally
+	if (ret) {
+		single["time"]=t;single["memory"]=m;
+		sum_t+=t,max_m=max((long long)max_m,m);
+		
+		// Update the Whole Judging State
+		if (!state) state=ret;
+		
+		// Analyse Exited Reason and Full JSON Object
+		switch (ret) {
+			case 2: single["state"]="Time Limited Exceeded",single["info"]="Time Limited Exceeded";break;
+			case 3: single["state"]="Memory Limited Exceeded",single["info"]="Memory Limited Exceeded";break;
+			case 4: single["state"]="Runtime Error",
+			single["info"]="Runtime Error | "+analysis_reason(runtime_error_reason);break;
+			default: single["state"]="Unknown Error",single["info"]="Unknown Error";break;
+		} single["score"]=0;
+		return_info(single["info"].asString().c_str());
+		// if (ret==2){info.append(single);break;}
+		
+		// Append Result to the whole JSON Object
+		state=ret; rest=sum_t,resm=max_m;
+		return single;
+	}
+	
+	// When Exited Normally
+	single["time"]=t,single["memory"]=m;
+	sum_t+=t,max_m=max((long long)max_m,m);
+	
+	// Remove Exist Garbase
+	tmpout.open("./tmp/score.txt");tmpout.close();
+	tmpout.open("./tmp/info.txt");
+	
+	// Gain the Absolute Path for some File
+	string inputpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][dataid]["input"].asString()).c_str());
+	string outputpath=getpath(("./tmp/"+val["output"].asString()).c_str());
+	string answerpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][dataid]["output"].asString()).c_str());
+	string resultpath=getpath("./tmp/score.txt"),infopath=getpath("./tmp/info.txt");
+	string sourcepath=getpath(("./tmp/"+judge["lang"][lang]["source_path"].asString()).c_str());
+	long long spjt,spjm;
+	
+	// Update Working Directory
+	__chdir("./tmp");
+	
+	// Running Special Judger
+	#ifdef __linux__
+	ret=run_code(("./spj "+inputpath+" "+outputpath+" "+answerpath+" "+
+	val["data"][dataid]["score"].asString()+" "+resultpath+" "+infopath+" "+sourcepath+" "+
+	val["spj"]["exec_param"].asString()).c_str(),
+	spjt,spjm,val["data"][dataid]["time"].asInt(),val["data"][dataid]["memory"].asInt(),true);
+	#elif _WIN32
+	ret=run_code(("spj.exe "+inputpath+" "+outputpath+" "+answerpath+" "+
+	val["data"][dataid]["score"].asString()+" "+resultpath+" "+infopath+" "+
+	val["spj"]["exec_param"].asString()).c_str(),
+	spjt,spjm,val["data"][dataid]["time"].asInt(),val["data"][dataid]["memory"].asInt(),true);
+	#endif
+	
+	// Update Working Directory
+	__chdir("../");
+	
+	// When SPJ Exited Abnormally
+	if (ret) {
+		single["time"]=spjt+t;single["memory"]=spjm+m;
+		sum_t+=spjt+t,max_m=max((long long)max_m,spjm+m);
+		
+		// Update the Whole State
+		if (!state) state=ret;
+		
+		// Analyse Exited Reason and Full JSON Object
+		switch (ret) {
+			case 2: single["state"]="Time Limited Exceeded",single["info"]="Special Judge Time Limited Exceeded";break;
+			case 3: single["state"]="Memory Limited Exceeded",single["info"]="Special Judge Memory Limited Exceeded";break;
+			case 4: single["state"]="Runtime Error",
+			single["info"]="Runtime Error | Special Judge "+analysis_reason(runtime_error_reason);break;
+			default: single["state"]="Unknown Error",single["info"]="Special Judge Unknown Error";break;
+		} single["score"]=0;
+		return_info(single["info"].asString().c_str());
+		
+		// Append Result to the whole JSON Object
+		state=ret; rest=sum_t,resm=max_m;
+		return single;
+	}
+	
+	// Read Score and Judger Info
+	int gain_score=0;ifstream scorein("./tmp/score.txt");
+	scorein>>gain_score;scorein.close();
+	string spj_info="";ifstream infoin("./tmp/info.txt");
+	while (!infoin.eof()) {
+		string input;getline(infoin,input);
+		spj_info+=input+"\n";
+	} infoin.close();
+	
+	// Analyse Result and Full JSON Object
+	int now_state=0; 
+	if (gain_score>=val["data"][dataid]["score"].asInt()) return_info("Accepted | OK!"),single["state"]="Accepted",now_state=0;
+	else if (gain_score==-1) return_info("Wrong Answer!"),single["state"]="Wrong Answer",now_state=1,gain_score=0;
+	else now_state=7,return_info(("Partially Correct, Gain "+to_string(gain_score)+"/"+
+	val["data"][dataid]["score"].asString()+"!").c_str()),single["state"]="Partially Correct";
+	
+	// Update the Whole State
+	state=now_state; rest=sum_t,resm=max_m;
+	
+	// Full the Information of this Test Data
+	single["info"]=spj_info;single["score"]=gain_score;
+	return single;
+}
+
 // Main Function
 Json::Value config; Json::Reader reader;
+bool accepted[100010];
 int main(int argc,char** argv) {
 	// Creating Daemon Processor
 	// if(daemon(1,0)<0) return_error("Failed to create daemon process.");
 	// system("ls");
-	// int a,b;
-	// run_code("ulimit -s",a,b,1000,1000); return 0;
- 
+
 	// Updating Working Directory
 	#ifdef __linux__
 	int res=chdir("/etc/judge");
 	#elif _WIN32
 	int res=SetCurrentDirectory("C://judge");
 	#endif
+	int x=system("sudo chmod 0777 ./tmp -R");
 	
 	// Reading Judger Configure
 	ifstream fin("./config.json");
@@ -730,6 +874,9 @@ int main(int argc,char** argv) {
 						cache["mysql-passwd"].asString().c_str(),cache["mysql-database"].asString().c_str(),
 						cache["mysql-port"].asInt());
 	// The Main Processor to Monitor the Database
+		
+	judge=config;
+	
     while (1) {
     	// Querying Waited Judge Program
     	#ifdef __linux__
@@ -739,8 +886,6 @@ int main(int argc,char** argv) {
     	#endif
         mysqld ress=mysqli_query(conn,"SELECT * FROM status WHERE judged=0 LIMIT 1");
 		if (ress.size()==0) continue;
-		
-		Json::Value judge=config;
 		
 		// Judging Submitted Program
 //		cout<<result.res<<endl;
@@ -833,7 +978,6 @@ int main(int argc,char** argv) {
 			
 			// Reading Problem Configure.
 			Json::Reader reader;
-			Json::Value val;
 			ifstream fin(("./problem/"+IntToString(pid)+"/config.json").c_str());
 			
 			// Failed to Open the Problem Configure
@@ -880,8 +1024,9 @@ int main(int argc,char** argv) {
 			if (!pid) ;
 			// New Special Judger
 			else if (val["spj"]["type"].asInt()==0) {
-				return_info(("Compiling special judge from status id #"+IntToString(id)).c_str());
-				__chdir(("./problem/"+to_string(pid)).c_str()); string info_string2="";
+				return_info(("Compiling special judge from status id #"+IntToString(id)).c_str()); string info_string2="";
+				retcode=system2(("cp ./spjtemp/testlib.h ./problem/"+to_string(pid)+"/testlib.h").c_str(),info_string2);
+				__chdir(("./problem/"+to_string(pid)).c_str());
 				retcode=system2((val["spj"]["compile_cmd"].asString()).c_str(),info_string2);
 				if (retcode) {
 					Json::Value res;
@@ -936,7 +1081,7 @@ int main(int argc,char** argv) {
 			if (pid==0) {
 			    mysqli_execute(conn,("UPDATE status SET status='Running...' WHERE id="+to_string(id)).c_str());
 				ofstream fout("./tmp/test.in");
-				Json::Value ide;int t,m;
+				Json::Value ide;long long t,m;
 				reader.parse(ideinfo,ide);
 				fout<<ide["input"].asString();fout.close();
 				__chdir("./tmp");
@@ -972,146 +1117,47 @@ int main(int argc,char** argv) {
 
 			// Judging Program
 			res["compile_info"]=info_string;int sum_t=0,max_m=0;
-			for (int i=0;i<val["data"].size();i++) {
-				return_info(("Running on Test #"+to_string(i+1)+"...").c_str());
-				Json::Value single;
-				
+			vector<int> Taskids[100010];
+			for (int i=0;i<val["data"].size();i++) Taskids[val["data"][i]["subtask"].asInt()].push_back(i);
+			int testnum=0; for (int i=0;i<=1e5;i++) accepted[i]=1;
+			for (int i=0;i<Taskids[0].size();i++) {
+				++testnum; return_info(("Running on Test "+to_string(testnum)+"...").c_str());
 				// Update Judging State
-				mysqli_execute(conn,("UPDATE status SET status='Running on Test "+to_string(i+1)+"...' WHERE id="+to_string(id)).c_str());
-				
-				// Copy Test Data
-				#ifdef __linux__
-				int retc=system2(("cp \"./problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()+"\" \""+
-				"./tmp/"+val["input"].asString()+"\"").c_str(),garbage);
-				#elif _WIN32
-				int retc=system2(("copy \"problem\\"+IntToString(pid)+"\\"+val["data"][i]["input"].asString()+"\" \""+
-				"tmp\\"+val["input"].asString()+"\" /Y").c_str(),garbage);
-				#endif
-				if (retc) {
-					return_error(("Failed to copy input file in problem #"+IntToString(pid)).c_str(),false);
-					return_error(("Error file name: "+val["data"][i]["input"].asString()+"/"+
-					val["data"][i]["output"].asString()).c_str(),false);
-					return_error(garbage.c_str(),false);
-					return_error(to_string(retc).c_str(),false);
-					continue;
-				}
-				
-				// Remove Exist Output File
-				ofstream tmpout(("./tmp/"+val["output"].asString()).c_str()); tmpout.close();
-				int x=system(("chmod 0777 ./tmp/"+val["output"].asString()).c_str());
-
-				// Update Working Directory
-				__chdir("./tmp/");
-				int t=0,m=0,ret; string command=judge["lang"][lang]["exec_command"].asString();
-				string extra_command="";
-				ret=run_code(command.c_str(),t,m,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),
-				false,val["input"].asString()=="stdin",val["output"].asString()=="stdout");
-				
-				// Update Working Directory
-				__chdir("../");
-				
-				// When Exited Abnormally
-				if (ret) {
-					single["time"]=t;single["memory"]=m;
-					sum_t+=t,max_m=max(max_m,m);
-					
-					// Update the Whole Judging State
-					if (!state) state=ret;
-					
-					// Analyse Exited Reason and Full JSON Object
-					switch (ret) {
-						case 2: single["state"]="Time Limited Exceeded",single["info"]="Time Limited Exceeded";break;
-						case 3: single["state"]="Memory Limited Exceeded",single["info"]="Memory Limited Exceeded";break;
-						case 4: single["state"]="Runtime Error",
-						single["info"]="Runtime Error | "+analysis_reason(runtime_error_reason);break;
-						default: single["state"]="Unknown Error",single["info"]="Unknown Error";break;
-					} single["score"]=0;
-					return_info(single["info"].asString().c_str());
-					// if (ret==2){info.append(single);break;}
-					
-					// Append Result to the whole JSON Object
-					info.append(single);
-					continue;
-				}
-				
-				// When Exited Normally
-				single["time"]=t,single["memory"]=m;
-				sum_t+=t,max_m=max(max_m,m);
-				
-				// Remove Exist Garbase
-				tmpout.open("./tmp/score.txt");tmpout.close();
-				tmpout.open("./tmp/info.txt");
-				
-				// Gain the Absolute Path for some File
-				string inputpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["input"].asString()).c_str());
-				string outputpath=getpath(("./tmp/"+val["output"].asString()).c_str());
-				string answerpath=getpath(("./problem/"+IntToString(pid)+"/"+val["data"][i]["output"].asString()).c_str());
-				string resultpath=getpath("./tmp/score.txt"),infopath=getpath("./tmp/info.txt");
-				string sourcepath=getpath(("./tmp/"+judge["lang"][lang]["source_path"].asString()).c_str());int spjt,spjm;
-				
-				// Update Working Directory
-				__chdir("./tmp");
-				
-				// Running Special Judger
-				#ifdef __linux__
-				ret=run_code(("./spj "+inputpath+" "+outputpath+" "+answerpath+" "+
-				val["data"][i]["score"].asString()+" "+resultpath+" "+infopath+" "+sourcepath+" "+
-				val["spj"]["exec_param"].asString()).c_str(),
-				spjt,spjm,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),true);
-				#elif _WIN32
-				ret=run_code(("spj.exe "+inputpath+" "+outputpath+" "+answerpath+" "+
-				val["data"][i]["score"].asString()+" "+resultpath+" "+infopath+" "+
-				val["spj"]["exec_param"].asString()).c_str(),
-				spjt,spjm,val["data"][i]["time"].asInt(),val["data"][i]["memory"].asInt(),true);
-				#endif
-				
-				// Update Working Directory
-				__chdir("../");
-				
-				// When SPJ Exited Abnormally
-				if (ret) {
-					single["time"]=spjt+t;single["memory"]=spjm+m;
-					sum_t+=spjt+t,max_m=max(max_m,spjm+m);
-					
-					// Update the Whole State
-					if (!state) state=ret;
-					
-					// Analyse Exited Reason and Full JSON Object
-					switch (ret) {
-						case 2: single["state"]="Time Limited Exceeded",single["info"]="Special Judge Time Limited Exceeded";break;
-						case 3: single["state"]="Memory Limited Exceeded",single["info"]="Special Judge Memory Limited Exceeded";break;
-						case 4: single["state"]="Runtime Error",
-						single["info"]="Runtime Error | Special Judge "+analysis_reason(runtime_error_reason);break;
-						default: single["state"]="Unknown Error",single["info"]="Special Judge Unknown Error";break;
-					} single["score"]=0;
-					return_info(single["info"].asString().c_str());
-					
-					// Append Result to the whole JSON Object
-					info.append(single);
-					continue;
-				}
-				
-				// Read Score and Judger Info
-				int gain_score=0;ifstream scorein("./tmp/score.txt");
-				scorein>>gain_score;scorein.close();
-				string spj_info="";ifstream infoin("./tmp/info.txt");
-				while (!infoin.eof()) {
-					string input;getline(infoin,input);
-					spj_info+=input+"\n";
-				} infoin.close();
-				
-				// Analyse Result and Full JSON Object
-				int now_state=0; 
-				if (gain_score>=val["data"][i]["score"].asInt()) return_info("Accepted | OK!"),single["state"]="Accepted",now_state=0;
-				else if (gain_score==0) return_info("Wrong Answer!"),single["state"]="Wrong Answer",now_state=1;
-				else now_state=7,return_info(("Partially Correct, Gain "+to_string(gain_score)+"/"+
-				val["data"][i]["score"].asString()+"!").c_str()),single["state"]="Partially Correct";
-				
-				// Update the Whole State
+				long long st=clock2();
+				mysqli_execute(conn,("UPDATE status SET status='Running on Test "+to_string(testnum)+"...' WHERE id="+to_string(id)).c_str());
+				Json::Value status; int now_state; int t,m;
+				status=judge_data(pid,Taskids[0][i],lang,now_state,t,m);
+				sum_t+=t; max_m=max(max_m,m);
+				if (now_state==-1) continue;
 				if (!state) state=now_state;
-				
-				// Full the Information of this Test Data
-				single["info"]=spj_info;single["score"]=gain_score;info.append(single);
+				info.append(status);
+			} int depend_pt=-1;
+			for (int i=1;i<=1e5;i++) {
+				if (Taskids[i].size()!=0) depend_pt++;
+				for (int j=0;j<Taskids[i].size();j++) {
+					int dataid=Taskids[i][j];
+					++testnum; return_info(("Running on Test "+to_string(testnum)+"...").c_str());
+					// Update Judging State
+					mysqli_execute(conn,("UPDATE status SET status='Running on Test "+to_string(testnum)+"...' WHERE id="+to_string(id)).c_str());
+					bool depend=true;
+					for (int k=0;depend_pt<val["subtask_depend"].size()&&k<val["subtask_depend"][depend_pt].size();k++) 
+						if (!accepted[val["subtask_depend"][depend_pt][k].asInt()]) depend=false;
+					if (!accepted[i]||!depend) {
+						return_info("Skipped!");
+						Json::Value status;
+						status["time"]=status["memory"]=status["score"]=0;
+						status["state"]="Skipped";status["info"]="Skipped!";
+						info.append(status);
+						continue;
+					} mysqli_execute(conn,("UPDATE status SET status='Running on Test "+to_string(testnum)+"...' WHERE id="+to_string(id)).c_str());
+					Json::Value status; int now_state; int t,m;
+					status=judge_data(pid,dataid,lang,now_state,t,m);
+					sum_t+=t; max_m=max(max_m,m);
+					if (now_state==-1) continue;
+					if (!state) state=now_state;
+					if (now_state!=0) accepted[i]=false;
+					info.append(status);
+				}
 			}
 			
 			// When There are no Test Data
@@ -1138,8 +1184,5 @@ int main(int argc,char** argv) {
 			"judged=1,status='"+res["result"].asString()+"'"+
 			"WHERE id="+to_string(id)).c_str());
 		} 
-		// if (NULL!=result.res) mysql_free_result(result.res);
-		// result.res=NULL;
-		continue;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 function GetFormatStatus(string $status,bool $full,string $style):string {
     $icon="";$name=""; 
-    if (strpos($status,"Running on Test")===FALSE) {
+    if (strpos($status,"Running")===FALSE) {
         switch($status) {
             case "Compiling...":$icon="spinner";break;
             case "Accepted":$icon="check";break;
@@ -11,6 +11,7 @@ function GetFormatStatus(string $status,bool $full,string $style):string {
             case "Memory Limited Exceeded":$icon="database";break;
             case "Runtime Error":$icon="bomb";break;
             case "Compile Error":$icon="code";break;
+            case "Skipped":$icon="fast forward";break;
             default:$icon="question circle outline";break;
         }; switch($status) {
             case "Compiling...":$name="compiling";break;
@@ -21,11 +22,12 @@ function GetFormatStatus(string $status,bool $full,string $style):string {
             case "Memory Limited Exceeded":$name="memory-limited-exceeded";break;
             case "Runtime Error":$name="runtime-error";break;
             case "Compile Error":$name="compile-error";break;
+            case "Skipped":$name="skipped";break;
             default:$name="default";break;
         };
     } else {$icon="spinner";$name="compiling";}
     return InsertTags("p",array("class"=>$name.($full?"-full":"")." transition","style"=>$style),
-    InsertTags("i",array("class"=>"$icon icon"),"").$status);
+    InsertTags("i",array("class"=>"icon $icon"),"").$status);
 }
 
 function InitStatus():string {
@@ -38,6 +40,7 @@ function InitStatus():string {
     $ret.=InsertCssStyle(array(".compiling:hover"),array("color"=>"#6cf"));
     $ret.=InsertCssStyle(array(".compile-error:hover"),array("color"=>"rgb(0,68,136)"));
     $ret.=InsertCssStyle(array(".default:hover"),array("color"=>"pink"));
+    $ret.=InsertCssStyle(array(".skipped:hover"),array("color"=>"rgb(180,204,216)"));
     $ret.=InsertCssStyle(array(".accepted-full"),array("color"=>"rgb(36,140,36)"));
     $ret.=InsertCssStyle(array(".wrong-answer-full"),array("color"=>"rgb(255,0,0)"));
     $ret.=InsertCssStyle(array(".time-limited-exceeded-full"),array("color"=>"rgb(244,164,96);"));
@@ -46,6 +49,8 @@ function InitStatus():string {
     $ret.=InsertCssStyle(array(".compiling-full"),array("color"=>"#6cf"));
     $ret.=InsertCssStyle(array(".compile-error-full"),array("color"=>"rgb(0,68,136)"));
     $ret.=InsertCssStyle(array(".default-full"),array("color"=>"pink"));
+    $ret.=InsertCssStyle(array(".skipped-full"),array("color"=>"rgb(180,204,216)"));
+    $ret.=InsertCssStyle(array(".fast"),array("font-size"=>"0.8em!important"));
     $ret.=InsertCssStyle(array(".testcase"),array(
         "width"=>"calc( 100% - 10px )",
         "height"=>"45px",
@@ -67,6 +72,7 @@ function InitStatus():string {
     $ret.=InsertCssStyle(array(".testcase:hover > .runtime-error"),array("color"=>"rgb(153,50,204);"));
     $ret.=InsertCssStyle(array(".testcase:hover > .compiling"),array("color"=>"#6cf"));
     $ret.=InsertCssStyle(array(".testcase:hover > .compile-error"),array("color"=>"rgb(0,68,136)"));
+    $ret.=InsertCssStyle(array(".testcase:hover > .skipped"),array("color"=>"rgb(180,204,216)"));
     $ret.=InsertCssStyle(array(".testcase:hover > .default"),array("color"=>"pink"));
     $ret.="@keyframes circle{from{transform:rotate(0);}to{transform:rotate(360deg);}}";
     $ret.=InsertCssStyle(array(".spinner"),array("animation"=>"circle 1s infinite linear","transform-origin"=>"center 50%"));
@@ -84,11 +90,6 @@ function JudgeStatus(string $status):bool {
         case "Partially Correct":return true;break;
         default:return false;break;
     };
-}
-
-function MakeOptions():string {
-    $status=array("Accepted","Wrong Answer","Compile Error","Time Limited Exceeded","Memory Limited Exceeded","Runtime Error","Partially Correct");
-    
 }
 
 function run(array $param,string &$html,string &$body):void {
@@ -240,7 +241,7 @@ function info_run(array $param,string &$html,string &$body):void {
         "align-items"=>"center"
     ))),$header);
     $uid=$login_controller->CheckLogin();
-    $json=json_decode($info["result"],true); $script="";
+    $json=json_decode($info["result"],true); $script=""; $style="";
     if ($uid==$info["uid"]||($uid!=0&&$user_controller->GetWholeUserInfo($uid)["permission"]>=2)) {
         $style=InsertCssStyle(array("code ul"),array(
             "list-style"=>"decimal",
@@ -257,10 +258,8 @@ function info_run(array $param,string &$html,string &$body):void {
             "background-color"=>"rgb(245,245,245)!important",
             "font-size"=>"15px"
         )).InsertCssStyle(array("code li:nth-of-type(even)"),array(
-            // "background-color"=>"#e8e8e8!important",
             "color"=>"inherit"
-        )); $body.=InsertTags("style",null,$style);
-        $tmp=$info["code"]; $tmp=str_replace("\\","\\\\",$tmp); $tmp=str_replace("'","\\'",$tmp);
+        )); $tmp=$info["code"]; $tmp=str_replace("\\","\\\\",$tmp); $tmp=str_replace("'","\\'",$tmp);
         $tmp=str_replace("\n","\\n",$tmp); $tmp=str_replace("\r","",$tmp);
         $code=InsertTags("textarea",array("id"=>"code","style"=>InsertInlineCssStyle(array(
             "position"=>"absolute",
@@ -311,8 +310,8 @@ function info_run(array $param,string &$html,string &$body):void {
             "top"=>"-2px",
         ))),"rejudge");
         $tmp2.="&nbsp".InsertTags("div",array("style"=>InsertInlineCssStyle(array("display"=>"inline-block","font-size"=>"15px"))),
-        InsertTags("i",array("class"=>"clock icon"),"").round($json["time"]/1000,2)."s | ".InsertTags("i",array("class"=>"database icon"),"").
-        round($json["memory"]/1024,2)."mb"." | ".InsertTags("i",array("class"=>"code icon"),"").round(strlen($info["code"])/1024,2)."kb ".$config["lang"][$info["lang"]]["name"]).$code;
+        InsertTags("i",array("class"=>"clock icon"),"").InsertTags("pp",array("id"=>"all-time"),round($json["time"]/1000,2))."s | ".InsertTags("i",array("class"=>"database icon"),"").
+        InsertTags("pp",array("id"=>"all-memory"),round($json["memory"]/1024,2))."MB"." | ".InsertTags("i",array("class"=>"code icon"),"").round(strlen($info["code"])/1024,2)."kb ".$config["lang"][$info["lang"]]["name"]).$code;
         $body.=InsertTags("div",array("class"=>"default_main","style"=>InsertInlineCssStyle(array(
             "padding-top"=>"20px",
             "padding-bottom"=>"1px",
@@ -362,17 +361,40 @@ function info_run(array $param,string &$html,string &$body):void {
             $script.="document.getElementById('compile-info').innerHTML='$tmp';";
             $script.="hljs.highlightElement(document.getElementById('compile-info'));";
         }
-    }
+    } $pt=0; $style.=InsertCssStyle(array(".subtask"),array(
+        "overflow"=>"hidden",
+        "width"=>"calc(100% + 40px)",
+        "transition"=>"max-height 1s,opacity 1s"
+    )); $subtask=$problem_controller->GetSubtaskInfo($info["pid"]);
+    $time0=0; if (array_key_exists(0,$subtask)){$time0=$subtask[0];unset($subtask[0]);}
+    $script.="var subtaskHeight=new Array,subtaskNum=".count($subtask).";"; ksort($subtask);
     if (JudgeStatus($info["status"])&&$info["status"]!="Compile Error") {
-        for ($i=0;$i<count($json["info"]);$i++) {
-            $test=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Test&nbsp;Case&nbsp;#".($i+1));
+        $process=array(); $subtask_status=array(); $subtask_score=array();
+        $now=$time0; foreach($subtask as $key=>$value) {
+            $process[]=$now+1; $status="Accepted"; $score=0;
+            for ($i=$now;$i<$now+$value;$i++) {
+                if ($json["info"][$i]["state"]!="Accepted") {$status=$json["info"][$i]["state"]; $score=0; break;}
+                else $score+=intval($json["info"][$i]["score"]);
+            } $now+=$value; $subtask_status[]=$status; $subtask_score[]=$score;
+        } for ($i=0;$i<count($json["info"]);$i++) {
+            if ($i+1==$process[$pt]) { $pt++;
+                if ($pt!=1) $body.="</div>";
+                $test=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Subtask&nbsp;#$pt");
+                $test.=GetFormatStatus($subtask_status[$pt-1],false,InsertInlineCssStyle(array("width"=>"27%","height"=>"100%","line-height"=>"45px")));
+                $test.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Score: ".$subtask_score[$pt-1]);
+                $body.=InsertTags("div",array("class"=>"default_main flex testcase","onclick"=>"open_subtask('$pt')"),$test);
+                $body.="<div id='subtask$pt' style='opacity:1' class='subtask'>";
+            } $test=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Test&nbsp;Case&nbsp;#".($i+1));
             $test.=GetFormatStatus($json["info"][$i]["state"],false,InsertInlineCssStyle(array("width"=>"27%","height"=>"100%","line-height"=>"45px")));
             $test.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Score: ".$json["info"][$i]["score"]);
             $test.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Memory: ".
             ($json["info"][$i]["memory"]>1024?intval($json["info"][$i]["memory"]/1024)."MB":$json["info"][$i]["memory"]."KB"));
             $test.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"18%"))),"Time: ".$json["info"][$i]["time"]."ms");
-            $body.=InsertTags("div",array("class"=>"default_main flex testcase","onclick"=>"testinfo('".str_replace(" ","&nbsp",(str_replace("\n","",str_replace("'","\\'",$json["info"][$i]["info"]))))."')"),$test);    
-        }
+            $ok="margin-left:0px;calc(100% - 10px)"; $notok="margin-left:30px;width:calc(100% - 120px);top:0px;opacity:1";
+            $body.=InsertTags("div",array("class"=>($i>=$time0?"default_main2":"default_main")." flex testcase","onclick"=>"testinfo('".str_replace(" ","&nbsp",(str_replace("\n","",str_replace("'","\\'",$json["info"][$i]["info"]))))."')",
+            "style"=>$i>=$time0?$notok:$ok),$test);
+        } if ($pt!=0) $body.="</div>";
+        $script.="calc_height(subtaskNum);";
     } 
     if (!JudgeStatus($info["status"])) {
         $script.="function JudgeStatus(status){";
@@ -385,11 +407,12 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="case \"Memory Limited Exceeded\":return true;break;";
         $script.="case \"Runtime Error\":return true;break;";
         $script.="case \"Partially Correct\":return true;break;";
+        $script.="case \"Skipped\":return true;break;";
         $script.="default:return false;break;";
         $script.="};}";
         $script.="function GetFormatStatus(status,full,style) {";
         $script.="icon=\"\";name=\"\"; ";
-        $script.="if (status.indexOf(\"Running on Test\")) {";
+        $script.="if (status.indexOf(\"Running\")) {";
         $script.="switch(status) {";
         $script.="case \"Compiling...\":icon=\"spinner\";break;";
         $script.="case \"Accepted\":icon=\"check\";break;";
@@ -399,6 +422,7 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="case \"Memory Limited Exceeded\":icon=\"database\";break;";
         $script.="case \"Runtime Error\":icon=\"bomb\";break;";
         $script.="case \"Compile Error\":icon=\"code\";break;";
+        $script.="case \"Skipped\":icon=\"fast forward\";break;";
         $script.="default:icon=\"question circle outline\";break;";
         $script.="}; switch(status) {";
         $script.="case \"Compiling...\":name=\"compiling\";break;";
@@ -409,11 +433,12 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="case \"Memory Limited Exceeded\":name=\"memory-limited-exceeded\";break;";
         $script.="case \"Runtime Error\":name=\"runtime-error\";break;";
         $script.="case \"Compile Error\":name=\"compile-error\";break;";
+        $script.="case \"Skipped\":name=\"skipped\";break;";
         $script.="default:name=\"default\";break;";
         $script.="};";
         $script.="} else {icon=\"spinner\";name=\"compiling\";}";
         $script.="return \"<p class='\"+name+(full?\"-full\":\"\")+\" transition' style='\"+(style==undefined?\"\":style)+\"'>".
-        "<i class='\"+icon+\" icon'></i>\"+status+\"</p>\"";
+        "<i class='icon \"+icon+\"'></i>\"+status+\"</p>\"";
         $script.="}";
         $script.="function HTMLEncode(html) {";
         $script.="var temp=document.createElement('div');";
@@ -423,6 +448,9 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="return output;";
         $script.="}";
         $script.="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";
+
+        $script.="var time0=$time0,process=new Array,subtask=new Array;";
+        $pt=0; foreach($subtask as $key=>$value){$script.="process[$pt]=$value;";$pt++;}
         $script.="var eid=setInterval(function(){";
         $script.="var info=SendAjax(\"".GetAPIUrl("/status/info",array("id"=>$param["id"]))."\",\"GET\",null);";
         $script.="if (info==null) {alert('Fetch status failed!'); clearInterval(eid); return false;}";
@@ -435,24 +463,52 @@ function info_run(array $param,string &$html,string &$body):void {
         $script.="'<div class=\"default_main\" style=\"padding:20px 10px 1px;width:100%;background-color:".
         "white;margin-bottom:20px;opacity:1;top:0px;\"><hp style=\"padding-bottom:40px;padding-left:20px;".
         "padding-right:20px;\">Compile Info</hp><pre><code class=\"language-cpp hljs\" id=\"compile-info\" style=\"background-color:white;".
-        "tab-size:4;border:1px solid;border-color:#e8e8e8;border-radius:5px;\">'+HTMLEncode(json[\"compile_info\"])+'</code></pre></div>'";
-        $script.="} if (json[\"info\"]!=undefined) ";
-        $script.="for (i=0;i<json[\"info\"].length;i++) {";
-        $script.="var tmp='<p style=\"width:18%\">Test&nbsp;Case&nbsp;#'+(i+1)+'</p>';";
-        $script.="tmp+=GetFormatStatus(json['info'][i]['state'],false,'width:27%;height:100%;line-height:45px');";
-        $script.="tmp+='<p style=\"width:18%\">Score: '+json['info'][i]['score']+'</p>';";
-        $script.="tmp+='<p style=\"width:18%\">Memory: '+(json['info'][i]['memory']>1024?((json['info'][i]['memory']/1024)|0)+\"MB\":json['info'][i]['memory']+\"KB\")+'</p>';";
-        $script.="tmp+='<p style=\"width:18%\">Time: '+json['info'][i]['time']+'ms</p>';";
+        "tab-size:4;border:1px solid;border-color:#e8e8e8;border-radius:5px;\">'+HTMLEncode(json[\"compile_info\"])+'</code></pre></div>';";
+        $script.="hljs.highlightElement(document.getElementById('compile-info')); } var pt=0; if (json[\"info\"]!=undefined){";
+        $script.="subtask_status=new Array;subtask_score=new Array;";
+        $script.="var lst=time0; for (i=0;i<process.length;i++) {";
+        $script.="subtask[i]=lst+1; lst+=process[i]; var status='Accepted',score=0;";
+        $script.="for (j=subtask[i]-1;j<lst;j++) if (json[\"info\"][j][\"state\"]!='Accepted') {";
+        $script.="status=json['info'][j]['state'];score=0;break;} else score+=Number(json[\"info\"][j][\"score\"]);";
+        $script.="subtask_status.push(status);subtask_score.push(score);";
+        $script.="} var tmp=\"\"; for (i=0;i<json[\"info\"].length;i++) { ";
+        $script.="if (i+1==subtask[pt]) {pt++; document.getElementById('main').innerHTML+=tmp+(pt==1?'':\"</div>\");";
+        $script.="var test='<p style=\"width:18%\">Subtask&nbsp;#'+pt+'</p>';";
+        $script.="test+=GetFormatStatus(subtask_status[pt-1],false,'width:27%;height:100%;line-height:45px');";
+        $script.="test+='<p style=\"width:18%\">Score: '+subtask_score[pt-1]+'</p>';";
+        $script.="document.getElementById('main').innerHTML+='<div class=\"default_main flex testcase\" onclick=\"open_subtask('+pt+')\" style=\"opacity:1;top:0px\">'+test+'</div>';";
+        $script.="tmp='<div id=\"subtask'+pt+'\" style=\"opacity:1\" class=\"subtask\">'};";
+        $script.="var tmp2='<p style=\"width:18%\">Test&nbsp;Case&nbsp;#'+(i+1)+'</p>';";
+        $script.="tmp2+=GetFormatStatus(json['info'][i]['state'],false,'width:27%;height:100%;line-height:45px');";
+        $script.="tmp2+='<p style=\"width:18%\">Score: '+json['info'][i]['score']+'</p>';";
+        $script.="tmp2+='<p style=\"width:18%\">Memory: '+(json['info'][i]['memory']>1024?((json['info'][i]['memory']/1024)|0)+\"MB\":json['info'][i]['memory']+\"KB\")+'</p>';";
+        $script.="tmp2+='<p style=\"width:18%\">Time: '+json['info'][i]['time']+'ms</p>';";
         $script.="testinfo1=json['info'][i]['info']; testinfo1=testinfo1.replace(/[\\n\\r]/g,'');";
         $script.="testinfo1=testinfo1.replace(/'/g,\"\\\\'\"); console.log(testinfo1);";
-        $script.="document.getElementById('main').innerHTML+='<div class=\"default_main flex testcase\" onclick=\"testinfo(\''";
-        $script.="+testinfo1+'\')\" style=\"opacity:1;top:0px;\">'+tmp+'</div>';";
-        $script.="} clearInterval(eid); hljs.highlightElement(document.getElementById('compile-info'));";
-        $script.="}},1000);";
+        $script.="var ok='margin-left:0px;width:calc(100% - 10px);opacity:1;top:0px;'; var notok='margin-left:30px;width:calc(100% - 120px);top:0px;opacity:1';";
+        $script.="tmp+='<div class=\"default_main flex testcase\" onclick=\"testinfo(\''";
+        $script.="+testinfo1+'\')\" style=\"'+(i>=time0?notok:ok)+'\">'+tmp2+'</div>';";
+        $script.="} document.getElementById('main').innerHTML+=tmp+(pt==0?'':'</div>');";
+        $script.="document.getElementById('all-memory').innerHTML=Math.round(json['memory']/1024*100)/100;calc_height(subtaskNum);";
+        $script.="document.getElementById('all-time').innerHTML=Math.round(json['time']/1000*100)/100;clearInterval(eid); ";
+        $script.="}}},1000);";
     }
     $script.="var elem=document.getElementsByTagName('code');".
     "for (i=0;i<elem.length;i++){var elem2=elem[i].getElementsByTagName('li');".
     "for (j=0;j<elem2.length;j++) hljs.highlightElement(elem2[j]);}";
+    $script.="function calc_height(n){";
+    $script.="for (var i=1;i<=n;i++){subtaskHeight[i]=document.getElementById('subtask'+i).offsetHeight;";
+    $script.="open_subtask(i);";
+    $script.="}} function open_subtask(id){ console.log(document.getElementById('subtask'+id).style.opacity);";
+    $script.="if (document.getElementById('subtask'+id).style.opacity==0){closeAll(subtaskNum,id);";
+    $script.="document.getElementById('subtask'+id).style.opacity=1;";
+    $script.="document.getElementById('subtask'+id).style.maxHeight=subtaskHeight[id]+'px';}else{";
+    $script.="document.getElementById('subtask'+id).style.opacity=0;";
+    $script.="document.getElementById('subtask'+id).style.maxHeight='0px';}}";
+    $script.="function closeAll(n,id){for (i=1;i<=n;i++) if (i!=id) {";
+    $script.="document.getElementById('subtask'+i).style.opacity=0;";
+    $script.="document.getElementById('subtask'+i).style.maxHeight='0px';}}";
+    $body.=InsertTags("style",null,$style);
     $body.=InsertTags("script",null,$script);
 }
 ?>

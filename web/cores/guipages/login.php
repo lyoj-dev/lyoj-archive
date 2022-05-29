@@ -14,7 +14,7 @@ function run(array $param,string& $html,string& $body):void {
     if ($login_controller->CheckLogin()) {
         $user_controller=new User_Controller;
         $info=$user_controller->GetWholeUserInfo($login_controller->CheckLogin());
-        $script="alert(\"Have sign in as account '".$info["name"]."'\");";
+        $script="alert(\"Have signed in as account '".$info["name"]."'\");";
         $script.="window.location.href=\"".($param["return"]!=""?$param["return"]:$_COOKIE["history"])."\";";
         $body.=InsertTags("script",null,$script);
         return;
@@ -42,7 +42,7 @@ function run(array $param,string& $html,string& $body):void {
         "margin-bottom"=>"20px",
         "width"=>"40%",
         "margin"=>"auto"
-    ))),$login.InsertTags("a",array("href"=>GetUrl("register",null)),"Haven't an account? Register one!").
+    ))),$login.InsertTags("a",array("href"=>GetUrl("register",null)),"Don't have an account? Register one!").
     InsertSingleTag("br",null).
     InsertTags("a",array("href"=>GetUrl("passwd",null)),"Forget your password? Reset it!"));
     $script="function strip_tags_pre(msg){msg=msg.replace(/<(\/)?pre[^>]*>/g,'');return msg;}";

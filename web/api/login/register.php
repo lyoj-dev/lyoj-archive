@@ -10,6 +10,5 @@
     if ($uid==-2) $api_controller->error_email_used($_POST["email"]);
     if ($uid==-1) $api_controller->error_system_crashed();
     $user=$user_controller->GetWholeUserInfo($uid);
-    $user=array("user"=>$user);$user=array_merge($user,$array);
     $api_controller->output($user);
 ?>

@@ -10,10 +10,10 @@
     if (!$login_controller->CheckLogin()) $api_controller->error_login_failed();
     $uid=$login_controller->GetLoginID(); 
     $pid=$_POST["pid"]; $lang=$_POST["lang"]; $code=$_POST["code"];
-    $sid=$status_controller->Submit($lang,$code,$uid,$pid);
+    $cid=0; if (array_key_exists("cid",$_POST)) $cid=intval($_POST["cid"]);
+    $sid=$status_controller->Submit($lang,$code,$uid,$pid,$cid);
     $api_controller->output(array(
         "id"=>$sid,
-        "problem"=>$problem_controller->OutputAPIInfo($pid),
         "lang"=>$config["lang"][$lang],
         "code"=>htmlentities($code)
     ));

@@ -1,14 +1,14 @@
 <?php
 function GetFormatStatus(string $status,bool $full,string $style):string {
     $icon="";$name=""; 
-    if (strpos($status,"Running on Test")===FALSE) {
+    if (strpos($status,"Running")===FALSE) {
         switch($status) {
             case "Compiling...":$icon="spinner";break;
             case "Accepted":$icon="check";break;
             case "Submitted":$icon="check";break;
             case "Wrong Answer":$icon="x";break;
             case "Time Limited Exceeded":$icon="clock";break;
-            case "Memory Limited Exceeded":$icon="microchip";break;
+            case "Memory Limited Exceeded":$icon="database";break;
             case "Runtime Error":$icon="bomb";break;
             case "Compile Error":$icon="code";break;
             default:$icon="question circle outline";break;
@@ -98,7 +98,7 @@ function run(array $param,string& $html,string& $body):void {
     $pages_num=intval($pages_num);
     if ($page<=0||$page>$pages_num) $page=1; 
     $contest_list=$contest_controller->GetContest
-    (($page-1)*$config["number_of_pages"]+1,$page*$config["number_of_pages"]);
+    (($page-1)*$config["number_of_pages"]+1,$page*$config["number_of_pages"],false,"starttime DESC");
     $style=InsertCssStyle(array(".contest-item"),array(
         "width"=>"100%",
         "min-height"=>"50px",
@@ -122,7 +122,17 @@ function run(array $param,string& $html,string& $body):void {
         "display"=>"inline-block",
         "cursor"=>"pointer"
     )); for ($i=0;$i<count($contest_list);$i++) {
-        $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".$contest_list[$i]["id"]);
+        $color=""; $word="";
+        if (time()<$contest_list[$i]["starttime"]){$color="green";$word="Not start";}
+        else if (time()<=$contest_list[$i]["starttime"]+$contest_list[$i]["duration"]){$color="blue";$word="Running";}
+        else {$color="red";$word="Finished";}
+        $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array(
+            "margin-left"=>"1%",
+            "width"=>"9%",
+            "font-weight"=>"500",
+            "color"=>$color,
+            "cursor"=>"pointer"
+        ))),$word);
         $tmp.=InsertTags("p",array(
             "style"=>InsertInlineCssStyle(array("width"=>"37%","cursor"=>"pointer")),
             "onclick"=>"location.href='".GetUrl("contest",array(
@@ -189,9 +199,9 @@ function info_run(array $param,string& $html,string& $body):void {
     $problem_controller=new Problem_Controller;
     $tags_controller=new Tags_Controller;
     $status_controller=new Status_Controller;
+    Contest_Controller::JudgeContestExist($param["id"]);
     $info=$contest_controller->GetContest($param["id"],$param["id"])[0];
-    if ($info==null) Error_Controller::Common("Unknown contest id");
-    $info_res="Time: ".date("m:d H:i",$info["starttime"])." ~ ".date("m:d H:i",$info["starttime"]+$info["duration"])." | ".
+    $info_res="Time: ".date("m-d H:i",$info["starttime"])." ~ ".date("m-d H:i",$info["starttime"]+$info["duration"])." | ".
     "Signup: ".$contest_controller->GetContestSignupNumber($param["id"])." | Problems: ".count($info["problem"]);
     $title=InsertTags("hp",array("style"=>InsertInlineCssStyle(array(
         "padding-left"=>"20px",
@@ -274,10 +284,10 @@ function info_run(array $param,string& $html,string& $body):void {
         "border-color"=>"rgb(27,116,221)"
     )); $body.=InsertTags("style",null,$style);
 
-    $timeline=InsertTags("p",null,date("m:d H:i",$info["starttime"])."&nbsp;&nbsp;");
+    $timeline=InsertTags("p",null,date("m-d H:i",$info["starttime"])."&nbsp;&nbsp;");
     $timeline.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("flex-grow"=>"2000","background-color"=>"lightgrey","height"=>"10px","border-radius"=>"10px"))),
     InsertTags("p",array("id"=>"time","style"=>InsertInlineCssStyle(array("background-color"=>"orange","height"=>"10px","border-radius"=>"10px","width"=>"0%"))),"")).
-    InsertTags("p",null,"&nbsp;&nbsp;".date("m:d H:i",$info["starttime"]+$info["duration"]));
+    InsertTags("p",null,"&nbsp;&nbsp;".date("m-d H:i",$info["starttime"]+$info["duration"]));
     $body.=InsertTags("div",array("class"=>"flex default_main","style"=>InsertInlineCssStyle(array(
         "padding-top"=>"10px",
         "margin-bottom"=>"20px",
@@ -323,8 +333,10 @@ function info_run(array $param,string& $html,string& $body):void {
             if (!(($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1||
             ($info["starttime"]<=time()&&$contest_controller->JudgeSignup($param["id"]))))||$info["starttime"]+$info["duration"]<=time())) 
             Error_Controller::Common("Permission denied");
+            $open=0; if ($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1)) $open=1;
+            if ($info["starttime"]+$info["duration"]<time()) $open=1;
             for ($i=0;$i<count($info["problem"]);$i++) {
-                $problem=$problem_controller->ListProblemByPid($info["problem"][$i],true);
+                $problem=$problem_controller->ListProblemByPid($info["problem"][$i],false,$param["id"]);
                 if ($problem["accepted"]) $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%","cursor"=>"pointer"))),InsertTags("i",array("class"=>"check icon green"),null));
                 else $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"3%"))),InsertTags("i",array("class"=>"minus icon grey"),null));
                 $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"7%","cursor"=>"pointer")),
@@ -341,17 +353,18 @@ function info_run(array $param,string& $html,string& $body):void {
                     "class"=>"ellipsis"
                 ),$problem["name"]); $tags_content="";
                 $tags=$tags_controller->ListProblemTagsByPid($problem["id"]);
-                if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags"),$tags[$j]["tagname"]);
-                $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$tags_content);
+                if ($tags!=null) for ($j=0;$j<count($tags);$j++) $tags_content.=InsertTags("div",array("class"=>"problem-tags"),$tags[$j]);
+                $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"20%","padding-top"=>"12.5px","padding-bottom"=>"8.5px"))),$open?$tags_content:"");
                 $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"15%","text-align"=>"center"))),
-                InsertTags("div",array("class"=>"problem-difficulties-".$problem["difficult"],"style"=>InsertInlineCssStyle(array(
+                ($open?InsertTags("div",array("class"=>"problem-difficulties-".$problem["difficult"],"style"=>InsertInlineCssStyle(array(
                     "margin"=>"auto"
-                ))),$config["difficulties"][$problem["difficult"]]["name"]));
-                $accepted=count($status_controller->ListAcceptedByPid($problem["id"]));
-                $whole=count($status_controller->ListWholeByPid($problem["id"]));
-                $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>(10*$accepted/($whole?$whole:1))."%","height"=>"15px","background-color"=>"rgb(126,204,89)"))),"");
-                $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>(10-10*$accepted/($whole?$whole:1))."%","height"=>"15px","background-color"=>"rgb(232,232,232)"))),"");
-                $body.=InsertTags("div",array(
+                ))),$config["difficulties"][$problem["difficult"]]["name"]):""));
+                if ($open) {
+                    $accepted=count($status_controller->ListAcceptedByPid($problem["id"]));
+                    $whole=count($status_controller->ListWholeByPid($problem["id"]));
+                    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>(10*$accepted/($whole?$whole:1))."%","height"=>"15px","background-color"=>"rgb(126,204,89)"))),"");
+                    $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>(10-10*$accepted/($whole?$whole:1))."%","height"=>"15px","background-color"=>"rgb(232,232,232)"))),"");
+                } $body.=InsertTags("div",array(
                     "class"=>"problem-item default_main flex",
                 ),$tmp);
             }
@@ -371,11 +384,11 @@ function info_run(array $param,string& $html,string& $body):void {
             $r=$param["num"]*$config["status_number"];
             $status=$contest_controller->GetContestSubmit($param["id"],$l,$r,$sum);
             for ($i=0;$i<count($status);$i++) {
-                $info=$status[$i];
-                $userinfo=$user_controller->GetWholeUserInfo($info["uid"]);
-                $probleminfo=$problem_controller->ListProblemByPid($info["pid"],true);
+                $info2=$status[$i];
+                $userinfo=$user_controller->GetWholeUserInfo($info2["uid"]);
+                $probleminfo=$problem_controller->ListProblemByPid($info2["pid"],true);
                 $header=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"10%","cursor"=>"pointer"))),
-                InsertTags("p",array("onclick"=>"location.href='".GetUrl("status",array("id"=>$info["id"]))."'"),"#".$info["id"]));
+                InsertTags("p",array("onclick"=>"location.href='".GetUrl("status",array("id"=>$info2["id"]))."'"),"#".$info2["id"]));
                 $header.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"15%","cursor"=>"pointer")),
                 "onclick"=>"location.href='".GetUrl("user",array(
                     "id"=>$userinfo["id"]
@@ -387,7 +400,7 @@ function info_run(array $param,string& $html,string& $body):void {
                     ))."'",
                     "class"=>"ellipsis"
                 ),$probleminfo["name"]);
-                $header.=InsertTags("div",array("id"=>"whole-status"),GetFormatStatus($info["status"],true,""));
+                $header.=InsertTags("div",array("id"=>"whole-status"),GetFormatStatus($info2["status"],true,""));
                 $body.=InsertTags("div",array("class"=>"default_main flex","style"=>InsertInlineCssStyle(array(
                     "width"=>"calc( 100% - 30px )",
                     "min-height"=>"50px",
@@ -408,7 +421,7 @@ function info_run(array $param,string& $html,string& $body):void {
                 "justify-content"=>"center",
                 "margin-top"=>"20px"
             ))),$content);
-        }break;
+        } break;
         case "ranking": {
             if (!(($uid&&($user_controller->GetWholeUserInfo($uid)["permission"]>1||
             ($info["starttime"]<=time()&&$contest_controller->JudgeSignup($param["id"]))))||$info["starttime"]+$info["duration"]<=time())) 
@@ -431,14 +444,15 @@ function info_run(array $param,string& $html,string& $body):void {
                 $id=0; for ($i=0;$i<=count($ranking);$i++) {
                     if ($ranking[$i]["uid"]==$uid){$id=$i; break;}
                 } $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#".($id+1));
-                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%","cursor"=>"pointer")),"onclick"=>"location.href='".GetUrl("user",array("id"=>$id))."'","class"=>"ellipsis"),$ranking[$id]["name"]);
+                $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%","cursor"=>"pointer")),"onclick"=>"location.href='".GetUrl("user",array("id"=>$ranking[$id]["uid"]))."'","class"=>"ellipsis"),$ranking[$id]["name"]);
                 $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),$ranking[$id]["score"]); 
-                $tmp2=intval($ranking[$id]["time"]/60);
+                if ($info["type"]!=0) {$time=intval($ranking[$id]["time"]/60);
                 $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),
-                (intval($tmp2/60)<10?"0".intval($tmp2/60):intval($tmp2/60)).":".($tmp2%60<10?"0".$tmp2%60:$tmp2%60));
+                (intval($time/60)<10?"0".intval($time/60):intval($time/60)).":".($time%60<10?"0".$time%60:$time%60));}
+                else $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),round($ranking[$id]["time"]/1000,2)."s");
                 for ($i=0;$i<count($info["problem"]);$i++) 
                     if ($ranking[$id]["info"][$i]["id"]!=0) $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
-                    InsertTags("p",array("onclick"=>"location.href=\"".GetUrl("status",array("id"=>$ranking[$id]["info"][$i]["id"]))."\""),$ranking[$id]["info"][$i]["score"]));
+                    InsertTags("p",array("onclick"=>"location.href='".GetUrl("status",array("id"=>$ranking[$id]["info"][$i]["id"]))."'"),$ranking[$id]["info"][$i]["score"]));
                     else $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
                     InsertTags("p",null,$ranking[$id]["info"][$i]["score"]));
                 $content.=InsertTags("div",array("class"=>"default_main flex problem-item"),$tmp);
@@ -450,13 +464,13 @@ function info_run(array $param,string& $html,string& $body):void {
                 $tmp=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"10%"))),"#$rank");
                 $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"20%","cursor"=>"pointer")),"onclick"=>"location.href='".GetUrl("user",array("id"=>$ranking[$i]["uid"]))."'","class"=>"ellipsis"),$ranking[$i]["name"]);
                 $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),$ranking[$i]["score"]); 
-                if ($type!=0) {$ranking[$i]["time"]=intval($ranking[$i]["time"]/60);
+                if ($type!=0) {$time=intval($ranking[$i]["time"]/60);
                 $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),
-                (intval($ranking[$i]["time"]/60)<10?"0".intval($ranking[$i]["time"]/60):intval($ranking[$i]["time"]/60)).":".($ranking[$i]["time"]%60<10?"0".$ranking[$i]["time"]%60:$ranking[$i]["time"]%60));}
+                (intval($time/60)<10?"0".intval($time/60):intval($time/60)).":".($time%60<10?"0".$time%60:$time%60));}
                 else $tmp.=InsertTags("p",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center"))),round($ranking[$i]["time"]/1000,2)."s");
                 for ($j=0;$j<count($info["problem"]);$j++) 
                     if ($ranking[$i]["info"][$j]["id"]!=0) $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
-                    InsertTags("p",array("onclick"=>"location.href=\"".GetUrl("status",array("id"=>$ranking[$i]["info"][$j]["id"]))."\""),$ranking[$i]["info"][$j]["score"]));
+                    InsertTags("p",array("onclick"=>"location.href='".GetUrl("status",array("id"=>$ranking[$i]["info"][$j]["id"]))."'"),$ranking[$i]["info"][$j]["score"]));
                     else $tmp.=InsertTags("div",array("style"=>InsertInlineCssStyle(array("width"=>"$percent%","text-align"=>"center","cursor"=>"pointer"))),
                     InsertTags("p",null,$ranking[$i]["info"][$j]["score"]));
                 $content.=InsertTags("div",array("class"=>"default_main flex problem-item"),$tmp);
@@ -470,11 +484,13 @@ function info_run(array $param,string& $html,string& $body):void {
             $content.=InsertTags("div",array("class"=>"pages","onclick"=>"location.href='".GetUrl("contest",array("id"=>$param["id"],"page"=>"ranking","num"=>$page_num))."'",
             "style"=>InsertInlineCssStyle(array("margin-left"=>"10px"))),InsertTags("p",null,"Bottom"));
             $body.=InsertTags("div",array("class"=>"flex","style"=>InsertInlineCssStyle(array(
-                "justify-content"=>"center"
+                "justify-content"=>"center","margin-top"=>"20px"
             ))),$content);
         }break;
     }
 
+    $info["starttime"]=intval($info["starttime"]);
+    $info["duration"]=intval($info["duration"]);
     $script.="var d=new Date(); var t=d.getTime()/1000;";
     $script.="if (t<=".$info["starttime"].") document.getElementById(\"time\").style.width=\"0%\";";
     $script.="else if (t>=".($info["starttime"]+$info["duration"]).") document.getElementById(\"time\").style.width=\"100%\";";
