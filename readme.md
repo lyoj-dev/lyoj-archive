@@ -1,3 +1,7 @@
+# This repository has moved to [https://github.com/lyoj-dev/lyoj](https://github.com/lyoj-dev/lyoj)
+
+# 该仓库已被迁移至 [https://github.com/lyoj-dev/lyoj](https://github.com/lyoj-dev/lyoj)
+
 <p align="center"><img src="https://cdn.jsdelivr.net/gh/LittleYang0531/image/lyoj/logo.png"></p>
 
 <p align="center">一个多平台的在线评测系统，使用 PHP 和 C++ 构建。</p>
